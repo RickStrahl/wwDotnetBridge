@@ -1,0 +1,1141 @@
+
+SET PROCEDURE TO wwDotNetBridge ADDITIVE
+*SET PROCEDURE TO WWUTILS ADDITIVE 
+
+*** Inside of WebConneciton use:
+* #DEFINE WWC_CLR_HOSTDLL wwipstuff.dll  
+
+#DEFINE WWC_CLR_HOSTDLL ClrHost.dll
+
+
+************************************************************************
+*  GetwwDotNetBridge
+****************************************
+***  Function: Factory class to feed a reusable and stored instance
+***            of the wwDotNetBridge class. 
+***    Assume:
+***      Pass:
+***    Return: 
+************************************************************************
+FUNCTION GetwwDotNetBridge(lcVersion)
+IF VARTYPE(__DOTNETBRIDGE) != "O"
+   lcVersion = ""
+   IF !IsDotNet("",@lcVersion) OR lcVersion < "V2"
+   	  RETURN .NULL.
+   ENDIF   
+   PUBLIC __DOTNETBRIDGE
+   __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
+ENDIF
+RETURN __DOTNETBRIDGE
+ENDFUNC
+
+
+*************************************************************
+DEFINE CLASS wwDotNetBridge AS Custom
+*************************************************************
+*: Author: Rick Strahl
+*:         (c) West Wind Technologies, 2007-2011
+*:Contact: http://www.west-wind.com
+*:Created: 07/01/2007
+*:Updated: 6/16/2011
+*************************************************************
+#IF .F.
+*:Help Documentation
+*:Topic:
+Class wwDotNetBridge
+
+*:Description:
+http://www.west-wind.com/webconnection/docs?page=_24n1cfw3a.htm
+
+*:Example:
+
+*:Remarks:
+
+*:SeeAlso:
+
+
+*:ENDHELP
+#ENDIF
+
+*** Custom Properties
+
+*** Stock Properties
+oDotNetBridge = null
+
+cErrorMsg  = ""
+lError = .f.
+
+oLastException = null
+FUNCTION oLastException_Access()
+   RETURN this.oDotNetBridge.LastException
+ENDFUNC
+
+*** Default CLR Version. Note: you can override
+*** this by specify V2,V4 in the Init() of the class
+cClrVersion = "v2.0.50727"
+lUseCom = .F.
+
+*** Don't set here: Use CREATEOBJECT("wwDotNetBridge","V4")
+*cClrVersion = "v4.0.30319"
+
+************************************************************************
+* wwDotnetBridge ::  Init
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION Init(lcVersion, llUseCom)
+
+IF !EMPTY(lcVersion)
+   DO CASE 
+   	CASE lcVersion == "V4"
+   	  lcVersion = "v4.0.30319"
+	CASE lcVersion == "V2"
+      lcVersion = "v2.0.50727"     
+   ENDCASE
+
+   this.cClrVersion = lcVersion
+ENDIF   
+this.lUseCom = llUseCom
+
+*** Fail creation if the object couldn't be created
+IF ISNULL(this.Load())
+   ERROR "Unable to load wwDotNetBridge: " + this.cErrorMsg
+   RETURN .F.
+ENDIF
+
+ENDFUNC
+*  wwDotnetBridge ::  Init
+
+
+
+************************************************************************
+*  Load
+****************************************
+***  Function: Creates an instance of the .NET Bridge component
+***            that allows loading of content.
+***    Assume: Define as LOCAL obridge as Westwind.WebConnection.wwDotNetBridge
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION Load()
+
+IF VARTYPE(this.oDotNetBridge) != "O"
+	this.SetClrVersion(this.cClrVersion)
+
+	IF this.lUseCom
+		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
+	ELSE
+	    *** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
+	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
+		
+		lcError = SPACE(2048)
+		lnSize = 0
+		lnDispHandle = ClrCreateInstanceFrom(FULLPATH("wwDotNetBridge.dll"),;
+				"Westwind.WebConnection.wwDotNetBridge",@lcError,@lnSize)
+
+		IF lnDispHandle < 1
+		   this.SetError( "Unable to load Clr Instance. " + LEFT(lcError,lnSize) )
+		   RETURN NULL 
+		ENDIF
+
+		*** Turn handle into IDispatch object
+		this.oDotNetBridge = SYS(3096, lnDispHandle)	
+		
+		*** Explicitly AddRef here - otherwise weird shit happens when objects are released
+		SYS(3097, this.oDotNetBridge)
+
+		IF ISNULL(this.oDotNetBridge)
+			this.SetError("Can't access CLR COM reference.")
+			RETURN null
+		ENDIF
+
+*!*			IF !this.oDotNetBridge.SetAppDomainPolicy()
+*!*				this.SetError(this.oDotNetBridge.ErrorMessage)
+*!*				RETURN NULL
+*!*			ENDIF
+	ENDIF
+
+	this.oDotNetBridge.LoadAssembly("System")	
+
+ENDIF
+
+RETURN this.oDotNetBridge
+ENDFUNC
+*   CreateDotNetBridge
+
+************************************************************************
+*  SetClrVersion
+****************************************
+***  Function: Sets the CLR Version that this runtime uses. Note
+***            this method must be called before this.Load() is 
+***            called and the runtime is instantiated for the very
+***            first time.
+***      Pass: lcVersion -  Clr version in the format of "v2.0.50727"
+***    Return: nothing
+************************************************************************
+PROTECTED FUNCTION SetClrVersion(lcVersion)
+DECLARE Integer SetClrVersion IN WWC_CLR_HOSTDLL string
+SetClrVersion(lcVersion)
+ENDFUNC
+*   SetClrVersion
+
+************************************************************************
+*  Unload
+****************************************
+***  Function: Unloads the CLR and AppDomain
+***    Assume: Don't call this unless you want to explicity force
+***            the AppDomain to be unloaded and a new one to be spun
+***            up. Generally a single domain shoudl be sufficient.
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION Unload()
+IF VARTYPE(this.oDotNetBridge) == "O"
+	this.oDotNetBridge = NULL	
+	DECLARE Integer ClrUnload IN WWC_CLR_HOSTDLL	
+	ClrUnload()
+ENDIF
+ENDFUNC
+*   Unload
+
+*!*	************************************************************************
+*!*	*  UnloadDotNetBridge
+*!*	****************************************
+*!*	***  Function:
+*!*	***    Assume:
+*!*	***      Pass:
+*!*	***    Return:
+*!*	************************************************************************
+*!*	FUNCTION UnloadDotNetBridge()
+
+*!*	IF VARTYPE(this.oDotNetBridge) == "O"
+*!*		this.oDotNetBridge = NULL	
+*!*		DECLARE Integer ClrUnload IN WWC_CLR_HOSTDLL	
+*!*		ClrUnload()
+*!*	ENDIF
+
+*!*	ENDFUNC
+*!*	*   UnloadDotNetBridge
+
+************************************************************************
+*  CreateInstance
+****************************************
+***  Function: Creates an instance of a .NET class by full assembly
+***            name or local file name.
+***    Assume: Relies on wwDotNetBridgeW32.dll and wwDotNetBridge.dll
+***      Pass: lcClass   - MyNamespace.MyClass
+***            lvParmN   - Up to 3 Constructor Parameters
+***    Return: Instance or NULL
+************************************************************************
+FUNCTION CreateInstance(lcClass,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+LOCAL lnDispHandle, lnSize, loBridge, loObject, lnParmCount
+
+this.SetError()
+
+loBridge = this.Load()
+IF ISNULL(loBridge)
+   RETURN NULL
+ENDIF
+
+lnParmCount = PCOUNT()
+DO CASE 
+	CASE lnParmCount = 2
+		loObject = loBridge.CreateInstance_OneParm(lcClass,lvParm1)
+    CASE lnParmCount = 3
+        loObject = loBridge.CreateInstance_TwoParms(lcClass,lvParm1, lvParm2)
+    CASE lnParmCount = 4
+        loObject = loBridge.CreateInstance_ThreeParms(lcClass,lvParm1, lvParm2, lvParm3)
+    CASE lnParmCount = 5
+        loObject = loBridge.CreateInstance_FourParms(lcClass,lvParm1, lvParm2, lvParm3, lvParm4)
+    CASE lnParmCount = 6
+        loObject = loBridge.CreateInstance_FiveParms(lcClass,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)        
+    OTHERWISE
+        loObject = loBridge.CreateInstance(lcClass)
+ENDCASE
+
+IF ISNULL(loObject) OR loBridge.Error
+	this.SetError( loBridge.ErrorMessage )
+	RETURN NULL
+ENDIF
+
+RETURN loObject
+ENDFUNC
+
+************************************************************************
+*  CreateInstanceOnType
+****************************************
+***  Function: Creates an instance of a .NET class by full assembly
+***            name or local file name.
+***    Assume: Relies on wwDotNetBridgeW32.dll and wwDotNetBridge.dll
+***      Pass: lcClass   - MyNamespace.MyClass
+***            lvParmN   - Up to 5 Constructor Parameters
+***    Return: Instance or NULL
+************************************************************************
+FUNCTION CreateInstanceOnType(loInstance, lcProperty, lcClass,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+LOCAL lnDispHandle, lnSize, loBridge, loObject, lnParmCount
+
+this.SetError()
+
+loBridge = this.Load()
+IF ISNULL(loBridge)
+   RETURN NULL
+ENDIF
+
+lnParmCount = PCOUNT()
+DO CASE 
+	CASE lnParmCount = 4
+		loObject = loBridge.CreateInstanceOnType_OneParm(loInstance,lcProperty, lcClass,lvParm1)
+    CASE lnParmCount = 5
+        loObject = loBridge.CreateInstanceOnType_TwoParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2)
+    CASE lnParmCount = 6
+        loObject = loBridge.CreateInstanceOnType_ThreeParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2, lvParm3)
+    CASE lnParmCount = 7
+        loObject = loBridge.CreateInstanceOnType_FourParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2, lvParm3, lvParm4)
+    CASE lnParmCount = 8
+        loObject = loBridge.CreateInstanceOnType_FiveParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+    OTHERWISE
+        loObject = loBridge.CreateInstanceOnType(loInstance,lcProperty,lcClass)
+ENDCASE
+
+IF ISNULL(loObject) OR loBridge.Error
+	this.SetError( loBridge.ErrorMessage )
+	RETURN .F.
+ENDIF
+
+RETURN .T.
+ENDFUNC
+
+
+************************************************************************
+*  InvokeMethod
+****************************************
+***  Function: Invokes an instance method on an object
+***    Assume: Use when direct COM access doesn't work for things like collections/generics etc.
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION InvokeMethod(loObject, lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,;
+										  lvParm6, lvParm7, lvParm8, lvParm9, lvParm10,;
+										  lvParm11, lvParm12, lvParm13, lvParm14, lvParm15)
+LOCAL loBridge, lnParms, loResult
+
+this.SetError()
+
+loBridge = this.oDotNetBridge
+
+lnParms = PCOUNT()
+loResult = NULL
+DO CASE
+	CASE lnParms = 3
+	  loResult = loBridge.InvokeMethod_OneParm(loObject, lcMethod, lvParm1)
+	CASE lnParms = 4
+	  loResult = loBridge.InvokeMethod_TwoParms(loObject, lcMethod,lvParm1, lvParm2)
+	CASE lnParms = 5
+	  loResult = loBridge.InvokeMethod_ThreeParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3)
+	CASE lnParms = 6
+	  loResult = loBridge.InvokeMethod_FourParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)
+	CASE lnParms = 7
+	  loResult = loBridge.InvokeMethod_FiveParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+	CASE lnParms = 8
+	  loResult = loBridge.InvokeMethod_SixParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)
+	CASE lnParms = 9
+	  loResult = loBridge.InvokeMethod_SevenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)
+	CASE lnParms = 10
+	  loResult = loBridge.InvokeMethod_EightParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)
+	CASE lnParms = 11
+	  loResult = loBridge.InvokeMethod_NineParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)
+	CASE lnParms = 12
+	  loResult = loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	  
+	CASE lnParms = 13
+	  loResult = loBridge.InvokeMethod_ElevenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11)	  
+	CASE lnParms = 14
+	  loResult = loBridge.InvokeMethod_TwelveParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11, lvParm12)	  
+	CASE lnParms = 15
+	  loResult = loBridge.InvokeMethod_ThirteenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11, lvParm12, lvParm13)	  
+	CASE lnParms = 16
+	  loResult = loBridge.InvokeMethod_FourteenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11, lvParm12, lvParm13, lvParm14)	  
+	CASE lnParms = 17
+	  loResult = loBridge.InvokeMethod_FifteenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11, lvParm12, lvParm13, lvParm14, lvParm15)	  	  
+	OTHERWISE
+	  loResult = loBridge.InvokeMethod(loObject, lcMethod)
+ENDCASE
+
+IF ISNULL(loResult) OR loBridge.Error
+   this.cErrorMsg = loBridge.ErrorMessage
+   this.lError = .T.
+ENDIF   
+
+RETURN loResult
+ENDFUNC
+*   InvokeMethod
+
+
+************************************************************************
+*  InvokeMethod_ParameterArray
+****************************************
+***  Function: Invokes an instance method on an object
+***    Assume: Use when direct COM access doesn't work for things like collections/generics etc.
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION InvokeMethod_ParameterArray
+LPARAMETERS loObject, lcMethod, laParms
+LOCAL loBridge, loResult, lnX
+
+IF .F.
+	LOCAL ARRAY laParms[1] && Compiler needs this or compile error
+ENDIF
+
+this.SetError()
+
+LOCAL loBridge as Westwind.wwDotNetBridge
+loBridge = this.oDotNetBridge
+
+LOCAL loArray as Westwind.WebConnection.ComArray
+loArray = this.CreateInstance("Westwind.WebConnection.ComArray")
+loArray.Create("System.Object")
+
+DO CASE
+	CASE TYPE("laParms.Instance") # "U"
+	   *** It's already a parameter array
+	   loArray = laParms
+	CASE TYPE("ALEN(laParms)") = "N"
+	   *** It's a Fox array
+	   lnsize = ALEN(laParms)
+	   FOR lnX = 1 TO lnSize
+		   	loArray.AddItem(laParms[lnX])   	
+	   ENDFOR
+	CASE TYPE("laParms.Count") = "N"
+		*** It's a .NET array/collection
+	    FOR lnX =1 TO laParms.Count
+	    	loArray.AddItem(laParms[lnX])
+	    ENDFOR
+ENDCASE
+
+loResult = loBridge.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
+
+IF ISNULL(loResult) OR loBridge.Error
+   this.cErrorMsg = loBridge.ErrorMessage
+   this.lError = .T.
+ENDIF   
+
+RETURN loResult
+ENDFUNC
+*   InvokeMethod
+
+
+************************************************************************
+*  GetProperty
+****************************************
+***  Function: Gets a property from a .NET object
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetProperty(loInstance,lcProperty)
+RETURN this.oDotNetBridge.GetProperty(loInstance, lcProperty) 
+ENDFUNC
+*   GetProperty
+
+************************************************************************
+*  GetPropertyEx
+****************************************
+***  Function: Gets a property from a .NET object using .syntax for 
+***            for the property as well as supporting arrays
+***    Assume:
+***      Pass: 
+***    Return:
+************************************************************************
+FUNCTION GetPropertyEx(loInstance,lcProperty)
+RETURN this.oDotNetBridge.GetPropertyEx(loInstance, lcProperty)
+ENDFUNC
+*   GetProperty
+
+
+************************************************************************
+*  SetProperty
+****************************************
+***  Function: Sets a property on a .NET object
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION SetProperty(loInstance, lcProperty, lvValue)
+this.oDotNetBridge.SetProperty(loInstance, lcProperty, lvValue)
+ENDFUNC
+*   SetProperty
+
+************************************************************************
+*  SetProperty
+****************************************
+***  Function: Sets a property on a .NET object
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION SetPropertyEx(loInstance, lcProperty, lvValue)
+this.oDotNetBridge.SetPropertyEx(loInstance, lcProperty, lvValue)
+ENDFUNC
+*   SetProperty
+
+************************************************************************
+*  InvokeStaticMethod
+****************************************
+***  Function: Calls a static .NET method with up to 5 parameters
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION InvokeStaticMethod(lcTypeName, lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,;
+                                                  lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)
+LOCAL loBridge, lnParms, loResult
+
+this.SetError()
+
+loBridge = this.oDotNetBridge
+
+lnParms = PCOUNT()
+loResult = NULL
+DO CASE
+	CASE lnParms = 3
+	  loResult = loBridge.InvokeStaticMethod_OneParm(lcTypeName, lcMethod, lvParm1)
+	CASE lnParms = 4
+	  loResult = loBridge.InvokeStaticMethod_TwoParms(lcTypeName, lcMethod,lvParm1, lvParm2)
+	CASE lnParms = 5
+	  loResult = loBridge.InvokeStaticMethod_ThreeParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3)
+	CASE lnParms = 6
+	  loResult = loBridge.InvokeStaticMethod_FourParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)
+	CASE lnParms = 7
+	  loResult = loBridge.InvokeStaticMethod_FiveParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+	CASE lnParms = 8
+	  loResult = loBridge.InvokeStaticMethod_SixParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6)
+	CASE lnParms = 9
+	  loResult = loBridge.InvokeStaticMethod_SevenParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7)	
+	CASE lnParms = 10
+	  loResult = loBridge.InvokeStaticMethod_EightParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8)	
+	CASE lnParms = 11
+	  loResult = loBridge.InvokeStaticMethod_NineParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8, lvParm9)	
+	CASE lnParms = 12
+	  loResult = loBridge.InvokeStaticMethod_TenParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	
+
+	OTHERWISE
+	
+	  loResult = loBridge.InvokeStaticMethod(lcTypeName, lcMethod)
+ENDCASE
+
+IF ISNULL(loResult) OR loBridge.Error
+   this.cErrorMsg = loBridge.ErrorMessage
+   this.lError = .T.
+ENDIF   
+
+RETURN loResult
+ENDFUNC
+*   InvokeStaticMethod
+
+************************************************************************
+*  GetStaticProperty
+****************************************
+***  Function: Retrieves a static property value from a type
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetStaticProperty(lcType, lcProperty)
+LOCAL loBridge, lvResult
+
+this.SetError()
+
+loBridge = this.oDotNetBridge
+
+lvResult = loBridge.GetStaticProperty(lcType, lcProperty)
+
+IF loBridge.Error 
+   this.SetError(loBridge.ErrorMessage)
+   RETURN NULL
+ENDIF   
+
+RETURN lvResult
+ENDFUNC
+*   GetStaticProperty
+
+
+************************************************************************
+*  GetEnumValue
+****************************************
+***  Function: Retrieves an Enum value as a number from a string representation
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetEnumValue(lcType, lcProperty)
+
+IF !EMPTY(lcProperty)
+  RETURN this.GetStaticProperty(lcType, lcProperty)
+ENDIF
+
+*** Assume we're passing the type and enum name as one string
+lnAt = RAT(".",lcType)
+IF lnAt < 1
+   RETURN NULL
+ENDIF
+
+lcProperty = SUBSTR(lcType,lnAt+1)
+lcType = SUBSTR(lcType,1,lnAt-1)
+
+RETURN this.GetStaticProperty(lcType, lcProperty)
+ENDFUNC
+*   GetEnumValue
+
+
+************************************************************************
+* wwDotnetBridge ::  GetEnumString
+****************************************
+***  Function: Retrieves the enum field name from an enum value
+***    Assume:
+***      Pass: lvEnumValue - The Enum value to retrieve string for
+***    Return:
+************************************************************************
+FUNCTION GetEnumString(lcEnumTypeName,lvEnumValue)
+LOCAL lcValue
+
+lcValue = THIS.oDotNetBridge.GetEnumString(lcEnumTypeName,lvEnumValue)
+IF ISNULL(lcValue)
+   this.SetError(this.oDotNetBridge.ErrorMessage)
+   RETURN NULL
+ENDIF   
+
+RETURN lcValue
+ENDFUNC
+*  wwDotnetBridge ::  GetEnumString
+
+************************************************************************
+*  SetStaticProperty
+****************************************
+***  Function: Sets a static property value on a .NET type
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION SetStaticProperty(lcType,lcProperty,lcValue)
+LOCAL loBridge, lvResult
+
+loBridge = this.oDotNetBridge
+
+IF !loBridge.SetStaticProperty(lcType, lcProperty, lcValue) 
+   this.SetError(loBridge.ErrorMessage)
+   RETURN .F.
+ENDIF   
+
+RETURN .T.
+ENDFUNC
+*   SetStaticProperty
+
+
+
+************************************************************************
+*  CreateArray
+****************************************
+***  Function: Creates an array of a given type and size on the specified
+***            object instance.
+***    Assume:
+***      Pass:
+***    Return: ComArray object with Instance,Length properties or null
+************************************************************************
+FUNCTION CreateArray(lcBaseTypename)
+LOCAL loComArray
+
+loComArray = this.oDotNetBridge.CreateArray(lcBaseTypename)
+
+IF ISNULL(loComArray)
+   THIS.SetError(this.oDotnetBridge.ErrorMessage)
+   RETURN null
+ENDIF
+
+RETURN loComArray
+ENDFUNC
+*   CreateArray
+
+************************************************************************
+*  CreateComValue
+****************************************
+***  Function: Creates a COM Value structure
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION CreateComValue()
+RETURN this.CreateInstance("Westwind.WebConnection.ComValue")
+ENDFUNC
+*   CreateComValue
+
+
+************************************************************************
+*  CreateArrayOnInstnace
+****************************************
+***  Function: Creates an array of a given type and size on the specified
+***            object instance.
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION CreateArrayOnInstance(loBaseType, lcType, lnSize)
+
+IF VARTYPE(lnSize) # "N"
+	IF !this.oDotNetBridge.CreateArrayOnInstanceWithObject(loBaseType, lcType, lnSize)
+	   THIS.SetError(this.oDotnetBridge.ErrorMessage)
+	   RETURN .F.
+	ENDIF
+	RETURN .T.	
+ENDIF
+
+IF !this.oDotNetBridge.CreateArrayOnInstance(loBaseType, lcType, lnSize)
+   THIS.SetError(this.oDotnetBridge.ErrorMessage)
+   RETURN .F.
+ENDIF
+
+RETURN .T.
+ENDFUNC
+*   CreateArray
+
+************************************************************************
+*  AddArrayItem
+****************************************
+***  Function: Creates an item for an array and adds it to the array
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION AddArrayItem(loBaseType, lcArrayProperty, loValue)
+
+IF !this.oDotNetBridge.AddArrayItem(loBaseType, lcArrayProperty,loValue)
+   this.SetError("Couldn't add item to array: " + this.oDotNetBridge.ErrorMessage)
+   RETURN .F.
+ENDIF
+
+RETURN .T.
+ENDFUNC
+*   AddArrayItem
+
+************************************************************************
+*  GetArrayItem
+****************************************
+***  Function: Returns an individual array item.
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetArrayItem(loBaseType, lcArrayProperty, lnIndex)
+RETURN this.oDotNetBridge.GetArrayItem(loBaseType, lcArrayProperty,lnIndex)
+ENDFUNC
+*   GetArrayItem
+
+************************************************************************
+*  SetArrayItem
+****************************************
+***  Function: Sets an individual array item.
+***    Assume: The array item must exist - ie. array is big enough
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION SetArrayItem(loBaseType, lcArrayProperty, lnIndex, lvValue)
+RETURN this.oDotNetBridge.SetArrayItem(loBaseType, lcArrayProperty,lnIndex,lvValue)
+ENDFUNC
+*   SetArrayItem
+
+
+
+************************************************************************
+*  RemoveArrayItem
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION RemoveArrayItem(loBaseType, lcArrayProperty, lnIndex)
+
+IF !this.oDotNetBridge.RemoveArrayItem(loBaseType,lcArrayProperty, lnIndex)
+	this.SetError("Couldn't remove item from array: " + this.oDotnetBridge.ErrorMessage)
+	RETURN .F.
+ENDIF
+
+RETURN .T.	
+ENDFUNC
+*   RemoveArrayItem
+
+
+************************************************************************
+*  GetType
+****************************************
+***  Function: Returns a .NET type reference to the value passed
+***    Assume: Only works with 
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetType(lvValue)
+RETURN this.InvokeMethod(this.oDotNetBridge,"GetType",lvValue)
+ENDFUNC
+*   GetType
+
+
+************************************************************************
+*  DataSetToXmlAdapter
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION DataSetToXmlAdapter(loDs)
+LOCAL lcXML 
+
+lcXML = this.InvokeMethod(this.oDotNetBridge,"DataSetToXmlString",loDs,.T.)
+
+IF EMPTY(lcXml)
+	RETURN null
+ENDIF
+
+LOCAL loAdapter as XMLAdapter
+loAdapter = CREATEOBJECT("XmlAdapter")
+loAdapter.LoadXML(lcXml,.F.,.T.)
+
+RETURN loAdapter
+ENDFUNC
+*   DataSetToXmlString
+
+************************************************************************
+*  DataSetToCursors
+**************************************** 
+***  Function: Converts a .NET DataSet to cursors that match the
+***            tables in the Tables collection.
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION DataSetToCursors(loDs)
+
+loAdapter = this.DataSetToXmlAdapter(loDs)
+IF ISNULL(loAdapter)
+   RETURN .F.
+ENDIF   
+
+RETURN this.XmlAdapterToCursors(loAdapter)
+ENDFUNC
+*   DataSetToCursors
+
+
+************************************************************************
+*  XmlStringToDataSet
+****************************************
+***  Function: Converts an XML String created with XmlAdapter or
+***            CursorToXml into a DataSet
+***    Assume:
+***      Pass: lcXml  -  Xml string
+***    Return: .NET DataSet object or NULL
+************************************************************************
+FUNCTION XmlStringToDataSet(lcXml)
+LOCAL loDataSet
+
+loDataSet = this.oDotNetBridge.XmlStringToDataSet(lcXml)
+
+IF ISNULL(loDataSet)
+   this.SetError(this.oDotNetBridge.ErrorMessage)
+   RETURN null
+ENDIF
+
+RETURN loDataSet
+ENDFUNC
+*   XmlStringToDataSet
+
+************************************************************************
+*  CursorToDataSet
+****************************************
+***  Function: 
+***    Assume:
+***      Pass: lcAliasList - A list of comma delimited cursors to add to 
+***                          the data
+***    Return: DataSet or NULL
+************************************************************************
+FUNCTION CursorToDataSet(lcAliasList)
+LOCAL lnX, lcXml
+
+IF EMPTY(lcAliasList)
+   RETURN null
+ENDIF
+
+LOCAL loAdapter as XMLAdapter
+loAdapter = CREATEOBJECT("XmlAdapter")
+
+LOCAL ARRAY laCursors[1]   
+lnCount = ALINES(laCursors,lcAliasList,1 + 4,",")
+FOR lnX = 1 TO lnCount
+	loAdapter.AddTableSchema(laCursors[lnX],.T.)
+ENDFOR
+
+lcXml = ""
+loAdapter.ToXML("lcXml")
+
+IF EMPTY(lcXml)
+   RETURN null
+ENDIF
+
+RETURN THIS.XmlStringToDataSet(lcXml)   
+ENDFUNC
+*   CursorToDataSet
+
+************************************************************************
+*  XmlAdapterToCursors
+****************************************
+***  Function: Opens all tables in an XmlAdapter as Cursors
+***    Assume:
+***      Pass:
+***    Return: .T. or .F.
+************************************************************************
+FUNCTION XmlAdapterToCursors(loAdapter)
+
+IF VARTYPE(loAdapter) # "O" 
+   this.SetError("No Adapter passed")
+   RETURN .F.	
+ENDIF
+IF loAdapter.Tables.Count < 1
+	THIS.SetError("No tables on XmlAdapter")
+	RETURN .F.
+ENDIF
+FOR EACH loTable IN loAdapter.Tables
+    USE IN SELECT(loTable.Alias)
+    loTable.ToCursor(.F.,loTable.Alias)
+ENDFOR
+
+RETURN .T.
+ENDFUNC
+*   XmlAdapterToTables
+
+************************************************************************
+*  XmlAdapterGetCursor
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION XmlAdapterGetCursor(loAdapter,lvCursor)
+LOCAL loTable, loTbl
+
+IF EMPTY(lvCursor)
+   *** Get the first cursor if no cursor name is passed
+   IF loAdapter.Tables.Count > 0
+   	  lvCursor = loAdapter.Tables[1].Alias
+   ELSE
+   	  RETURN .F.
+   ENDIF
+ENDIF   
+
+loTable = null
+
+IF VARTYPE(lvCursor) = "N"
+   loTable = loAdapter.tables[lvCursor]
+ELSE
+	lvCursor = LOWER(lvCursor)
+	FOR EACH loTbl in loAdapter.Tables
+	   IF lvCursor == LOWER(loTbl.alias)
+	      loTable = loTbl
+	      EXIT
+	   ENDIF      
+	ENDFOR
+ENDIF
+
+IF ISNULL(loTable)
+   RETURN .F.
+ENDIF   
+
+USE IN SELECT(loTable.Alias)
+  
+loTable.ToCursor(.f.,loTable.Alias)
+RETURN .T.
+ENDFUNC
+*   XmlAdapterGetCursor
+
+
+************************************************************************
+*  LoadAssembly
+****************************************
+***  Function: Loads an assembly either by full assembly name or by 
+***            fully qualified path.
+***    Assume:
+***      Pass: AssemblyName or full assembly file name
+***    Return: .T. or .F.
+************************************************************************
+FUNCTION LoadAssembly(lcAssembly)
+LOCAL loBridge
+
+this.SetError()
+
+loBridge = this.Load()
+
+IF ISNULL(loBridge)
+   RETURN NULL
+ENDIF
+
+IF FILE(lcAssembly)
+	lcAssembly = LOWER(FULLPATH(lcAssembly))
+ENDIF
+
+IF AT(":\",lcAssembly) > 0 OR AT("\\",lcAssembly) > 0
+	*** It's a file based assembly path
+	IF !loBridge.LoadAssemblyFrom(lcAssembly)
+		this.SetError(lobridge.ErrorMessage)
+		RETURN .F.
+	ENDIF
+ELSE
+    *** It's an assembly name
+	IF !loBridge.LoadAssembly(lcAssembly)
+		this.SetError(lobridge.ErrorMessage)
+		RETURN .F.
+	ENDIF
+ENDIF
+
+RETURN .T.	
+ENDFUNC
+*   LoadAssembly
+
+************************************************************************
+* wwDotNetBridge ::  RunThread
+****************************************
+***  Function: Runs a PRG file on a separate thread
+***    Assume:
+***      Pass: loEvents - Any Fox object that can be called
+***                       from within the PRG
+***    Return: Instance of the ThreadRunner .NET object
+************************************************************************
+FUNCTION RunThread(lcPrgFileName, loEvents)
+LOCAL loThread
+loThread = THIS.CreateInstance("Westwind.WebConnection.ThreadRunner")
+loThread.RunThread(loEvents,FULLPATH(lcPrgFileName))
+RETURN loThread
+ENDFUNC
+*  wwDotNetBridge ::  ExecutePrgOnThread
+
+*!*	************************************************************************
+*!*	*  CreateClrInstanceFrom
+*!*	****************************************
+*!*	***  Function: Creates an instance of a .NET class by referencing
+*!*	***            a fully qualified assembly path.
+*!*	***      Pass: lcLibrary - fully qualified path to the assembly 
+*!*	***                        including extension
+*!*	***            lcClass   - MyNamespace.MyClass
+*!*	***    Return: Instance or NULL
+*!*	************************************************************************
+*!*	FUNCTION CreateClrInstance(lcLibrary,lcClass,lcError)
+*!*	LOCAL lnDispHandle, lnSize
+
+*!*	DECLARE Integer ClrCreateInstance IN WWC_CLR_HOSTDLL string, string, string@, integer@
+
+*!*	lcError = SPACE(2048)
+*!*	lnSize = 0
+*!*	lnDispHandle = ClrCreateInstance("wcDotNetBridge","Westwind.WebConnection.wwDotNetBridge",@lcError,@lnSize)
+
+*!*	IF lnDispHandle < 1
+*!*	   lcError = LEFT(lcError,lnSize)
+*!*	   RETURN NULL 
+*!*	ENDIF
+
+*!*	RETURN SYS(3096, lnDispHandle)
+*!*	ENDFUNC
+
+
+************************************************************************
+*  ConvertToDotnetValue
+****************************************
+***  Function: 
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION ConvertToDotnetValue(lvFoxValue,lcType)
+
+lcType = LOWER(lcType)
+
+*** Only create loVal object on types that need conversion
+IF EMPTY(lcType) OR INLIST(lcType,"int16","int64","byte","dbnull")
+	LOCAL loVal as Westwind.WebConnnection.ComValue
+	loVal = this.CreateInstance("Westwind.WebConnection.ComValue")
+ENDIF
+
+IF EMPTY(lcType)
+   RETURN loVal
+ENDIF
+
+   
+DO CASE
+  *** ComValue object conversions
+  CASE lcType = "int16"
+      loVal.SetInt16(lvFoxValue)
+  CASE lcType = "int64"
+      loVal.SetInt64(lvFoxValue)
+  CASE lcType = "byte"
+      loVal.SetByte(lvFoxValue)
+  CASE lcType = "dbnull"
+      loVal.SetDbNull()
+
+  *** CAST Conversions
+  CASE lcType = "decimal"
+      RETURN NTOM(lvFoxValue)
+      *CAST(lvFoxValue as Currency)      
+  CASE lcType = "binary" OR lcType = "byte[]"
+      #IF VERSION(5) > 800
+	     RETURN CAST(lvFoxValue as BLOB)      
+	  #ELSE
+	  	 RETURN CREATEBINARY(lvFoxValue)
+      #ENDIF
+  OTHERWISE
+  	  *** If no conversion exists just return the value as is
+      RETURN lvFoxValue
+ENDCASE
+
+RETURN loVal
+ENDFUNC
+*   ConvertToDotNetValue
+
+
+************************************************************************
+*  GetDotNetVersion
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetDotNetVersion()
+RETURN this.oDotNetBridge.GetVersionInfo()
+ENDFUNC
+*   GetDotNetVersion
+
+************************************************************************
+*  SetError
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION SetError(lcMessage)
+
+IF EMPTY(lcMessage)
+   this.lError = .f.
+   this.cErrorMsg = ""
+   RETURN
+ENDIF
+
+this.lError = .t.
+this.cErrorMsg = lcMessage   
+
+ENDFUNC
+*   SetError
+
+ENDDEFINE
+*EOC wwDotNetBridge 
+
+

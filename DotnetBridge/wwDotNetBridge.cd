@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Westwind.WebConnection.wwDotNetBridge">
+    <Position X="0.5" Y="0.5" Width="3" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>URBatFYQAgFQ8QRKkBOAJsRJgPOCEAECEIQQCQEBGQE=</HashCode>
+      <FileName>DotNetBridge.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Westwind.WebConnection.ComArray">
+    <Position X="5" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AABCAAAAQAAABAAAAAAEAAQEgAAAgEAEQAgAAABAAAA=</HashCode>
+      <FileName>WrapperTypes\ComArray.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Westwind.WebConnection.ComValue">
+    <Position X="8.75" Y="0.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIBAAAgAQAAAAIABAABAAAAEgAAAABAA=</HashCode>
+      <FileName>WrapperTypes\ComValue.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Westwind.WebConnection.ComGuid">
+    <Position X="6.75" Y="0.5" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAIAAAAAAAAABAAAAAAAAAAAAgg=</HashCode>
+      <FileName>WrapperTypes\ComGuid.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Tahoma" Size="8.25" />
+</ClassDiagram>
