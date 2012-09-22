@@ -1,5 +1,6 @@
 #wwDotnetBridge
-==============
+---------------
+###.NET Interop made easy for Visual FoxPro
 
 wwDotnetBridge is a .NET Runtime Hosting engine and .NET access helper for Visual FoxPro. It allows hosting of the .NET runtime in a Win32 application, and accessing .NET components without having to have them registered first.
 
@@ -18,8 +19,9 @@ It provides the following enhancements over plain COM Interop:
 * Assign values directly to properties without passing through FoxPro
 * Multi-threading library built-in
 
-Online Documentation:
-* [Documentation](http://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
+##Online Documentation:
+* [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
+* [Documentation](http://west-wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
 
 ##How it works
 
@@ -121,6 +123,19 @@ Here's another example that demonstrates a few more features including calling s
 		ENDIF
 	ENDFOR
 
+##Resources
 There's much more functionality available. Please check out the documentation for more info.
 
-* [Documentation](http://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
+* [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
+* [Documentation](http://wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
+
+##License
+This library is published under MIT license terms:
+
+Copyright &copy; 2012 Rick Strahl, West Wind Technologies
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
