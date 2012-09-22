@@ -1098,6 +1098,16 @@ www.west-wind.com/webconnection
             return comArray;
         }
 
+        /// <summary>
+        /// Creates an array from a specific instance of a COM object
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        public ComArray CreateArrayFromInstance(object instance)
+        {
+            return new ComArray(instance);
+        }
+
 
         /// <summary>
         /// Used to add an item to an array by indirection to work around VFP's

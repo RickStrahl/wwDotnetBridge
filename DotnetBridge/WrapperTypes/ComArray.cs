@@ -59,6 +59,26 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
+        /// Default constructor
+        /// </summary>
+        public ComArray()
+        {
+        }
+
+        /// <summary>
+        /// Creates a new COM Array from an existing array instance
+        /// </summary>
+        /// <param name="instance"></param>
+        public ComArray(object instance)
+        {
+            Instance = instance as Array;
+
+            if (Instance == null)
+                throw new ArgumentException("This instance is not an Array");
+
+        }
+
+        /// <summary>
         /// Creates a .NET array instance with 0 items on this ComArray instance
         /// </summary>
         /// <param name="arrayTypeName"></param>
