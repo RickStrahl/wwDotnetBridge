@@ -84,23 +84,6 @@ DWORD WINAPI ClrLoad(char *ErrorMessage, DWORD *dwErrorSize)
 	hr = pUnk->QueryInterface(&spDefAppDomain.p);
 	if (FAILED(hr)) 
 		return hr;
-
-	
-   ////// // Create a new AppDomain PolicyLevel.
-   //PolicyLevel polLevel = PolicyLevel::CreateAppDomainLevel();
-
-   //////// Create a new, empty permission set.
-   //PermissionSet permSet = gcnew PermissionSet( PermissionState::Unrestricted);
-
-   //////// Add permission to execute code to the permission set.
-   //permSet->AddPermission( gcnew SecurityPermission( SecurityPermissionFlag::Execution ) );
-
-   ////////// Give the policy level's root code group a new policy statement based
-   ////////// on the new permission set.
-   //polLevel->RootCodeGroup->PolicyStatement = gcnew PolicyStatement( permSet );
-
-   //////// Give the new policy level to the application domain.
-   //spDefAppdomain->SetAppDomainPolicy( polLevel );
 	
 	return 1;
 }
