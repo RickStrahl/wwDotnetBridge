@@ -127,7 +127,7 @@ Here's another example that demonstrates a few more features including calling s
 There's much more functionality available. Please check out the documentation for more info.
 
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
-* [Documentation](http://wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
+* [Documentation](http://west-wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
 
 ##License
 This library is published under MIT license terms:
