@@ -2,10 +2,8 @@
 SET PROCEDURE TO wwDotNetBridge ADDITIVE
 *SET PROCEDURE TO WWUTILS ADDITIVE 
 
-*** Inside of WebConneciton use:
-* #DEFINE WWC_CLR_HOSTDLL wwipstuff.dll  
-
-#DEFINE WWC_CLR_HOSTDLL ClrHost.dll
+#DEFINE WWC_CLR_HOSTDLL clrhost.dll
+*wwipstuff.dll  &&wwDotNetBridgeW32.dll
 
 
 ************************************************************************
@@ -34,10 +32,10 @@ ENDFUNC
 DEFINE CLASS wwDotNetBridge AS Custom
 *************************************************************
 *: Author: Rick Strahl
-*:         (c) West Wind Technologies, 2007-2011
+*:         (c) West Wind Technologies, 2007-2012
 *:Contact: http://www.west-wind.com
-*:Created: 07/01/2007
-*:Updated: 6/16/2011
+*:Created: 05/10/2007
+*:Updated: 9/15/2012
 *************************************************************
 #IF .F.
 *:Help Documentation
@@ -128,9 +126,9 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 	IF this.lUseCom
 		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
 	ELSE
-	    *** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
-	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
-		
+		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
+		   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
+
 		lcError = SPACE(2048)
 		lnSize = 0
 		lnDispHandle = ClrCreateInstanceFrom(FULLPATH("wwDotNetBridge.dll"),;
@@ -143,7 +141,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 
 		*** Turn handle into IDispatch object
 		this.oDotNetBridge = SYS(3096, lnDispHandle)	
-		
+
 		*** Explicitly AddRef here - otherwise weird shit happens when objects are released
 		SYS(3097, this.oDotNetBridge)
 
@@ -151,15 +149,9 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 			this.SetError("Can't access CLR COM reference.")
 			RETURN null
 		ENDIF
-
-*!*			IF !this.oDotNetBridge.SetAppDomainPolicy()
-*!*				this.SetError(this.oDotNetBridge.ErrorMessage)
-*!*				RETURN NULL
-*!*			ENDIF
 	ENDIF
 
 	this.oDotNetBridge.LoadAssembly("System")	
-
 ENDIF
 
 RETURN this.oDotNetBridge
@@ -200,25 +192,6 @@ IF VARTYPE(this.oDotNetBridge) == "O"
 ENDIF
 ENDFUNC
 *   Unload
-
-*!*	************************************************************************
-*!*	*  UnloadDotNetBridge
-*!*	****************************************
-*!*	***  Function:
-*!*	***    Assume:
-*!*	***      Pass:
-*!*	***    Return:
-*!*	************************************************************************
-*!*	FUNCTION UnloadDotNetBridge()
-
-*!*	IF VARTYPE(this.oDotNetBridge) == "O"
-*!*		this.oDotNetBridge = NULL	
-*!*		DECLARE Integer ClrUnload IN WWC_CLR_HOSTDLL	
-*!*		ClrUnload()
-*!*	ENDIF
-
-*!*	ENDFUNC
-*!*	*   UnloadDotNetBridge
 
 ************************************************************************
 *  CreateInstance
@@ -644,10 +617,20 @@ ENDFUNC
 ***      Pass:
 ***    Return: ComArray object with Instance,Length properties or null
 ************************************************************************
-FUNCTION CreateArray(lcBaseTypename)
-LOCAL loComArray
+FUNCTION CreateArray(lvArrayInstanceOrElementTypeString)
+LOCAL loComArray, lcType
 
-loComArray = this.oDotNetBridge.CreateArray(lcBaseTypename)
+lcType = VARTYPE(lvArrayInstanceOrElementString)
+DO CASE
+  CASE lcType = "X" OR EMPTY(lvArrayInstanceOrElementTypeString)
+	  loComArray = this.oDotnetBridge.CreateInstance("Westwind.WebConnection.ComArray")
+  CASE lcType = "C"
+	  loComArray = this.oDotnetBridge.CreateArray(lvArrayInstanceOrElementTypeString)
+  CASE lcType = "O"
+	  loComArray = this.oDotnetBridge.CreateArrayFromInstance(lvArrayInstanceOrElementTypeString)
+  OTHERWISE
+      THROW "Invalid parameter passed to CreateArray"
+ENDCASE
 
 IF ISNULL(loComArray)
    THIS.SetError(this.oDotnetBridge.ErrorMessage)
