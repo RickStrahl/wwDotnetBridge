@@ -306,6 +306,19 @@ namespace Westwind.WebConnection
 
             return true;
         }
+
+        /// <summary>
+        /// Creates an instance from an enumerable
+        /// </summary>
+        /// <param name="items"></param>
+        public void FromEnumerable(IEnumerable items)
+        {
+            var list = new List<object>();
+            foreach (var item in items)
+                list.Add(item);
+
+            this.Instance = list.ToArray();
+        }
     }
 
 
