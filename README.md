@@ -21,6 +21,7 @@ It provides the following enhancements over plain COM Interop:
 
 ##Online Documentation:
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
+* [.NET COM Interop with wwDotnetBridge White Paper](http://west-wind.com/presentations/wwDotnetBridge/wwDotnetBridge.pdf)
 * [Documentation](http://west-wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
 
 ##How it works
