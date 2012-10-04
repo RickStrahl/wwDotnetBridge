@@ -65,6 +65,12 @@ namespace Westwind.WebConnection
             Value = Convert.ToDecimal(val);
         }
 
+        public void SetLong(object val)
+        {                     
+            long tval = Convert.ToInt64(val);
+            val = tval;
+        }
+
         /// <summary>
         /// Returns a byte value which is similar
         /// to Int16.

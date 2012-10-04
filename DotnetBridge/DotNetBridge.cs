@@ -1407,9 +1407,11 @@ www.west-wind.com/webconnection
                 guid.Guid = (Guid)val;
                 return guid;
             }
+            else if (type == typeof(long) || type == typeof(Int64))
+                return Convert.ToDecimal(val);
             else if (type == typeof(byte[]))
             {
-                // don't treat as array
+                // this ensures byte[] is not treated like an array (below)                
             }
             // FoxPro can't deal with DBNull as it's a value type
             else if (type == typeof(DBNull))
