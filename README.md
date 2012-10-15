@@ -22,7 +22,7 @@ It provides the following enhancements over plain COM Interop:
 ##Online Documentation:
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
 * [.NET COM Interop with wwDotnetBridge White Paper](http://west-wind.com/presentations/wwDotnetBridge/wwDotnetBridge.pdf)
-* [Documentation](http://west-wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
+* [Documentation](http://west-wind.com/webconnection/docs/?page=_24n1cfw3a.htm)
 
 ##How it works
 
@@ -48,10 +48,10 @@ This example loads the OpenPop .NET library and accesses a POP3 mailbox to displ
 	loPop = loBridge.CreateInstance("OpenPop.Pop3.Pop3Client")
 
 	*** This won't work due to overloads
-	* loPop.Connect("mail.gorge.net",587,.f.)
+	* loPop.Connect("mail.server.net",587,.f.)
 
 	*** So, call indirectly instead
-	? loBridge.InvokeMethod(loPop,"Connect","pop3.gorge.net",110,.f.)
+	? loBridge.InvokeMethod(loPop,"Connect","mail.server.net",110,.f.)
 
     *** Most methods/members do work directly
 	? loPop.Authenticate("jb007","seekrit")
