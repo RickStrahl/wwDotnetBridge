@@ -3,6 +3,10 @@ bin
 obj
 Release
 Debug
+*.sdf
+*.pdb
+*.tlb
+*.vbr
 
 # mstest test results
 TestResults
