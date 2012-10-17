@@ -162,7 +162,8 @@ namespace Westwind.WebConnection
         /// the full type signature each time.
         /// 
         /// Assumes that the array exists already so that the 
-        /// item type can be inferred.
+        /// item type can be inferred. The type is inferred from
+        /// the arrays instance using GetElementType().
         /// </summary>
         /// <returns></returns>
         public object CreateItem()
@@ -171,6 +172,41 @@ namespace Westwind.WebConnection
                 return null;
 
             Type itemType = this.Instance.GetType().GetElementType();
+
+            object item = ReflectionUtils.CreateInstanceFromType(itemType);
+            return item;
+        }
+
+        /// <summary>
+        /// Creates an instance of the array's member type without
+        /// actually adding it to the array. This is useful to
+        /// more easily create members without having to specify
+        /// the full type signature each time.
+        /// 
+        /// This version works of the actual elements in the array
+        /// instance rather than using the 'official' element type.
+        /// Looks at the first element in the array and uses its type.
+        /// 
+        /// Assumes that the array exists already so that the 
+        /// item type can be inferred.
+        /// </summary>
+        /// <param name="forceElementType">If true looks at the first element and uses that as the type to create.
+        /// Use this option if the actual element type is of type object when the array was automatically generated
+        /// such as when FromEnumerable() was called.
+        /// </param>
+        /// <returns></returns>
+        public object CreateItemExplicit()
+        {
+            if (this.Instance == null)
+                return null;
+
+            Type itemType = null;
+            var arInst = this.Instance as Array;
+            if (arInst != null && arInst.Length > 0)
+               itemType = arInst.GetValue(0).GetType();            
+            if (itemType == null)
+               itemType = this.Instance.GetType().GetElementType();
+
             object item = ReflectionUtils.CreateInstanceFromType(itemType);
             return item;
         }
@@ -184,7 +220,6 @@ namespace Westwind.WebConnection
         {
             if (this.Instance == null)
                 return null;
-
 
             Array ar = this.Instance as Array;
 
@@ -312,7 +347,7 @@ namespace Westwind.WebConnection
         /// </summary>
         /// <param name="items"></param>
         public void FromEnumerable(IEnumerable items)
-        {
+        {            
             var list = new List<object>();
             foreach (var item in items)
                 list.Add(item);
