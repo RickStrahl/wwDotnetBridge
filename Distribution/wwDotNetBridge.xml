@@ -1028,8 +1028,29 @@
             the full type signature each time.
             
             Assumes that the array exists already so that the 
+            item type can be inferred. The type is inferred from
+            the arrays instance using GetElementType().
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.CreateItemExplicit">
+            <summary>
+            Creates an instance of the array's member type without
+            actually adding it to the array. This is useful to
+            more easily create members without having to specify
+            the full type signature each time.
+            
+            This version works of the actual elements in the array
+            instance rather than using the 'official' element type.
+            Looks at the first element in the array and uses its type.
+            
+            Assumes that the array exists already so that the 
             item type can be inferred.
             </summary>
+            <param name="forceElementType">If true looks at the first element and uses that as the type to create.
+            Use this option if the actual element type is of type object when the array was automatically generated
+            such as when FromEnumerable() was called.
+            </param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.ComArray.Item(System.Int32)">
@@ -1135,7 +1156,7 @@
         </member>
         <member name="M:Westwind.WebConnection.ComValue.SetInt64(System.Object)">
             <summary>
-            Sets a Short value which is not supported
+            Sets an Int64 value which is not supported
             in Visual FoxPro
             </summary>
             <param name="val"></param>
@@ -1144,6 +1165,12 @@
             <summary>
             Sets a Decimal value. This can actually 
             be done in FoxPro with CAST(val as Currency)
+            </summary>
+            <param name="val"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetLong(System.Object)">
+            <summary>
+            Sets a Long (64 bit) integer value
             </summary>
             <param name="val"></param>
         </member>
