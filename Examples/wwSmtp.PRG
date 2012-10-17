@@ -23,64 +23,98 @@ loBridge = CreateObject("wwDotNetBridge","V4")
 ? loBridge.cErRORMSG
 
 LOCAL loSmtp as Westwind.wwSmtp
-*loSmtp = CREATEOBJECT("Westwind.wwSmtp")
 loSmtp = loBridge.CreateInstance("Westwind.wwSmtp")
 
-lcFile = FULLPATH("sailbig")
-
-*loSmtp.AddAttachment_3("c:\sailbig.jpg")
-loBridge.InvokeMethod(loSmtp,"AddAttachment",lcFile)
-
-loSmtp.MailServer = "smtp.server.net:587"
+loSmtp.MailServer = "smtp.gorge.net:587"
 loSmtp.UseSsl = .F.
 
 loSmtp.Username = "rstrahl"
 loSmtp.Password = STRTRAN(GetSystemPassword(),"0","")
 
-loSmtp.Recipient = "John Doe<doe@doeboy.com>"
-loSmtp.SenderEmail = "admin@wise-man.com"
+loSmtp.Recipient = "Rick Strahl<rstrahl@west-wind.com>"
+loSmtp.SenderEmail = "admin@west-wind.com"
 
 loSmtp.Subject = "Test Message"
-TEXT TO loSmtp.Message NOSHOW
-<html>
-	<head>
-		<style>
-			body { font-family: Verdana; background: cornsilk; }
-		</style>
-	</head>
-<body>
-<p>
-Hello Rick,
-</p>
-<p>
-This is a test message from <b>Southwest Fox</b>
-</p>
 
-<p>
-Enjoy,
-</p>
-<p>
-+++ Rick ---
-</p>
-</body>
-</html>
-ENDTEXT
+#IF .T.
+	*** Single View - HTML in this case
+	loSmtp.ContentType = "text/html"
 
-loSmtp.contentType = "text/html"
+	TEXT TO loSmtp.Message NOSHOW
+	<html>
+		<head>
+			<style>
+				body { font-family: Verdana; background: cornsilk; }
+			</style>
+		</head>
+	<body>
+	<p>
+	Hello Rick,
+	</p>
+	<p>
+	This is a test message from <b>Southwest Fox</b>
+	</p>
+	
+	<p>
+	Enjoy,
+	</p>
+	<p>
+	+++ Rick ---
+	</p>
+	</body>
+	</html>
+	ENDTEXT
+#ELSE
+    *** Add multiple content messages - plain text
 
-*** Hook up the event object to wwSmtp instance
-loEvents = CREATEOBJECT("wwSmtpEvents")
-EVENTHANDLER(loSmtp,loEvents)
+	*** Simple plain text message
+	loSmtp.Message = "These are images of the sun which are included"
+	loSmtp.contentType = "text/plain"
 
-*** You can route events to another class
-*!*	BINDEVENT(loEvents,"IwwSmtpEvents_SendMailMessagesObject",;
-*!*	          THIS,"OnSendMailMessages")
+	*** ADD AN ALTERNATE VIEW
+	LOCAL loLinkedResources as Westwind.WebConnection.ComArray
+	loLinkedResources = loBridge.CreateArray("Westwind.AlternateViewResource")
+	loRes = loLinkedResources.CreateItem()
+	loRes.ContentId = "sunset"
+	loRes.Filename = FULLPATH("Sunset.jpg")
+	loRes.ContentType = "image/jpeg"
+	loLinkedResources.AddItem(loRes)
+	loBridge.InvokeMethod(loSmtp,"AddAlternateView",;
+	                        "Images of the sun: <hr />" +;
+	                        "<img src='cid:sunset' />",;
+	                        "text/html",loLinkedResources)
+#ENDIF                        
+
+*** add an attachment
+lcFile = FULLPATH("sailbig.jpg")
+loBridge.InvokeMethod(loSmtp,"AddAttachment",lcFile)
+*loSmtp.AddAttachment_3("c:\sailbig.jpg")
 
 
-? loSmtp.SendMailAsync()
-? loSmtp.ErrorMessage
+#IF .T.
+	*** SYNCHRONOUS SENDING
+	IF (!loSmtp.SendMail())
+	   ? loSmtp.ErrorMessage
+	   RETURN
+	ENDIF   
 
-? "Code is done executing..."
+#ELSE
+	*** ASYNCHRONOUS WITH EVENTS ***
+
+	*** Hook up the event object to wwSmtp instance
+	loEvents = CREATEOBJECT("wwSmtpEvents")
+	EVENTHANDLER(loSmtp,loEvents)
+
+	*** You can route events to another class
+	*!*	BINDEVENT(loEvents,"IwwSmtpEvents_SendMailMessagesObject",;
+	*!*	          THIS,"OnSendMailMessages")
+
+
+	? loSmtp.SendMailAsync()
+	? loSmtp.ErrorMessage
+
+	? "Code is done executing..."
+#ENDIF
 
 RETURN
 

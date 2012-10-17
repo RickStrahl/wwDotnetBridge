@@ -35,7 +35,7 @@ DEFINE CLASS wwDotNetBridge AS Custom
 *:         (c) West Wind Technologies, 2007-2012
 *:Contact: http://www.west-wind.com
 *:Created: 05/10/2007
-*:Updated: 9/15/2012
+*:Updated: 9/25/2012
 *************************************************************
 #IF .F.
 *:Help Documentation
@@ -620,7 +620,7 @@ ENDFUNC
 FUNCTION CreateArray(lvArrayInstanceOrElementTypeString)
 LOCAL loComArray, lcType
 
-lcType = VARTYPE(lvArrayInstanceOrElementString)
+lcType = VARTYPE(lvArrayInstanceOrElementTypeString)
 DO CASE
   CASE lcType = "X" OR EMPTY(lvArrayInstanceOrElementTypeString)
 	  loComArray = this.oDotnetBridge.CreateInstance("Westwind.WebConnection.ComArray")
