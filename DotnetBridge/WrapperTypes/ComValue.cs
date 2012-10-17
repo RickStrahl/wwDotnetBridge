@@ -44,7 +44,7 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Sets a Short value which is not supported
+        /// Sets an Int64 value which is not supported
         /// in Visual FoxPro
         /// </summary>
         /// <param name="val"></param>
@@ -65,6 +65,10 @@ namespace Westwind.WebConnection
             Value = Convert.ToDecimal(val);
         }
 
+        /// <summary>
+        /// Sets a Long (64 bit) integer value
+        /// </summary>
+        /// <param name="val"></param>
         public void SetLong(object val)
         {                     
             long tval = Convert.ToInt64(val);
