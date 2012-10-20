@@ -1240,6 +1240,24 @@
             <param name="method">Method to call</param>
             <param name="parms">An array of the parameters passed (use ComArray and InvokeMethod)</param>
         </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetGuid(System.String)">
+            <summary>
+            Sets a GUID from a string on the Value structure
+            </summary>
+            <param name="guid"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.NewGuid">
+            <summary>
+            Create a new Guid on the Value structure
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.GetGuidString">
+            <summary>
+            Retrieves a GUID value as a string
+            from the Value structure
+            </summary>
+            <returns></returns>
+        </member>
         <member name="P:Westwind.WebConnection.ComValue.Value">
             <summary>
             Internally this value is set by the various

@@ -192,6 +192,32 @@ namespace Westwind.WebConnection
             Value = bridge.InvokeMethodWithParameterArray(objectRef, method, parms);
         }
 
+        /// <summary>
+        /// Sets a GUID from a string on the Value structure
+        /// </summary>
+        /// <param name="guid"></param>
+        public void SetGuid(string guid)
+        {
+            Value = new Guid(guid);
+        }
 
+        /// <summary>
+        /// Create a new Guid on the Value structure
+        /// </summary>
+        public void NewGuid()
+        {
+            Value = Guid.NewGuid();
+        }
+
+        /// <summary>
+        /// Retrieves a GUID value as a string
+        /// from the Value structure
+        /// </summary>
+        /// <returns></returns>
+        public string GetGuidString()
+        {
+            Guid guid = (Guid) Value;
+            return guid.ToString();
+        }
     }
 }

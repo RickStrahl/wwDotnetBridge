@@ -338,9 +338,6 @@ namespace Westwind.WebConnection
             var type = ar.GetValue(0).GetType();
             this.Instance = Array.CreateInstance(type, 0);
 
-            //ArrayList items = new ArrayList(ar);            
-            //items.Clear();
-            //ar = items.ToArray();
 
             return true;
         }
