@@ -335,9 +335,12 @@ namespace Westwind.WebConnection
             if (ar.GetLength(0) < 1)
                 return true;
 
-            ArrayList items = new ArrayList(ar);            
-            items.Clear();
-            ar = items.ToArray();
+            var type = ar.GetValue(0).GetType();
+            this.Instance = Array.CreateInstance(type, 0);
+
+            //ArrayList items = new ArrayList(ar);            
+            //items.Clear();
+            //ar = items.ToArray();
 
             return true;
         }
@@ -347,12 +350,24 @@ namespace Westwind.WebConnection
         /// </summary>
         /// <param name="items"></param>
         public void FromEnumerable(IEnumerable items)
-        {            
-            var list = new List<object>();
+        {
+            ArrayList al = new ArrayList();
             foreach (var item in items)
-                list.Add(item);
+                al.Add(item);
 
-            this.Instance = list.ToArray();
+            if (al.Count < 1)
+            {
+                Instance = null;
+                return;
+            }
+
+            Type elType = al[0].GetType();
+            Array ar = Array.CreateInstance(elType,al.Count);
+            for (int i = 0; i < al.Count; i++)
+            {
+            	ar.SetValue(al[i],i);
+            }
+            this.Instance = ar;
         }
     }
 
