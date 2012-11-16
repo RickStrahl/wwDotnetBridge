@@ -139,7 +139,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 		   RETURN NULL 
 		ENDIF
 
-		*** Turn handle into IDispatch object
+		*** Turn handle into IDispatch COM object
 		this.oDotNetBridge = SYS(3096, lnDispHandle)	
 
 		*** Explicitly AddRef here - otherwise weird shit happens when objects are released

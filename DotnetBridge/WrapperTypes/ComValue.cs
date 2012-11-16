@@ -85,25 +85,6 @@ namespace Westwind.WebConnection
             Value = Convert.ToByte(value);
         }
 
-        /// <summary>
-        /// Sets value to a .NET Guid. Creates a GUID from 
-        /// either ComGuid instance
-        /// a string, or if null creates a new GUID.                
-        /// </summary>
-        /// <param name="value"></param>
-        public void SetGuid(object value)
-        {
-            if (value == null)
-                Value = Guid.NewGuid();
-            else if (value is ComGuid)
-                Value = value;
-            else if (value is String)
-            {
-                var guid = new ComGuid();
-                guid.GuidString = value as string;
-                Value = guid.Guid;
-            }
-        }
 
         /// <summary>
         /// Assigns an enum value to the value structure. This 
@@ -193,12 +174,19 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Sets a GUID from a string on the Value structure
+        /// Sets value to a .NET Guid. Creates a GUID from 
+        /// either ComGuid instance
+        /// a string, or if null creates a new GUID.                
         /// </summary>
-        /// <param name="guid"></param>
-        public void SetGuid(string guid)
+        /// <param name="value"></param>
+        public void SetGuid(object value)
         {
-            Value = new Guid(guid);
+            if (value == null)
+                Value = Guid.NewGuid();
+            else if (value is ComGuid)
+                Value = ((ComGuid) value).Guid;
+            else if (value is String)
+                Value = new Guid(value as string);
         }
 
         /// <summary>
@@ -214,8 +202,11 @@ namespace Westwind.WebConnection
         /// from the Value structure
         /// </summary>
         /// <returns></returns>
-        public string GetGuidString()
+        public string GetGuid()
         {
+            if (Value == null)
+                return null;
+
             Guid guid = (Guid) Value;
             return guid.ToString();
         }

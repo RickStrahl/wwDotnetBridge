@@ -1181,14 +1181,6 @@
             </summary>
             <param name="value"></param>
         </member>
-        <member name="M:Westwind.WebConnection.ComValue.SetGuid(System.Object)">
-            <summary>
-            Sets value to a .NET Guid. Creates a GUID from 
-            either ComGuid instance
-            a string, or if null creates a new GUID.                
-            </summary>
-            <param name="value"></param>
-        </member>
         <member name="M:Westwind.WebConnection.ComValue.SetEnum(System.String)">
             <summary>
             Assigns an enum value to the value structure. This 
@@ -1240,18 +1232,20 @@
             <param name="method">Method to call</param>
             <param name="parms">An array of the parameters passed (use ComArray and InvokeMethod)</param>
         </member>
-        <member name="M:Westwind.WebConnection.ComValue.SetGuid(System.String)">
+        <member name="M:Westwind.WebConnection.ComValue.SetGuid(System.Object)">
             <summary>
-            Sets a GUID from a string on the Value structure
+            Sets value to a .NET Guid. Creates a GUID from 
+            either ComGuid instance
+            a string, or if null creates a new GUID.                
             </summary>
-            <param name="guid"></param>
+            <param name="value"></param>
         </member>
         <member name="M:Westwind.WebConnection.ComValue.NewGuid">
             <summary>
             Create a new Guid on the Value structure
             </summary>
         </member>
-        <member name="M:Westwind.WebConnection.ComValue.GetGuidString">
+        <member name="M:Westwind.WebConnection.ComValue.GetGuid">
             <summary>
             Retrieves a GUID value as a string
             from the Value structure

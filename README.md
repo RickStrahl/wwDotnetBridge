@@ -2,22 +2,24 @@
 ---------------
 ###.NET Interop made easy for Visual FoxPro
 
-wwDotnetBridge is a .NET Runtime Hosting engine and .NET access helper for Visual FoxPro. It allows hosting of the .NET runtime in a Win32 application, and accessing .NET components without having to have them registered first.
+wwDotnetBridge is a .NET Runtime Hosting engine and .NET access helper for Visual FoxPro. It allows hosting of the .NET runtime in a Win32 application, 
+and accessing .NET components without having to register them first.
 
 It provides the following enhancements over plain COM Interop:
 
-* Access most .NET Components directly
-* Requires no COM Registration for .NET Objects
+* Access most .NET Components directly even those not marked [ComVisible]
+* Requires no COM Registration for .NET Assemblies
 * Create types with parameterized constructors
 * Support for many natively unsupported .NET types and values
 * Access static method/members, structs, binary data, guids, DbNulls
-* Call overloaded methods 
+* Call overloaded methods using standard method names
 * Automatically fixes up problematic .NET Types
 * Provides easy Array access with ComArray helper class
-* ComValue structure to help with .NET TypeConversions
+* ComValue structure to help with .NET type conversions
 * Ability to keep values entirely in .NET with ComValue
 * Assign values directly to properties without passing through FoxPro
 * Multi-threading library built-in
+* wwDotnetBridge .NET Helper also works with regular COM Interop (w/o runtime hosting)
 
 ##Online Documentation:
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
@@ -26,7 +28,7 @@ It provides the following enhancements over plain COM Interop:
 
 ##How it works
 
-This library consists of 3 components:
+This library consists of 3 components (all provided here):
 
 * ClrHost.dll - Win32 Loader for the .NET Runtime
 * wwDotnetBridge.dll  - .NET assembly Proxy and Helper

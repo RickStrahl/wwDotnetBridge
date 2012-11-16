@@ -79,34 +79,6 @@ namespace Westwind.WebConnection
         public Exception LastException { get; set; }
 
 
-
-#if SHAREWARE
-        public static int AccessCounter = 0;
-
-        public wwDotNetBridge()
-        {            
-            AccessCounter++;
-            if (AccessCounter == 1 || AccessCounter % 20 == 0)
-            {
-                MessageBox.Show(
-@"
-West Wind .NET Bridge Shareware Version
---------
-This is an evaluation copy. If you use it 
-in production environments please register your 
-copy with one of these tools:
-
-www.west-wind.com/WsdlGenerator
-www.west-wind.com/wwClientTools.asp
-www.west-wind.com/webconnection
-",
-                "West Wind Technologies",
-                MessageBoxButtons.OK,MessageBoxIcon.Information);
-            }
-        }
-#endif
-
-
         #region LoadAssembly Routines
         /// <summary>
         /// Loads an assembly into the AppDomain by its fully qualified assembly name
