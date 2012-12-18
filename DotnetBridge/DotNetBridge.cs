@@ -851,9 +851,7 @@ namespace Westwind.WebConnection
             catch (Exception ex)
             {
                 SetError(ex, true);
-                if (ex.InnerException != null)
-                    throw ex.InnerException;
-                throw;
+                throw ex.GetBaseException();
             }
         }
 
@@ -869,9 +867,7 @@ namespace Westwind.WebConnection
             catch (Exception ex)
             {
                 SetError(ex, true);
-                if (ex.InnerException != null)
-                    throw ex.InnerException;
-                throw;
+                throw ex.GetBaseException();
             }
         }
 
@@ -896,9 +892,7 @@ namespace Westwind.WebConnection
             catch (Exception ex)
             {
                 SetError(ex, true);
-                if (ex.InnerException != null)
-                    throw ex.InnerException;
-                throw;
+                throw ex.GetBaseException();                
             }
         }
 
@@ -927,13 +921,8 @@ namespace Westwind.WebConnection
             catch (Exception ex)
             {
                 LastException = ex;
-                if (ex.InnerException != null)
-                {
-                    LastException = ex.InnerException;
-                    throw ex.InnerException;
-                };
-
-                throw;
+                this.SetError(ex,true);
+                throw ex.GetBaseException();
             }
         }
 
@@ -954,7 +943,7 @@ namespace Westwind.WebConnection
                 ar.SetValue(this.FixupParameter(args[i]), i);
             }
 
-            LastException = null;
+            this.SetError();
             object result = null;
             try
             {
@@ -980,10 +969,8 @@ namespace Westwind.WebConnection
            }
            catch(Exception ex)
            {
-               SetError(ex, true);               
-               if (ex.InnerException != null)
-                   throw ex.InnerException;               
-               throw;
+               SetError(ex, true);
+               throw ex.GetBaseException();
            }
 
            return this.FixupReturnValue(result);
@@ -1488,12 +1475,12 @@ namespace Westwind.WebConnection
             if (string.IsNullOrEmpty(message))
             {
                 LastException = null;
-                this.Error = false;
-                this.ErrorMessage = "";
+                Error = false;
+                ErrorMessage = "";
                 return;
             }
-            this.Error = true;
-            this.ErrorMessage = message;            
+            Error = true;
+            ErrorMessage = message;            
         }
 
         protected void SetError(Exception ex, bool checkInner) 
@@ -1506,14 +1493,12 @@ namespace Westwind.WebConnection
             }
 
             Exception e = ex;
-            if (checkInner && e.InnerException != null)
-            {
-                e = e.InnerException;
-            }
-
+            if (checkInner)
+                e = ex.GetBaseException();
+            
             this.Error = true;
             this.ErrorMessage = e.Message;
-            this.LastException = ex;
+            this.LastException = e;
         }
 
         protected void SetError(Exception ex)
