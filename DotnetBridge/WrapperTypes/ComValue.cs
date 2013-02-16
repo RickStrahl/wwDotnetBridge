@@ -4,6 +4,8 @@ using Westwind.Utilities;
 using System.Reflection;
 using System.IO;
 using System.Drawing;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace Westwind.WebConnection
 {
@@ -109,6 +111,8 @@ namespace Westwind.WebConnection
             Value = bridge.GetStaticProperty(type,property);
         }
 
+
+
         /// <summary>
         /// Allows setting of DbNull from FoxPro since DbNull is an inaccessible
         /// value type for FoxPro.
@@ -117,9 +121,6 @@ namespace Westwind.WebConnection
         {
             Value = DBNull.Value;
         }
-
-
-
 
         /// <summary>
         /// Sets the Value property from a property retrieved from .NET
@@ -157,7 +158,12 @@ namespace Westwind.WebConnection
         /// <param name="parms">An array of the parameters passed (use ComArray and InvokeMethod)</param>
         public void SetValueFromInvokeMethod(object objectRef, string method, ComArray parms)
         {
-            SetValueFromInvokeMethod(objectRef, method, parms.Instance as object[]);
+            var list = new List<object>();
+            if (parms.Instance != null)
+                foreach (object item in parms.Instance as IEnumerable)
+                    list.Add(item);
+
+            SetValueFromInvokeMethod(objectRef, method, list.ToArray());            
         }
 
         /// <summary>
@@ -171,6 +177,34 @@ namespace Westwind.WebConnection
         {
             wwDotNetBridge bridge = new wwDotNetBridge();
             Value = bridge.InvokeMethodWithParameterArray(objectRef, method, parms);
+        }
+
+        /// <summary>
+        /// Sets the Value property from a CreateInstance call. Useful for
+        /// value types that can't be passed back to FoxPro.
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="parms"></param>
+        public void SetValueFromCreateInstance(string typeName, ComArray parms)
+        {
+            var list = new List<object>();
+            if (parms.Instance != null)
+                foreach(object item in parms.Instance as IEnumerable)                
+                    list.Add(item);
+                
+              SetValueFromCreateInstance(typeName, list.ToArray());
+        }
+
+        /// <summary>
+        /// Sets the Value property from a CreateInstance call. Useful for
+        /// value types that can't be passed back to FoxPro.
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="parms"></param>
+        public void SetValueFromCreateInstance(string typeName, object[] parms)
+        {            
+            wwDotNetBridge bridge = new wwDotNetBridge();            
+            Value = bridge.CreateInstance_Internal(typeName, parms);
         }
 
         /// <summary>

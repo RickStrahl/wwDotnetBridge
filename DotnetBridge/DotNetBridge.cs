@@ -54,7 +54,7 @@ namespace Westwind.WebConnection
     /// </summary>
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.AutoDual)]
-    [ProgId("Westwind.wwDotNetBridge")]   
+    [ProgId("Westwind.wwDotNetBridge")]
     public class wwDotNetBridge
     {
         /// <summary>
@@ -62,13 +62,12 @@ namespace Westwind.WebConnection
         /// </summary>
         public string ErrorMessage
         {
-          get { return _ErrorMessage; }
-          set { _ErrorMessage = value; }
+            get { return _ErrorMessage; }
+            set { _ErrorMessage = value; }
         }
         private string _ErrorMessage = "";
 
-        
-        public bool Error   
+        public bool Error
         {
             get { return _Error; }
             set { _Error = value; }
@@ -134,7 +133,7 @@ namespace Westwind.WebConnection
         }
         #endregion
 
-        #region CreateInstance by type name only 
+        #region CreateInstance by type name only
         /// <summary>
         /// Creates a type reference from a given type name if the
         /// assembly is already loaded.
@@ -143,7 +142,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateInstance(string TypeName)
         {
-            object obj =  this.CreateInstance_Internal(TypeName);
+            object obj = this.CreateInstance_Internal(TypeName);
             return obj;
         }
 
@@ -213,7 +212,7 @@ namespace Westwind.WebConnection
         /// <param name="TypeName"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        protected object CreateInstance_Internal(string TypeName, params object[] args)
+        protected internal object CreateInstance_Internal(string TypeName, params object[] args)
         {
             this.SetError();
 
@@ -238,7 +237,7 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                this.SetError(ex,true);
+                this.SetError(ex, true);
                 return null;
             }
 
@@ -274,8 +273,8 @@ namespace Westwind.WebConnection
                 return null;
             }
             catch (Exception ex)
-            {                
-                this.SetError(ex,true);
+            {
+                this.SetError(ex, true);
                 return null;
             }
 
@@ -297,7 +296,7 @@ namespace Westwind.WebConnection
         }
         public bool CreateInstanceOnType_OneParm(object instance, string property, string TypeName, object parm1)
         {
-            return this.CreateInstanceOnType_Internal(instance, property, TypeName,parm1);
+            return this.CreateInstanceOnType_Internal(instance, property, TypeName, parm1);
         }
         public bool CreateInstanceOnType_TwoParms(object instance, string property, string TypeName, object parm1, object parm2)
         {
@@ -335,7 +334,7 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                LastException = ex; 
+                LastException = ex;
                 this.SetError(ex.Message);
                 return false;
             }
@@ -346,12 +345,12 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                LastException = ex; 
+                LastException = ex;
                 this.ErrorMessage = ex.Message;
                 return false;
             }
 
-            return true;           
+            return true;
         }
 
         #endregion
@@ -419,9 +418,9 @@ namespace Westwind.WebConnection
                     LastException = ex.InnerException;
                     SetError(ex.InnerException.Message);
                 }
-                else 
+                else
                     SetError(ex.Message);
-                
+
                 return null;
             }
 
@@ -474,7 +473,7 @@ namespace Westwind.WebConnection
 
         public object InvokeStaticMethod_OneParm(string TypeName, string Method, object Parm1)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1);        
+            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1);
         }
 
 
@@ -485,7 +484,7 @@ namespace Westwind.WebConnection
 
         public object InvokeStaticMethod_ThreeParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2,  Parm3);
+            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3);
         }
         public object InvokeStaticMethod_FourParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4)
         {
@@ -493,7 +492,7 @@ namespace Westwind.WebConnection
         }
         public object InvokeStaticMethod_FiveParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4,Parm5);
+            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5);
         }
         public object InvokeStaticMethod_SixParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6)
         {
@@ -537,7 +536,7 @@ namespace Westwind.WebConnection
             // fix up all parameters
             Array ar = args as Array;
             for (int i = 0; i < args.Length; i++)
-            {                
+            {
                 ar.SetValue(this.FixupParameter(args[i]), i);
             }
 
@@ -545,7 +544,7 @@ namespace Westwind.WebConnection
             object Result = null;
             try
             {
-                  Result = type.InvokeMember(Method, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod,null, type, args);
+                Result = type.InvokeMember(Method, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, type, args);
             }
             catch (Exception ex)
             {
@@ -572,7 +571,7 @@ namespace Westwind.WebConnection
                 this.SetError("Type is not loaded. Please make sure you call LoadAssembly first.");
                 return null;
             }
-            
+
             object Result = null;
             try
             {
@@ -601,7 +600,7 @@ namespace Westwind.WebConnection
             object Result = null;
             try
             {
-                Result = type.InvokeMember(Property, BindingFlags.Static | BindingFlags.Public | BindingFlags.SetField | BindingFlags.SetProperty, null, type, new object[1] { Value } );
+                Result = type.InvokeMember(Property, BindingFlags.Static | BindingFlags.Public | BindingFlags.SetField | BindingFlags.SetProperty, null, type, new object[1] { Value });
             }
             catch (Exception ex)
             {
@@ -636,18 +635,29 @@ namespace Westwind.WebConnection
             return null;
         }
 
+        public Type GetType(object value)
+        {
+            if (value == null)
+                return null;
+
+            return value.GetType();
+        }
+
         /// <summary>
         /// Helper routine that looks up a type name and tries to retrieve the
         /// full type reference in the actively executing assemblies.
         /// </summary>
-        /// <param name="TypeName"></param>
+        /// <param name="typeName"></param>
         /// <returns></returns>
-        private Type GetTypeFromName(string TypeName)
-        {            
+        public Type GetTypeFromName(string typeName)
+        {
+            if (string.IsNullOrEmpty(typeName))
+                return null;
+
             Type type = null;
             foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
             {
-                type = ass.GetType(TypeName, false);
+                type = ass.GetType(typeName, false);
                 if (type != null)
                     break;
             }
@@ -683,7 +693,7 @@ namespace Westwind.WebConnection
         {
             Parm1 = FixupParameter(Parm1);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1);            
+            return this.InvokeMethod_Internal(Instance, Method, Parm1);
         }
 
         /// <summary>
@@ -706,7 +716,7 @@ namespace Westwind.WebConnection
         {
             Parm1 = this.FixupParameter(Parm1);
             Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3); 
+            Parm3 = this.FixupParameter(Parm3);
 
             return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3);
         }
@@ -833,8 +843,8 @@ namespace Westwind.WebConnection
             ComArray ParmArray = ParameterArray as ComArray;
             for (int i = 0; i < ParmArray.Count; i++)
             {
-                Array ar = ParmArray.Instance as Array; 
-                ar.SetValue( this.FixupParameter(ar.GetValue(i)),i);
+                Array ar = ParmArray.Instance as Array;
+                ar.SetValue(this.FixupParameter(ar.GetValue(i)), i);
             }
             return this.InvokeMethod_InternalWithObjectArray(Instance, Method, ParmArray.Instance as object[]);
         }
@@ -892,7 +902,7 @@ namespace Westwind.WebConnection
             catch (Exception ex)
             {
                 SetError(ex, true);
-                throw ex.GetBaseException();                
+                throw ex.GetBaseException();
             }
         }
 
@@ -921,7 +931,7 @@ namespace Westwind.WebConnection
             catch (Exception ex)
             {
                 LastException = ex;
-                this.SetError(ex,true);
+                this.SetError(ex, true);
                 throw ex.GetBaseException();
             }
         }
@@ -960,20 +970,20 @@ namespace Westwind.WebConnection
 
         protected object InvokeMethod_InternalWithObjectArray(object Instance, string Method, object[] args)
         {
-           this.SetError();
-           object result;
+            this.SetError();
+            object result;
 
-           try
-           {
-               result = ReflectionUtils.CallMethodCom(Instance, Method, args);
-           }
-           catch(Exception ex)
-           {
-               SetError(ex, true);
-               throw ex.GetBaseException();
-           }
+            try
+            {
+                result = ReflectionUtils.CallMethodCom(Instance, Method, args);
+            }
+            catch (Exception ex)
+            {
+                SetError(ex, true);
+                throw ex.GetBaseException();
+            }
 
-           return this.FixupReturnValue(result);
+            return this.FixupReturnValue(result);
         }
 
         #region Array Functions
@@ -986,7 +996,7 @@ namespace Westwind.WebConnection
         /// <param name="baseType"></param>
         /// <param name="arrayProperty"></param>
         /// <returns></returns>
-        private Array CreateArrayInstanceInternal(object baseType,string arrayProperty, int size)
+        private Array CreateArrayInstanceInternal(object baseType, string arrayProperty, int size)
         {
             MemberInfo[] miArray = baseType.GetType().GetMember(arrayProperty);
             if (miArray == null || miArray.Length == 0)
@@ -1006,10 +1016,10 @@ namespace Westwind.WebConnection
             {
                 this.SetError("Invalid type for array: " + type.Name);
                 return null;
-            }            
-            
+            }
+
             // *** Create instance and assign size
-            Array ar =  Array.CreateInstance(type, size);
+            Array ar = Array.CreateInstance(type, size);
             return ar;
         }
 
@@ -1025,7 +1035,7 @@ namespace Westwind.WebConnection
         {
             this.SetError();
 
-            Array ar = CreateArrayInstanceInternal(baseType,arrayProperty,size);
+            Array ar = CreateArrayInstanceInternal(baseType, arrayProperty, size);
             if (ar == null)
                 return false;
 
@@ -1082,7 +1092,7 @@ namespace Westwind.WebConnection
 
             // *** Create instance and assign
             Array ar = Array.CreateInstance(type, 0);
-            
+
             // *** assign the item passed in
             //ar.SetValue(item, 0);
             comArray.Instance = ar;
@@ -1120,17 +1130,17 @@ namespace Westwind.WebConnection
             // *** Null assignments are not allowed because we may have to create the array
             // *** and a type is required for that. If necessary create an empty instance
             if (item == null && ar == null)
-                return false;            
+                return false;
 
-            
+
             // *** This may be ambigous - could mean no property or array exists and is null
-            if (ar == null)        
-            {                
+            if (ar == null)
+            {
                 ar = Array.CreateInstance(item.GetType(), 1);
                 if (ar == null)
                     return false;
-                
-                ar.SetValue(item, 0);                
+
+                ar.SetValue(item, 0);
             }
             else
             {
@@ -1144,9 +1154,9 @@ namespace Westwind.WebConnection
 
                 // reassign to original instance var
                 ar = TempArray;
-                
+
                 // and assign the new added item
-                ar.SetValue(item, Size);             
+                ar.SetValue(item, Size);
             }
 
             // make sure the original array instance reference gets updated
@@ -1272,7 +1282,7 @@ namespace Westwind.WebConnection
 
             MemoryStream ms = new MemoryStream(4096);
             ds.WriteXml(ms, includeSchema ? XmlWriteMode.WriteSchema : XmlWriteMode.IgnoreSchema);
-            string xml =  Encoding.UTF8.GetString(ms.ToArray());
+            string xml = Encoding.UTF8.GetString(ms.ToArray());
             return xml;
         }
 
@@ -1309,15 +1319,6 @@ namespace Westwind.WebConnection
             }
         }
 
-        /// <summary>
-        /// Returns a type object to Visual FoxPro
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public Type GetType(object value)
-        {
-            return value.GetType();
-        }
         
 
         #endregion
@@ -1342,7 +1343,7 @@ namespace Westwind.WebConnection
             else if (type == typeof(ComGuid))
                 return ((ComGuid)val).Guid;
             else if (type == typeof(ComArray))
-                return ((ComArray)val).Instance;            
+                return ((ComArray)val).Instance;
 
             return val;
         }
@@ -1394,7 +1395,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public byte[] ConvertObjectToByteArray(object val)
         {
-            Array ct = (Array) val;
+            Array ct = (Array)val;
             Byte[] content = new byte[ct.Length];
             ct.CopyTo(content, 0);
             return content;
@@ -1404,7 +1405,7 @@ namespace Westwind.WebConnection
 
         #endregion
 
-      
+
         /// <summary>
         /// Helper routine that automatically assigns default names to certain
         /// 'common' system assemblies so that we don't have to provide a full path
@@ -1414,7 +1415,7 @@ namespace Westwind.WebConnection
         /// </summary>
         /// <param name="AssemblyName"></param>
         protected string FixupAssemblyName(string AssemblyName)
-        { 
+        {
             string lowerAssemblyName = AssemblyName.ToLower();
 
             if (Environment.Version.Major == 2)
@@ -1461,8 +1462,8 @@ namespace Westwind.WebConnection
                 else if (lowerAssemblyName == "system.runtime.serialization")
                     AssemblyName = "System.Runtime.Serialization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
             }
-            
-            return AssemblyName; 
+
+            return AssemblyName;
         }
 
         protected void SetError()
@@ -1480,10 +1481,10 @@ namespace Westwind.WebConnection
                 return;
             }
             Error = true;
-            ErrorMessage = message;            
+            ErrorMessage = message;
         }
 
-        protected void SetError(Exception ex, bool checkInner) 
+        protected void SetError(Exception ex, bool checkInner)
         {
             if (ex == null)
             {
@@ -1495,7 +1496,7 @@ namespace Westwind.WebConnection
             Exception e = ex;
             if (checkInner)
                 e = ex.GetBaseException();
-            
+
             this.Error = true;
             this.ErrorMessage = e.Message;
             this.LastException = e;
@@ -1511,9 +1512,9 @@ namespace Westwind.WebConnection
 
         public string GetVersionInfo()
         {
-            string res = @".NET Version: " + Environment.Version.ToString() + "\r\n" + 
+            string res = @".NET Version: " + Environment.Version.ToString() + "\r\n" +
                this.GetType().Assembly.CodeBase;
             return res;
         }
-    }   
+    }
 }

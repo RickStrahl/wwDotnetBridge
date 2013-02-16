@@ -1,9 +1,33 @@
+*** This flag defines West Wind's commercial version
+*** The open source version should be set to .F.
+#DEFINE IS_WESTWIND    .F.
 
 SET PROCEDURE TO wwDotNetBridge ADDITIVE
-*SET PROCEDURE TO WWUTILS ADDITIVE 
 
-#DEFINE WWC_CLR_HOSTDLL clrhost.dll
-*wwipstuff.dll  &&wwDotNetBridgeW32.dll
+#IF IS_WESTWIND
+	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
+
+	*** for GetwwDotnetBridge()
+	SET PROCEDURE TO WWUTILS ADDITIVE 
+	SET PROCEDURE TO WWAPI ADDITIVE
+
+	*** Other dependencies
+	* .NET Runtime 2.0 or later
+
+	*** DLLs
+	* wwDotnetBridge.dll
+	* wwIpStuff.dll
+	* NewtonSoft.Json.dll - ToJson()/FromJson() only
+#ELSE
+	#DEFINE WWC_CLR_HOSTDLL clrhost.dll
+
+	*** Other dependencies
+	* .NET Runtime 2.0 or later
+
+	*** DLLs
+	* wwDotnetBridge.dll
+	* clrhost.dll
+#ENDIF
 
 
 ************************************************************************
@@ -11,18 +35,23 @@ SET PROCEDURE TO wwDotNetBridge ADDITIVE
 ****************************************
 ***  Function: Factory class to feed a reusable and stored instance
 ***            of the wwDotNetBridge class. 
-***    Assume:
+***    Assume: Depends on wwutils.prg
 ***      Pass:
 ***    Return: 
 ************************************************************************
 FUNCTION GetwwDotNetBridge(lcVersion)
 IF VARTYPE(__DOTNETBRIDGE) != "O"
-   lcVersion = ""
-   IF !IsDotNet("",@lcVersion) OR lcVersion < "V2"
-   	  RETURN .NULL.
-   ENDIF   
+   IF EMPTY(lcVersion)       
+	   lcVersion = ""
+	   IF !IsDotNet("",@lcVersion)
+	   	  RETURN NULL
+	   ENDIF   
+   ENDIF
    PUBLIC __DOTNETBRIDGE
    __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
+   IF VARTYPE(__DOTNETBRIDGE) # "O"
+      RETURN NULL
+   ENDIF
 ENDIF
 RETURN __DOTNETBRIDGE
 ENDFUNC
@@ -79,18 +108,25 @@ lUseCom = .F.
 ************************************************************************
 * wwDotnetBridge ::  Init
 ****************************************
-***  Function:
-***    Assume:
-***      Pass:
-***    Return:
+***  Function: Initializes the .NET runtime inside of FoxPro
+***    Assume: Calls Load() to actual perform load operation
+***      Pass: lcVersion -  specific .NET Version or
+***                         simplified "V2", "V4"
+***            llUseCom  -  if .T. loads .NET Bridge via
+***                         plain COM interop rather than 
+***                         hosting .NET runtime itself.
+***                         If you do COM 
+***    Return: nothing
 ************************************************************************
 FUNCTION Init(lcVersion, llUseCom)
 
 IF !EMPTY(lcVersion)
+   LOCAL lcShortVer
+   lcShortVer = UPPER(lcVersion)
    DO CASE 
-   	CASE lcVersion == "V4"
+   	CASE lcShortVer == "V4"
    	  lcVersion = "v4.0.30319"
-	CASE lcVersion == "V2"
+	CASE lcShortVer == "V2"
       lcVersion = "v2.0.50727"     
    ENDCASE
 
@@ -754,14 +790,28 @@ ENDFUNC
 *  GetType
 ****************************************
 ***  Function: Returns a .NET type reference to the value passed
-***    Assume: Only works with 
+***    Assume: Note this explicit method is required in order
+***            to call GetType() 
 ***      Pass:
 ***    Return:
 ************************************************************************
 FUNCTION GetType(lvValue)
-RETURN this.InvokeMethod(this.oDotNetBridge,"GetType",lvValue)
+RETURN this.InvokeMethod(this.oDotnetBridge,"GetType",lvValue)
 ENDFUNC
 *   GetType
+
+************************************************************************
+*  GetTypeFromName
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetTypeFromName(lcTypeName)
+RETURN this.InvokeMethod(this.oDotNetBridge,"GetTypeFromName",lcTypeName)
+ENDFUNC
+*   GetTypeFromName
 
 
 ************************************************************************
@@ -1117,6 +1167,104 @@ this.cErrorMsg = lcMessage
 
 ENDFUNC
 *   SetError
+
+
+
+#IF IS_WESTWIND
+
+************************************************************************
+*  ToJson
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION ToJson(loDotnetObject, llFormatted)
+
+lcResult = this.oDotnetBridge.ToJson(loDotnetObject,llFormatted)
+IF ISNULL(lcResult)
+   THIS.SetError( this.oDotnetBridge.ErrorMessage)
+ENDIF
+
+RETURN lcResult
+ENDFUNC
+*   ToJson
+
+
+************************************************************************
+*  FromJson
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION FromJson(lcJson,lvType)
+
+loType = lvType
+IF VARTYPE(lvType) = "C"
+   loType = this.GetTypeFromName(lvType)
+ENDIF
+
+lcResult = this.oDotnetBridge.FromJson(lcJson,loType)   
+IF ISNULL(lcResult)
+   this.SetError(this.oDotnetBridge.ErrorMessage)
+   RETURN NULL
+ENDIF   
+
+RETURN lcResult
+ENDFUNC
+*   FromJson
+
+************************************************************************
+*  ToXml
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION ToXml(loDotnetObject, llFormatted)
+
+lcResult = this.oDotnetBridge.ToXml(loDotnetObject)
+IF ISNULL(lcResult)
+   THIS.SetError( this.oDotnetBridge.ErrorMessage)
+ENDIF
+
+RETURN lcResult
+ENDFUNC
+*   ToXml
+
+************************************************************************
+*  FromXml
+****************************************
+***  Function:
+***    Assume:
+***      Pass: lcXml    -   Xml string
+***            lvType   -  .NET type as string or .NET type object
+***    Return:
+************************************************************************
+FUNCTION FromXml(lcXml,lvType)
+
+loType = lvType
+IF VARTYPE(lvType) = "C"
+   loType = this.GetTypeFromName(lvType)
+ENDIF
+
+lcResult = this.oDotnetBridge.FromXml(lcXml,loType)   
+
+IF ISNULL(lcResult)
+   this.SetError(this.oDotnetBridge.ErrorMessage)
+   RETURN NULL
+ENDIF   
+
+RETURN lcResult
+ENDFUNC
+*   FromXml
+
+#ENDIF
+
 
 ENDDEFINE
 *EOC wwDotNetBridge 

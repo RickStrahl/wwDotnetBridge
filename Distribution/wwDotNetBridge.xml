@@ -179,7 +179,7 @@
             Helper routine that looks up a type name and tries to retrieve the
             full type reference in the actively executing assemblies.
             </summary>
-            <param name="TypeName"></param>
+            <param name="typeName"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod(System.Object,System.String)">
@@ -329,13 +329,6 @@
             into a DataSet if possible.
             </summary>
             <param name="xml"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetType(System.Object)">
-            <summary>
-            Returns a type object to Visual FoxPro
-            </summary>
-            <param name="value"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.FixupReturnValue(System.Object)">
@@ -1231,6 +1224,22 @@
             <param name="objectRef">Object instance</param>
             <param name="method">Method to call</param>
             <param name="parms">An array of the parameters passed (use ComArray and InvokeMethod)</param>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateInstance(System.String,Westwind.WebConnection.ComArray)">
+            <summary>
+            Sets the Value property from a CreateInstance call. Useful for
+            value types that can't be passed back to FoxPro.
+            </summary>
+            <param name="typeName"></param>
+            <param name="parms"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateInstance(System.String,System.Object[])">
+            <summary>
+            Sets the Value property from a CreateInstance call. Useful for
+            value types that can't be passed back to FoxPro.
+            </summary>
+            <param name="typeName"></param>
+            <param name="parms"></param>
         </member>
         <member name="M:Westwind.WebConnection.ComValue.SetGuid(System.Object)">
             <summary>
