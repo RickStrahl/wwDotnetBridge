@@ -7,10 +7,6 @@ SET PROCEDURE TO wwDotNetBridge ADDITIVE
 #IF IS_WESTWIND
 	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
 
-	*** for GetwwDotnetBridge()
-	SET PROCEDURE TO WWUTILS ADDITIVE 
-	SET PROCEDURE TO WWAPI ADDITIVE
-
 	*** Other dependencies
 	* .NET Runtime 2.0 or later
 
@@ -29,7 +25,7 @@ SET PROCEDURE TO wwDotNetBridge ADDITIVE
 	* clrhost.dll
 #ENDIF
 
-#IF IS_WESTWIND
+
 ************************************************************************
 *  GetwwDotNetBridge
 ****************************************
@@ -41,12 +37,15 @@ SET PROCEDURE TO wwDotNetBridge ADDITIVE
 ************************************************************************
 FUNCTION GetwwDotNetBridge(lcVersion)
 IF VARTYPE(__DOTNETBRIDGE) != "O"
+   *** Auto-detect latest version
+   *** This requires wwUtils/wwApi
    IF EMPTY(lcVersion)       
-	   lcVersion = ""
-	   IF !IsDotNet("",@lcVersion)
-	   	  RETURN NULL
-	   ENDIF   
+	   lcVersion = GetHighestDotnetVersion()
+	   IF ISNULL(lcVersion)
+	       ERROR "Couldn't find a .NET version installed."
+	   ENDIF
    ENDIF
+   
    PUBLIC __DOTNETBRIDGE
    __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
    IF VARTYPE(__DOTNETBRIDGE) # "O"
@@ -55,7 +54,7 @@ IF VARTYPE(__DOTNETBRIDGE) != "O"
 ENDIF
 RETURN __DOTNETBRIDGE
 ENDFUNC
-#ENDIF
+
 
 *************************************************************
 DEFINE CLASS wwDotNetBridge AS Custom
