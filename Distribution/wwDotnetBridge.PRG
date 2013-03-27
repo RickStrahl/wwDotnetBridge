@@ -29,7 +29,7 @@ SET PROCEDURE TO wwDotNetBridge ADDITIVE
 	* clrhost.dll
 #ENDIF
 
-
+#IF IS_WESTWIND
 ************************************************************************
 *  GetwwDotNetBridge
 ****************************************
@@ -55,7 +55,7 @@ IF VARTYPE(__DOTNETBRIDGE) != "O"
 ENDIF
 RETURN __DOTNETBRIDGE
 ENDFUNC
-
+#ENDIF
 
 *************************************************************
 DEFINE CLASS wwDotNetBridge AS Custom
