@@ -1,6 +1,6 @@
 *** This flag defines West Wind's commercial version
 *** The open source version should be set to .F.
-#DEFINE IS_WESTWIND    .F.
+#DEFINE IS_WESTWIND    .T.
 
 SET PROCEDURE TO wwDotNetBridge ADDITIVE
 
@@ -1264,8 +1264,53 @@ ENDFUNC
 
 #ENDIF
 
-
 ENDDEFINE
 *EOC wwDotNetBridge 
 
 
+************************************************************************
+* GetHighestDotnetVersion
+****************************************
+***  Function: Returns the highest .NET version installed on the
+***            local machine.
+************************************************************************
+FUNCTION GetHighestDotnetVersion()
+LOCAL x,lcFrameworkPath, lcVersion
+
+lcVersion = ""
+lcFrameworkPath = SPACE(256)
+
+DECLARE INTEGER GetWindowsDirectory ;
+   IN Win32API ;
+   STRING  @pszSysPath,;
+   INTEGER cchSysPath
+lnsize=GetWindowsDirectory(@lcFrameworkPath,256) 
+if lnSize > 0
+   lcFrameworkPath = SUBSTR(lcFrameworkPath,1,lnSize) + "\"
+ELSE
+   lcFrameworkPath = TRIM(lcFrameworkPath)
+ENDIF
+   
+*** Assume .NET 2.0
+lcVersion = NULL
+   
+   *** Try to find the largest version number
+lcFrameworkPath = lcFrameworkPath + "Microsoft.NET\Framework\"
+lnCount = ADIR(laNetDirs,lcFrameworkPath + "v?.*.*","D")
+IF lnCount < 1
+	RETURN null
+ENDIF
+
+*** Highest version comes last so go backwards through list
+FOR x = lnCount TO 1 STEP -1
+   lcVersion = laNetDirs[x,1]
+   lcTPath = ADDBS(lcFrameworkPath + lcVersion )
+   IF FILE(lcTPath + "regasm.exe")
+     lcFrameworkPath = ADDBS(lcTPath)         
+     EXIT
+   ENDIF
+ENDFOR   
+
+RETURN lcVersion
+ENDFUNC
+*  GetHighestDotnetVersion

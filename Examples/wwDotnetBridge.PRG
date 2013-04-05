@@ -1,15 +1,11 @@
 *** This flag defines West Wind's commercial version
 *** The open source version should be set to .F.
-#DEFINE IS_WESTWIND    .F.
+#DEFINE IS_WESTWIND    .T.
 
 SET PROCEDURE TO wwDotNetBridge ADDITIVE
 
 #IF IS_WESTWIND
 	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
-
-	*** for GetwwDotnetBridge()
-	SET PROCEDURE TO WWUTILS ADDITIVE 
-	SET PROCEDURE TO WWAPI ADDITIVE
 
 	*** Other dependencies
 	* .NET Runtime 2.0 or later
@@ -41,12 +37,15 @@ SET PROCEDURE TO wwDotNetBridge ADDITIVE
 ************************************************************************
 FUNCTION GetwwDotNetBridge(lcVersion)
 IF VARTYPE(__DOTNETBRIDGE) != "O"
+   *** Auto-detect latest version
+   *** This requires wwUtils/wwApi
    IF EMPTY(lcVersion)       
-	   lcVersion = ""
-	   IF !IsDotNet("",@lcVersion)
-	   	  RETURN NULL
-	   ENDIF   
+	   lcVersion = GetHighestDotnetVersion()
+	   IF ISNULL(lcVersion)
+	       ERROR "Couldn't find a .NET version installed."
+	   ENDIF
    ENDIF
+   
    PUBLIC __DOTNETBRIDGE
    __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
    IF VARTYPE(__DOTNETBRIDGE) # "O"
@@ -1265,8 +1264,53 @@ ENDFUNC
 
 #ENDIF
 
-
 ENDDEFINE
 *EOC wwDotNetBridge 
 
 
+************************************************************************
+* GetHighestDotnetVersion
+****************************************
+***  Function: Returns the highest .NET version installed on the
+***            local machine.
+************************************************************************
+FUNCTION GetHighestDotnetVersion()
+LOCAL x,lcFrameworkPath, lcVersion
+
+lcVersion = ""
+lcFrameworkPath = SPACE(256)
+
+DECLARE INTEGER GetWindowsDirectory ;
+   IN Win32API ;
+   STRING  @pszSysPath,;
+   INTEGER cchSysPath
+lnsize=GetWindowsDirectory(@lcFrameworkPath,256) 
+if lnSize > 0
+   lcFrameworkPath = SUBSTR(lcFrameworkPath,1,lnSize) + "\"
+ELSE
+   lcFrameworkPath = TRIM(lcFrameworkPath)
+ENDIF
+   
+*** Assume .NET 2.0
+lcVersion = NULL
+   
+   *** Try to find the largest version number
+lcFrameworkPath = lcFrameworkPath + "Microsoft.NET\Framework\"
+lnCount = ADIR(laNetDirs,lcFrameworkPath + "v?.*.*","D")
+IF lnCount < 1
+	RETURN null
+ENDIF
+
+*** Highest version comes last so go backwards through list
+FOR x = lnCount TO 1 STEP -1
+   lcVersion = laNetDirs[x,1]
+   lcTPath = ADDBS(lcFrameworkPath + lcVersion )
+   IF FILE(lcTPath + "regasm.exe")
+     lcFrameworkPath = ADDBS(lcTPath)         
+     EXIT
+   ENDIF
+ENDFOR   
+
+RETURN lcVersion
+ENDFUNC
+*  GetHighestDotnetVersion
