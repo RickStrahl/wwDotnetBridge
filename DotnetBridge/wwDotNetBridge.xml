@@ -1154,6 +1154,12 @@
             </summary>
             <param name="val"></param>
         </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetSingle(System.Object)">
+            <summary>
+            Sets a Single Value on the 
+            </summary>
+            <param name="val"></param>
+        </member>
         <member name="M:Westwind.WebConnection.ComValue.SetDecimal(System.Object)">
             <summary>
             Sets a Decimal value. This can actually 

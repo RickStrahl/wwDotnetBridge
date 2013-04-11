@@ -57,6 +57,15 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
+        /// Sets a Single Value on the 
+        /// </summary>
+        /// <param name="val"></param>
+        public void SetSingle(object val)
+        {
+            Value = Convert.ToSingle(val);
+        }
+
+        /// <summary>
         /// Sets a Decimal value. This can actually 
         /// be done in FoxPro with CAST(val as Currency)
         /// </summary>
@@ -74,7 +83,7 @@ namespace Westwind.WebConnection
         public void SetLong(object val)
         {                     
             long tval = Convert.ToInt64(val);
-            val = tval;
+            Value = tval;
         }
 
         /// <summary>

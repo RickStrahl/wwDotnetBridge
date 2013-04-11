@@ -2,7 +2,7 @@
 /*
  **************************************************************
  *  Author: Rick Strahl 
- *          © West Wind Technologies, 2009
+ *          © West Wind Technologies, 2009-2013
  *          http://www.west-wind.com/
  * 
  * Created: 4/10/2009
@@ -76,6 +76,14 @@ namespace Westwind.WebConnection
 
 
         public Exception LastException { get; set; }
+
+        public wwDotNetBridge()
+        {
+            if (Environment.Version.Major >= 4)
+            {
+                LoadAssembly("System.Core");                
+            }
+        }
 
 
         #region LoadAssembly Routines
@@ -1336,13 +1344,18 @@ namespace Westwind.WebConnection
             if (type.Name == "Byte[*]")
                 return ConvertObjectToByteArray(val);
 
+            if (type == typeof(long))
+                return Convert.ToInt64(val);
+            if (type == typeof(Single))
+                return Convert.ToSingle(val);
+            
             // if we're dealing with ComValue parameter/value
             // just use it's Value property
             if (type == typeof(ComValue))
                 return ((ComValue)val).Value;
-            else if (type == typeof(ComGuid))
+            if (type == typeof(ComGuid))
                 return ((ComGuid)val).Guid;
-            else if (type == typeof(ComArray))
+            if (type == typeof(ComArray))
                 return ((ComArray)val).Instance;
 
             return val;
@@ -1367,7 +1380,7 @@ namespace Westwind.WebConnection
                 guid.Guid = (Guid)val;
                 return guid;
             }
-            else if (type == typeof(long) || type == typeof(Int64))
+            else if (type == typeof(long) || type == typeof(Int64) )
                 return Convert.ToDecimal(val);
             else if (type == typeof(byte[]))
             {
