@@ -11,33 +11,23 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Westwind.WebConnection.ComArray">
-    <Position X="5" Y="0.5" Width="1.5" />
+    <Position X="4" Y="0.5" Width="1.5" />
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AABCAAAAQAAABAAAAAAEAAQEgAAAgEAEQAgAAABAAAA=</HashCode>
+      <HashCode>AABCAAAAQAAIBAAAAAAEAAQEgAAAgFAEQAgAAABAAAA=</HashCode>
       <FileName>WrapperTypes\ComArray.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Westwind.WebConnection.ComValue">
-    <Position X="8.75" Y="0.5" Width="2.25" />
+    <Position X="6" Y="0.5" Width="2.25" />
     <Compartments>
       <Compartment Name="Fields" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAIBAAAgAQAAAAIABAABAAAAEgAAAABAA=</HashCode>
+      <HashCode>IAAAEAAAAAAAIBIAAgEQAAAAIEBAABAAAAUgQAAABAA=</HashCode>
       <FileName>WrapperTypes\ComValue.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Westwind.WebConnection.ComGuid">
-    <Position X="6.75" Y="0.5" Width="1.5" />
-    <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
-    </Compartments>
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAACAAAAIAAAAAAAAABAAAAAAAAAAAAgg=</HashCode>
-      <FileName>WrapperTypes\ComGuid.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Font Name="Tahoma" Size="8.25" />

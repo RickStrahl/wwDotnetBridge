@@ -532,12 +532,12 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         protected object InvokeStaticMethod_Internal(string TypeName, string Method, params object[] args)
         {
-            this.SetError();
+            SetError();
 
-            Type type = this.GetTypeFromName(TypeName);
+            Type type = GetTypeFromName(TypeName);
             if (type == null)
             {
-                this.SetError("Type is not loaded. Please make sure you call LoadAssembly first.");
+                SetError("Type is not loaded. Please make sure you call LoadAssembly first.");
                 return null;
             }
 
@@ -545,10 +545,10 @@ namespace Westwind.WebConnection
             Array ar = args as Array;
             for (int i = 0; i < args.Length; i++)
             {
-                ar.SetValue(this.FixupParameter(args[i]), i);
+                ar.SetValue(FixupParameter(args[i]), i);
             }
 
-            this.ErrorMessage = "";
+            ErrorMessage = "";
             object Result = null;
             try
             {
@@ -556,7 +556,7 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                this.SetError(ex, true);
+                SetError(ex, true);
                 return null;
             }
 
