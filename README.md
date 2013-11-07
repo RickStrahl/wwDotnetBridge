@@ -25,10 +25,11 @@ It provides the following enhancements over plain COM Interop:
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
 * [.NET COM Interop with wwDotnetBridge White Paper](http://west-wind.com/presentations/wwDotnetBridge/wwDotnetBridge.pdf)
 * [Documentation](http://west-wind.com/webconnection/docs/?page=_24n1cfw3a.htm)
+* [ChangeLog](https://github.com/RickStrahl/wwDotnetBridge/blob/master/changelog.md)
 
 ##How it works
 
-This library consists of 3 components (all provided here):
+This library consists of 3 components (all provided in source):
 
 * ClrHost.dll - Win32 Loader for the .NET Runtime
 * wwDotnetBridge.dll  - .NET assembly Proxy and Helper

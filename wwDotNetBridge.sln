@@ -7,6 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClrHost", "ClrHost\ClrHost.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CB25D796-E7E1-42A1-9721-212C0E02DD2A}"
 	ProjectSection(SolutionItems) = preProject
+		Changelog.md = Changelog.md
 		README.md = README.md
 	EndProjectSection
 EndProject

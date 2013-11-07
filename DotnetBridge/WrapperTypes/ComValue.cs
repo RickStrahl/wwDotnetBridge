@@ -121,7 +121,6 @@ namespace Westwind.WebConnection
         }
 
 
-
         /// <summary>
         /// Allows setting of DbNull from FoxPro since DbNull is an inaccessible
         /// value type for FoxPro.

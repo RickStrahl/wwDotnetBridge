@@ -63,7 +63,7 @@ namespace Westwind.Utilities
         /// <returns>Object - cast to proper type</returns>
         public static object GetProperty(object instance, string property)
         {
-            return instance.GetType().GetProperty(property, ReflectionUtils.MemberAccess).GetValue(instance, null);
+            return instance.GetType().GetProperty(property, MemberAccess).GetValue(instance, null);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Westwind.Utilities
         /// <returns></returns>
         public static object GetField(object Object, string Property)
         {
-            return Object.GetType().GetField(Property, ReflectionUtils.MemberAccess).GetValue(Object);
+            return Object.GetType().GetField(Property, MemberAccess).GetValue(Object);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Westwind.Utilities
             }
 
             // *** Get the member
-            MemberInfo Member = Parent.GetType().GetMember(PureProperty, ReflectionUtils.MemberAccess)[0];
+            MemberInfo Member = Parent.GetType().GetMember(PureProperty, MemberAccess)[0];
             if (Member.MemberType == MemberTypes.Property)
                 Result = ((PropertyInfo)Member).GetValue(Parent, null);
             else
@@ -169,7 +169,7 @@ namespace Westwind.Utilities
             if (!IsArrayOrCollection)
             {
                 // *** Get the member
-                MemberInfo Member = Parent.GetType().GetMember(PureProperty, ReflectionUtils.MemberAccess)[0];
+                MemberInfo Member = Parent.GetType().GetMember(PureProperty, MemberAccess)[0];
                 if (Member.MemberType == MemberTypes.Property)
                     ((PropertyInfo)Member).SetValue(Parent, Value, null);
                 else
@@ -179,7 +179,7 @@ namespace Westwind.Utilities
             else
             {
                 // *** Get the member
-                MemberInfo Member = Parent.GetType().GetMember(PureProperty, ReflectionUtils.MemberAccess)[0];
+                MemberInfo Member = Parent.GetType().GetMember(PureProperty, MemberAccess)[0];
                 if (Member.MemberType == MemberTypes.Property)
                     Result = ((PropertyInfo)Member).GetValue(Parent, null);
                 else
@@ -258,7 +258,7 @@ namespace Westwind.Utilities
         /// <param name="Value">value to set it to</param>
         public static void SetProperty(object Object, string Property, object Value)
         {
-            Object.GetType().GetProperty(Property, ReflectionUtils.MemberAccess).SetValue(Object, Value, null);
+            Object.GetType().GetProperty(Property, MemberAccess).SetValue(Object, Value, null);
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace Westwind.Utilities
         /// <param name="Value">value to set it to</param>
         public static void SetField(object Object, string Property, object Value)
         {
-            Object.GetType().GetField(Property, ReflectionUtils.MemberAccess).SetValue(Object, Value);
+            Object.GetType().GetField(Property, MemberAccess).SetValue(Object, Value);
         }
 
         /// <summary>
@@ -331,7 +331,7 @@ namespace Westwind.Utilities
             }
             try
             {
-                MethodInfo mi = instance.GetType().GetMethod(method, ReflectionUtils.MemberAccess | BindingFlags.InvokeMethod, null, ParmTypes, null);
+                MethodInfo mi = instance.GetType().GetMethod(method, MemberAccess | BindingFlags.InvokeMethod, null, ParmTypes, null);
                 if (mi == null)
                     throw new InvalidOperationException("Can't find method to invoke: " + method + ". If this method has ByRef parameters you have to directly call the method off the .NET service proxy class.");
                 return mi.Invoke(instance, parms);                    
@@ -361,7 +361,7 @@ namespace Westwind.Utilities
             int lnAt = method.IndexOf(".");
             if (lnAt < 0)
             {
-                return ReflectionUtils.CallMethod(parent, method, parms);
+                return CallMethod(parent, method, parms);
             }
             
             // *** Walk the . syntax
@@ -603,7 +603,7 @@ namespace Westwind.Utilities
         /// <returns></returns>
         public static object GetPropertyCom(object instance, string property)
         {
-            return instance.GetType().InvokeMember(property, ReflectionUtils.MemberAccess | BindingFlags.GetProperty | BindingFlags.GetField | BindingFlags.IgnoreReturn, null,
+            return instance.GetType().InvokeMember(property, MemberAccess | BindingFlags.GetProperty | BindingFlags.GetField | BindingFlags.IgnoreReturn, null,
                                                 instance, null);
         }
 
@@ -627,7 +627,7 @@ namespace Westwind.Utilities
                     return parent;
 
                 // *** Get the member
-                return parent.GetType().InvokeMember(property, ReflectionUtils.MemberAccess | BindingFlags.GetProperty | BindingFlags.GetField, null,
+                return parent.GetType().InvokeMember(property, MemberAccess | BindingFlags.GetProperty | BindingFlags.GetField, null,
                     parent, null);
             }
 
@@ -635,11 +635,11 @@ namespace Westwind.Utilities
             string Main = property.Substring(0, lnAt);
             string Subs = property.Substring(lnAt + 1);
 
-            object Sub = parent.GetType().InvokeMember(Main, ReflectionUtils.MemberAccess | BindingFlags.GetProperty | BindingFlags.GetField, null,
+            object Sub = parent.GetType().InvokeMember(Main, MemberAccess | BindingFlags.GetProperty | BindingFlags.GetField, null,
                 parent, null);
 
             // *** Recurse further into the sub-properties (Subs)
-            return ReflectionUtils.GetPropertyExCom(Sub, Subs);
+            return GetPropertyExCom(Sub, Subs);
         }
 
         /// <summary>
@@ -650,7 +650,7 @@ namespace Westwind.Utilities
         /// <param name="Value">value to set it to</param>
         public static void SetPropertyCom(object Object, string Property, object Value)
         {
-            Object.GetType().InvokeMember(Property, ReflectionUtils.MemberAccess | BindingFlags.SetProperty | BindingFlags.SetField, null, Object, new object[1] { Value });
+            Object.GetType().InvokeMember(Property, MemberAccess | BindingFlags.SetProperty | BindingFlags.SetField, null, Object, new object[1] { Value });
             //GetProperty(Property,ReflectionUtils.MemberAccess).SetValue(Object,Value,null);
         }
 
@@ -681,7 +681,7 @@ namespace Westwind.Utilities
             if (lnAt < 0)
             {
                 // *** Set the member
-                parent.GetType().InvokeMember(property, ReflectionUtils.MemberAccess | BindingFlags.SetProperty | BindingFlags.SetField, null,
+                parent.GetType().InvokeMember(property, MemberAccess | BindingFlags.SetProperty | BindingFlags.SetField, null,
                     parent, new object[1] { value });
 
                 return null;
@@ -692,7 +692,7 @@ namespace Westwind.Utilities
             string Subs = property.Substring(lnAt + 1);
 
 
-            object Sub = parent.GetType().InvokeMember(Main, ReflectionUtils.MemberAccess | BindingFlags.GetProperty | BindingFlags.GetField, null,
+            object Sub = parent.GetType().InvokeMember(Main, MemberAccess | BindingFlags.GetProperty | BindingFlags.GetField, null,
                 parent, null);
 
             return SetPropertyExCom(Sub, Subs, value);
@@ -708,7 +708,7 @@ namespace Westwind.Utilities
         /// <returns></returns>
         public static object CallMethodCom(object instance, string method, params object[] parms)
         {
-            return instance.GetType().InvokeMember(method, ReflectionUtils.MemberAccess | BindingFlags.InvokeMethod, null, instance, parms);
+            return instance.GetType().InvokeMember(method, MemberAccess | BindingFlags.InvokeMethod, null, instance, parms);
         }
         #endregion
 

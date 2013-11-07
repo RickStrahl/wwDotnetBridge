@@ -104,7 +104,7 @@ namespace Westwind.WebConnection
             catch (Exception ex)
             {
                 LastException = ex;
-                this.ErrorMessage = ex.Message;
+                ErrorMessage = ex.Message;
                 return false;
             }
 
@@ -127,12 +127,12 @@ namespace Westwind.WebConnection
                 if (ex.InnerException != null)
                 {
                     LastException = ex.InnerException;
-                    this.SetError(ex.InnerException.Message);
+                    SetError(ex.InnerException.Message);
                 }
                 else
                 {
                     LastException = ex;
-                    this.SetError(ex.Message);
+                    SetError(ex.Message);
                 }
                 return false;
             }
@@ -150,7 +150,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateInstance(string TypeName)
         {
-            object obj = this.CreateInstance_Internal(TypeName);
+            object obj = CreateInstance_Internal(TypeName);
             return obj;
         }
 
@@ -160,9 +160,9 @@ namespace Westwind.WebConnection
         /// </summary>        
         public object CreateInstance_OneParm(string TypeName, object Parm1)
         {
-            Parm1 = this.FixupParameter(Parm1);
+            Parm1 = FixupParameter(Parm1);
 
-            return this.CreateInstance_Internal(TypeName, Parm1);
+            return CreateInstance_Internal(TypeName, Parm1);
         }
 
         /// <summary>
@@ -171,10 +171,10 @@ namespace Westwind.WebConnection
         /// </summary>
         public object CreateInstance_TwoParms(string TypeName, object Parm1, object Parm2)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
 
-            return this.CreateInstance_Internal(TypeName, Parm1, Parm2);
+            return CreateInstance_Internal(TypeName, Parm1, Parm2);
         }
         /// <summary>
         /// Creates a type reference from a given type name if the
@@ -182,31 +182,31 @@ namespace Westwind.WebConnection
         /// </summary>
         public object CreateInstance_ThreeParms(string TypeName, object Parm1, object Parm2, object Parm3)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
 
-            return this.CreateInstance_Internal(TypeName, Parm1, Parm2, Parm3);
+            return CreateInstance_Internal(TypeName, Parm1, Parm2, Parm3);
         }
 
         public object CreateInstance_FourParms(string TypeName, object Parm1, object Parm2, object Parm3, object Parm4)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
 
-            return this.CreateInstance_Internal(TypeName, Parm1, Parm2, Parm3, Parm4);
+            return CreateInstance_Internal(TypeName, Parm1, Parm2, Parm3, Parm4);
         }
         public object CreateInstance_FiveParms(string TypeName, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
-            Parm5 = this.FixupParameter(Parm5);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
+            Parm5 = FixupParameter(Parm5);
 
-            return this.CreateInstance_Internal(TypeName, Parm1, Parm2, Parm3, Parm4, Parm5);
+            return CreateInstance_Internal(TypeName, Parm1, Parm2, Parm3, Parm4, Parm5);
         }
 
         /// <summary>
@@ -222,17 +222,17 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         protected internal object CreateInstance_Internal(string TypeName, params object[] args)
         {
-            this.SetError();
+            SetError();
 
             object instance = null;
             Type type = null;
             try
             {
-                type = this.GetTypeFromName(TypeName);
+                type = GetTypeFromName(TypeName);
 
                 if (type == null)
                 {
-                    this.SetError("Type not loaded. Please load call LoadAssembly first.");
+                    SetError("Type not loaded. Please load call LoadAssembly first.");
                     return null;
                 }
 
@@ -245,11 +245,11 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                this.SetError(ex, true);
+                SetError(ex, true);
                 return null;
             }
 
-            return this.FixupReturnValue(instance);
+            return FixupReturnValue(instance);
         }
 
 
@@ -263,7 +263,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         protected object CreateInstance_Internal(string AssemblyName, string TypeName, params object[] args)
         {
-            this.SetError();
+            SetError();
 
             AssemblyName = FixupAssemblyName(AssemblyName);
 
@@ -282,11 +282,11 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                this.SetError(ex, true);
+                SetError(ex, true);
                 return null;
             }
 
-            return this.FixupReturnValue(instance);
+            return FixupReturnValue(instance);
         }
 
         /// <summary>
@@ -300,41 +300,41 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool CreateInstanceOnType(object instance, string property, string TypeName)
         {
-            return this.CreateInstanceOnType_Internal(instance, property, TypeName);
+            return CreateInstanceOnType_Internal(instance, property, TypeName);
         }
         public bool CreateInstanceOnType_OneParm(object instance, string property, string TypeName, object parm1)
         {
-            return this.CreateInstanceOnType_Internal(instance, property, TypeName, parm1);
+            return CreateInstanceOnType_Internal(instance, property, TypeName, parm1);
         }
         public bool CreateInstanceOnType_TwoParms(object instance, string property, string TypeName, object parm1, object parm2)
         {
-            return this.CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2);
+            return CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2);
         }
         public bool CreateInstanceOnType_ThreeParms(object instance, string property, string TypeName, object parm1, object parm2, object parm3)
         {
-            return this.CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2, parm3);
+            return CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2, parm3);
         }
         public bool CreateInstanceOnType_FourParms(object instance, string property, string TypeName, object parm1, object parm2, object parm3, object parm4)
         {
-            return this.CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2, parm3, parm4);
+            return CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2, parm3, parm4);
         }
         public bool CreateInstanceOnType_FiveParms(object instance, string property, string TypeName, object parm1, object parm2, object parm3, object parm4, object parm5)
         {
-            return this.CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2, parm3, parm4, parm5);
+            return CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2, parm3, parm4, parm5);
         }
         protected bool CreateInstanceOnType_Internal(object instance, string property, string TypeName, params object[] args)
         {
-            this.SetError();
+            SetError();
 
             object newInstance = null;
             Type type = null;
             try
             {
-                type = this.GetTypeFromName(TypeName);
+                type = GetTypeFromName(TypeName);
 
                 if (type == null)
                 {
-                    this.SetError("Type not loaded. Please load call LoadAssembly first.");
+                    SetError("Type not loaded. Please load call LoadAssembly first.");
                     return false;
                 }
 
@@ -343,7 +343,7 @@ namespace Westwind.WebConnection
             catch (Exception ex)
             {
                 LastException = ex;
-                this.SetError(ex.Message);
+                SetError(ex.Message);
                 return false;
             }
 
@@ -354,7 +354,7 @@ namespace Westwind.WebConnection
             catch (Exception ex)
             {
                 LastException = ex;
-                this.ErrorMessage = ex.Message;
+                ErrorMessage = ex.Message;
                 return false;
             }
 
@@ -372,7 +372,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateAssemblyInstanceFromFile(string AssemblyFileName, string TypeName)
         {
-            return this.CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, null);
+            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, null);
         }
 
         /// <summary>
@@ -383,7 +383,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateAssemblyInstanceFromFile_OneParm(string AssemblyFileName, string TypeName, object Parm1)
         {
-            return this.CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[1] { Parm1 });
+            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[1] { Parm1 });
         }
 
         /// <summary>
@@ -394,7 +394,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateAssemblyInstanceFromFile_TwoParms(string AssemblyFileName, string TypeName, object Parm1, object Parm2)
         {
-            return this.CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[2] { Parm1, Parm2 });
+            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[2] { Parm1, Parm2 });
         }
 
 
@@ -406,7 +406,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         protected object CreateInstanceFromFile_Internal(string AssemblyFileName, string TypeName, params object[] args)
         {
-            this.ErrorMessage = string.Empty;
+            ErrorMessage = string.Empty;
             LastException = null;
 
             object server = null;
@@ -445,7 +445,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateAssemblyInstance(string AssemblyFileName, string TypeName)
         {
-            return this.CreateInstance_Internal(AssemblyFileName, TypeName, null);
+            return CreateInstance_Internal(AssemblyFileName, TypeName, null);
         }
         /// <summary>
         /// Creates a new instance from a file file based assembly refence. Requires full
@@ -456,7 +456,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateAssemblyInstance_OneParm(string AssemblyFileName, string TypeName, object Parm1)
         {
-            return this.CreateInstance_Internal(AssemblyFileName, TypeName, Parm1);
+            return CreateInstance_Internal(AssemblyFileName, TypeName, Parm1);
         }
         /// <summary>
         /// Creates a new instance from a file file based assembly refence. Requires full
@@ -467,7 +467,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateAssemblyInstance_TwoParms(string AssemblyFileName, string TypeName, object Parm1, object Parm2)
         {
-            return this.CreateInstance_Internal(AssemblyFileName, TypeName, Parm1, Parm2);
+            return CreateInstance_Internal(AssemblyFileName, TypeName, Parm1, Parm2);
         }
 
 
@@ -475,52 +475,52 @@ namespace Westwind.WebConnection
 
         public object InvokeStaticMethod(string TypeName, string Method)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method);
+            return InvokeStaticMethod_Internal(TypeName, Method);
         }
 
 
         public object InvokeStaticMethod_OneParm(string TypeName, string Method, object Parm1)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1);
         }
 
 
         public object InvokeStaticMethod_TwoParms(string TypeName, string Method, object Parm1, object Parm2)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2);
         }
 
         public object InvokeStaticMethod_ThreeParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3);
         }
         public object InvokeStaticMethod_FourParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4);
         }
         public object InvokeStaticMethod_FiveParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5);
         }
         public object InvokeStaticMethod_SixParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6);
         }
         public object InvokeStaticMethod_SevenParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7);
         }
         public object InvokeStaticMethod_EightParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8);
         }
         public object InvokeStaticMethod_NineParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9);
         }
         public object InvokeStaticMethod_TenParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10)
         {
-            return this.InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10);
         }
 
         /// <summary>
@@ -560,7 +560,7 @@ namespace Westwind.WebConnection
                 return null;
             }
 
-            return this.FixupReturnValue(Result);
+            return FixupReturnValue(Result);
         }
 
         /// <summary>
@@ -571,12 +571,12 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object GetStaticProperty(string TypeName, string Property)
         {
-            this.SetError();
+            SetError();
 
-            Type type = this.GetTypeFromName(TypeName);
+            Type type = GetTypeFromName(TypeName);
             if (type == null)
             {
-                this.SetError("Type is not loaded. Please make sure you call LoadAssembly first.");
+                SetError("Type is not loaded. Please make sure you call LoadAssembly first.");
                 return null;
             }
 
@@ -587,7 +587,7 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                this.SetError(ex, true);
+                SetError(ex, true);
                 return null;
             }
             return Result;
@@ -595,16 +595,16 @@ namespace Westwind.WebConnection
 
         public bool SetStaticProperty(string TypeName, string Property, object Value)
         {
-            this.SetError();
+            SetError();
 
-            Type type = this.GetTypeFromName(TypeName);
+            Type type = GetTypeFromName(TypeName);
             if (type == null)
             {
-                this.SetError("Unable to find type signature. Please make sure you call LoadAssembly first.");
+                SetError("Unable to find type signature. Please make sure you call LoadAssembly first.");
                 return false;
             }
 
-            this.ErrorMessage = "";
+            ErrorMessage = "";
             object Result = null;
             try
             {
@@ -612,7 +612,7 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                this.SetError(ex, true);
+                SetError(ex, true);
                 return false;
             }
 
@@ -629,15 +629,15 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public string GetEnumString(string EnumTypeName, object Value)
         {
-            this.SetError();
+            SetError();
             try
             {
-                Type type = this.GetTypeFromName(EnumTypeName);
+                Type type = GetTypeFromName(EnumTypeName);
                 return Enum.GetName(type, Value);
             }
             catch
             {
-                this.SetError("Invalid enum value");
+                SetError("Invalid enum value");
             }
 
             return null;
@@ -680,13 +680,13 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object InvokeMethod(object Instance, string Method)
         {
-            return this.InvokeMethod_Internal(Instance, Method);
+            return InvokeMethod_Internal(Instance, Method);
         }
 
 
         public object InvokeMethodWithParameterArray(object instance, string method, object[] parms)
         {
-            return this.InvokeMethod_InternalWithObjectArray(instance, method, parms);
+            return InvokeMethod_InternalWithObjectArray(instance, method, parms);
         }
 
 
@@ -701,7 +701,7 @@ namespace Westwind.WebConnection
         {
             Parm1 = FixupParameter(Parm1);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1);
+            return InvokeMethod_Internal(Instance, Method, Parm1);
         }
 
         /// <summary>
@@ -714,136 +714,136 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object InvokeMethod_TwoParms(object Instance, string Method, object Parm1, object Parm2)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2);
         }
 
         public object InvokeMethod_ThreeParms(object Instance, string Method, object Parm1, object Parm2, object Parm3)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3);
         }
         public object InvokeMethod_FourParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4);
         }
         public object InvokeMethod_FiveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
-            Parm5 = this.FixupParameter(Parm5);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
+            Parm5 = FixupParameter(Parm5);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5);
         }
         public object InvokeMethod_SixParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
-            Parm5 = this.FixupParameter(Parm5);
-            Parm6 = this.FixupParameter(Parm6);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
+            Parm5 = FixupParameter(Parm5);
+            Parm6 = FixupParameter(Parm6);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6);
         }
         public object InvokeMethod_SevenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
-            Parm5 = this.FixupParameter(Parm5);
-            Parm6 = this.FixupParameter(Parm6);
-            Parm7 = this.FixupParameter(Parm7);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
+            Parm5 = FixupParameter(Parm5);
+            Parm6 = FixupParameter(Parm6);
+            Parm7 = FixupParameter(Parm7);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7);
         }
         public object InvokeMethod_EightParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
-            Parm5 = this.FixupParameter(Parm5);
-            Parm6 = this.FixupParameter(Parm6);
-            Parm7 = this.FixupParameter(Parm7);
-            Parm8 = this.FixupParameter(Parm8);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
+            Parm5 = FixupParameter(Parm5);
+            Parm6 = FixupParameter(Parm6);
+            Parm7 = FixupParameter(Parm7);
+            Parm8 = FixupParameter(Parm8);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8);
         }
         public object InvokeMethod_NineParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
-            Parm5 = this.FixupParameter(Parm5);
-            Parm6 = this.FixupParameter(Parm6);
-            Parm7 = this.FixupParameter(Parm7);
-            Parm8 = this.FixupParameter(Parm8);
-            Parm9 = this.FixupParameter(Parm9);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
+            Parm5 = FixupParameter(Parm5);
+            Parm6 = FixupParameter(Parm6);
+            Parm7 = FixupParameter(Parm7);
+            Parm8 = FixupParameter(Parm8);
+            Parm9 = FixupParameter(Parm9);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9);
         }
         public object InvokeMethod_TenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
-            Parm5 = this.FixupParameter(Parm5);
-            Parm6 = this.FixupParameter(Parm6);
-            Parm7 = this.FixupParameter(Parm7);
-            Parm8 = this.FixupParameter(Parm8);
-            Parm9 = this.FixupParameter(Parm9);
-            Parm10 = this.FixupParameter(Parm10);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
+            Parm5 = FixupParameter(Parm5);
+            Parm6 = FixupParameter(Parm6);
+            Parm7 = FixupParameter(Parm7);
+            Parm8 = FixupParameter(Parm8);
+            Parm9 = FixupParameter(Parm9);
+            Parm10 = FixupParameter(Parm10);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10);
         }
         public object InvokeMethod_ElevenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10, object Parm11)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
-            Parm5 = this.FixupParameter(Parm5);
-            Parm6 = this.FixupParameter(Parm6);
-            Parm7 = this.FixupParameter(Parm7);
-            Parm8 = this.FixupParameter(Parm8);
-            Parm9 = this.FixupParameter(Parm9);
-            Parm10 = this.FixupParameter(Parm10);
-            Parm11 = this.FixupParameter(Parm11);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
+            Parm5 = FixupParameter(Parm5);
+            Parm6 = FixupParameter(Parm6);
+            Parm7 = FixupParameter(Parm7);
+            Parm8 = FixupParameter(Parm8);
+            Parm9 = FixupParameter(Parm9);
+            Parm10 = FixupParameter(Parm10);
+            Parm11 = FixupParameter(Parm11);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10, Parm11);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10, Parm11);
         }
         public object InvokeMethod_TwelveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10, object Parm11, object Parm12)
         {
-            Parm1 = this.FixupParameter(Parm1);
-            Parm2 = this.FixupParameter(Parm2);
-            Parm3 = this.FixupParameter(Parm3);
-            Parm4 = this.FixupParameter(Parm4);
-            Parm5 = this.FixupParameter(Parm5);
-            Parm6 = this.FixupParameter(Parm6);
-            Parm7 = this.FixupParameter(Parm7);
-            Parm8 = this.FixupParameter(Parm8);
-            Parm9 = this.FixupParameter(Parm9);
-            Parm10 = this.FixupParameter(Parm10);
-            Parm11 = this.FixupParameter(Parm11);
-            Parm12 = this.FixupParameter(Parm12);
+            Parm1 = FixupParameter(Parm1);
+            Parm2 = FixupParameter(Parm2);
+            Parm3 = FixupParameter(Parm3);
+            Parm4 = FixupParameter(Parm4);
+            Parm5 = FixupParameter(Parm5);
+            Parm6 = FixupParameter(Parm6);
+            Parm7 = FixupParameter(Parm7);
+            Parm8 = FixupParameter(Parm8);
+            Parm9 = FixupParameter(Parm9);
+            Parm10 = FixupParameter(Parm10);
+            Parm11 = FixupParameter(Parm11);
+            Parm12 = FixupParameter(Parm12);
 
-            return this.InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10, Parm11, Parm12);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10, Parm11, Parm12);
         }
 
         public object InvokeMethod_ParameterArray(object Instance, string Method, object ParameterArray)
@@ -852,9 +852,9 @@ namespace Westwind.WebConnection
             for (int i = 0; i < ParmArray.Count; i++)
             {
                 Array ar = ParmArray.Instance as Array;
-                ar.SetValue(this.FixupParameter(ar.GetValue(i)), i);
+                ar.SetValue(FixupParameter(ar.GetValue(i)), i);
             }
-            return this.InvokeMethod_InternalWithObjectArray(Instance, Method, ParmArray.Instance as object[]);
+            return InvokeMethod_InternalWithObjectArray(Instance, Method, ParmArray.Instance as object[]);
         }
 
         public object GetProperty(object Instance, string Property)
@@ -863,7 +863,7 @@ namespace Westwind.WebConnection
             try
             {
                 object val = ReflectionUtils.GetPropertyCom(Instance, Property);
-                val = this.FixupReturnValue(val);
+                val = FixupReturnValue(val);
                 return val;
             }
             catch (Exception ex)
@@ -879,7 +879,7 @@ namespace Westwind.WebConnection
             try
             {
                 object val = ReflectionUtils.GetPropertyEx(Instance, Property);
-                val = this.FixupReturnValue(val);
+                val = FixupReturnValue(val);
                 return val;
             }
             catch (Exception ex)
@@ -899,10 +899,10 @@ namespace Westwind.WebConnection
         {
             LastException = null;
 
-            if (Value is System.DBNull)
+            if (Value is DBNull)
                 Value = null;
 
-            Value = this.FixupParameter(Value);
+            Value = FixupParameter(Value);
             try
             {
                 ReflectionUtils.SetPropertyCom(Instance, Property, Value);
@@ -930,16 +930,16 @@ namespace Westwind.WebConnection
             LastException = null;
             try
             {
-                if (Value is System.DBNull)
+                if (Value is DBNull)
                     Value = null;
 
-                Value = this.FixupParameter(Value);
+                Value = FixupParameter(Value);
                 ReflectionUtils.SetPropertyEx(Instance, Property, Value);
             }
             catch (Exception ex)
             {
                 LastException = ex;
-                this.SetError(ex, true);
+                SetError(ex, true);
                 throw ex.GetBaseException();
             }
         }
@@ -958,10 +958,10 @@ namespace Westwind.WebConnection
             Array ar = args as Array;
             for (int i = 0; i < args.Length; i++)
             {
-                ar.SetValue(this.FixupParameter(args[i]), i);
+                ar.SetValue(FixupParameter(args[i]), i);
             }
 
-            this.SetError();
+            SetError();
             object result = null;
             try
             {
@@ -972,13 +972,13 @@ namespace Westwind.WebConnection
                 SetError(ex.GetBaseException(), true);
                 throw ex.GetBaseException();
             }
-            return this.FixupReturnValue(result);
+            return FixupReturnValue(result);
         }
 
 
         protected object InvokeMethod_InternalWithObjectArray(object Instance, string Method, object[] args)
         {
-            this.SetError();
+            SetError();
             object result;
 
             try
@@ -991,7 +991,7 @@ namespace Westwind.WebConnection
                 throw ex.GetBaseException();
             }
 
-            return this.FixupReturnValue(result);
+            return FixupReturnValue(result);
         }
 
         #region Array Functions
@@ -1009,7 +1009,7 @@ namespace Westwind.WebConnection
             MemberInfo[] miArray = baseType.GetType().GetMember(arrayProperty);
             if (miArray == null || miArray.Length == 0)
             {
-                this.SetError("Array member doesn't exist on base type");
+                SetError("Array member doesn't exist on base type");
                 return null;
             }
 
@@ -1022,7 +1022,7 @@ namespace Westwind.WebConnection
 
             if (type == null)
             {
-                this.SetError("Invalid type for array: " + type.Name);
+                SetError("Invalid type for array: " + type.Name);
                 return null;
             }
 
@@ -1041,7 +1041,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool CreateArrayOnInstance(object baseType, string arrayProperty, int size)
         {
-            this.SetError();
+            SetError();
 
             Array ar = CreateArrayInstanceInternal(baseType, arrayProperty, size);
             if (ar == null)
@@ -1062,10 +1062,10 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool CreateArrayOnInstanceWithObject(object baseType, string arrayProperty, object item)
         {
-            this.SetError();
+            SetError();
 
             // *** Create instance and assign
-            Array ar = this.CreateArrayInstanceInternal(baseType, arrayProperty, 1);
+            Array ar = CreateArrayInstanceInternal(baseType, arrayProperty, 1);
             if (ar == null)
                 return false;
 
@@ -1085,14 +1085,14 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public ComArray CreateArray(string arrayTypeString)
         {
-            this.SetError();
+            SetError();
 
             Type type = null;
             type = ReflectionUtils.GetTypeFromName(arrayTypeString);
 
             if (type == null)
             {
-                this.SetError("Invalid type for array: " + arrayTypeString);
+                SetError("Invalid type for array: " + arrayTypeString);
                 return null;
             }
 
@@ -1129,7 +1129,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool AddArrayItem(object baseObject, string arrayObject, object item)
         {
-            this.SetError();
+            SetError();
 
             Array ar = baseObject.GetType().InvokeMember(arrayObject,
                                   BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
@@ -1185,7 +1185,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object GetArrayItem(object baseObject, string arrayName, int index)
         {
-            this.SetError();
+            SetError();
 
             Array ar = baseObject.GetType().InvokeMember(arrayName,
                                   BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
@@ -1210,7 +1210,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool SetArrayItem(object baseObject, string arrayName, int index, object value)
         {
-            this.SetError();
+            SetError();
 
             Array ar = baseObject.GetType().InvokeMember(arrayName,
                                   BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
@@ -1237,7 +1237,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool RemoveArrayItem(object baseObject, string arrayObject, int Index)
         {
-            this.SetError();
+            SetError();
 
             // *** Assume 1 based arrays are passed in
             Index--;
@@ -1286,7 +1286,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public string DataSetToXmlString(DataSet ds, bool includeSchema)
         {
-            this.SetError();
+            SetError();
 
             MemoryStream ms = new MemoryStream(4096);
             ds.WriteXml(ms, includeSchema ? XmlWriteMode.WriteSchema : XmlWriteMode.IgnoreSchema);
@@ -1302,7 +1302,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public DataSet XmlStringToDataSet(string xml)
         {
-            this.SetError();
+            SetError();
 
             if (string.IsNullOrEmpty(xml))
                 return null;
@@ -1322,18 +1322,17 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                this.SetError(ex.Message);
+                SetError(ex.Message);
                 return null;
             }
         }
 
-        
-
         #endregion
+
 
         #region TypeConversionRoutines
 
-        private object FixupParameter(object val)
+        public static object FixupParameter(object val)
         {
             if (val == null)
                 return null;
@@ -1344,10 +1343,10 @@ namespace Westwind.WebConnection
             if (type.Name == "Byte[*]")
                 return ConvertObjectToByteArray(val);
 
-            if (type == typeof(long))
-                return Convert.ToInt64(val);
-            if (type == typeof(Single))
-                return Convert.ToSingle(val);
+            //if (type == typeof(long) || type == typeof(Int64))
+            //    return Convert.ToInt64(val);
+            //if (type == typeof(Single))
+            //    return Convert.ToSingle(val);
             
             // if we're dealing with ComValue parameter/value
             // just use it's Value property
@@ -1362,11 +1361,14 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Fixes up a return value based on its type
+        /// Fixes up a return value to return to FoxPro 
+        /// based on its type. Fixes up some values to
+        /// be type safe for FoxPro and others are returned
+        /// as wrappers (ComArray, ComGuid)
         /// </summary>
         /// <param name="val"></param>
         /// <returns></returns>
-        private object FixupReturnValue(object val)
+        public static object FixupReturnValue(object val)
         {
             if (val == null)
                 return null;
@@ -1380,13 +1382,14 @@ namespace Westwind.WebConnection
                 guid.Guid = (Guid)val;
                 return guid;
             }
-            else if (type == typeof(long) || type == typeof(Int64) )
+            if (type == typeof(long) || type == typeof(Int64) )
                 return Convert.ToDecimal(val);
-            else if (type == typeof(byte[]))
+            if (type == typeof(byte[]))
             {
                 // this ensures byte[] is not treated like an array (below)                
+                // but returned as binary data
             }
-            // FoxPro can't deal with DBNull as it's a value type
+                // FoxPro can't deal with DBNull as it's a value type
             else if (type == typeof(DBNull))
             {
                 val = null;
@@ -1406,15 +1409,13 @@ namespace Westwind.WebConnection
         /// </summary>
         /// <param name="val"></param>
         /// <returns></returns>
-        public byte[] ConvertObjectToByteArray(object val)
+        public static byte[] ConvertObjectToByteArray(object val)
         {
             Array ct = (Array)val;
             Byte[] content = new byte[ct.Length];
             ct.CopyTo(content, 0);
             return content;
         }
-
-
 
         #endregion
 
@@ -1481,7 +1482,7 @@ namespace Westwind.WebConnection
 
         protected void SetError()
         {
-            this.SetError(string.Empty);
+            SetError(string.Empty);
         }
 
         protected void SetError(string message)
@@ -1501,18 +1502,18 @@ namespace Westwind.WebConnection
         {
             if (ex == null)
             {
-                this.Error = false;
-                this.ErrorMessage = string.Empty;
-                this.LastException = null;
+                Error = false;
+                ErrorMessage = string.Empty;
+                LastException = null;
             }
 
             Exception e = ex;
             if (checkInner)
                 e = ex.GetBaseException();
 
-            this.Error = true;
-            this.ErrorMessage = e.Message;
-            this.LastException = e;
+            Error = true;
+            ErrorMessage = e.Message;
+            LastException = e;
         }
 
         protected void SetError(Exception ex)
@@ -1526,7 +1527,7 @@ namespace Westwind.WebConnection
         public string GetVersionInfo()
         {
             string res = @".NET Version: " + Environment.Version.ToString() + "\r\n" +
-               this.GetType().Assembly.CodeBase;
+               GetType().Assembly.CodeBase;
             return res;
         }
     }

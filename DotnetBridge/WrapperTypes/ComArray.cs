@@ -38,7 +38,6 @@ namespace Westwind.WebConnection
         }
         private object _Instance = null;
 
-
         /// <summary>
         /// Returns the length of the .NET array contained in Instance
         /// </summary>
@@ -57,6 +56,7 @@ namespace Westwind.WebConnection
             }
 
         }
+		
 
         /// <summary>
         /// Default constructor
@@ -122,7 +122,7 @@ namespace Westwind.WebConnection
             if (ar == null)
                 return false;
 
-            this.Instance = ar;
+            Instance = ar;
 
             return true;            
         }
@@ -139,7 +139,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool AssignFrom(object baseInstance, string arrayPropertyName)
         {            
-            this.Instance = ReflectionUtils.GetPropertyEx(baseInstance, arrayPropertyName) as Array;                       
+            Instance = ReflectionUtils.GetPropertyEx(baseInstance, arrayPropertyName) as Array;                       
             return true;
         }
 
@@ -151,7 +151,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool AssignTo(object baseInstance, string arrayPropertyName)
         {
-            ReflectionUtils.SetPropertyEx(baseInstance, arrayPropertyName, this.Instance);
+            ReflectionUtils.SetPropertyEx(baseInstance, arrayPropertyName, Instance);
             return true;
         }
 
@@ -168,10 +168,10 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateItem()
         {
-            if (this.Instance == null)
+            if (Instance == null)
                 return null;
 
-            Type itemType = this.Instance.GetType().GetElementType();
+            Type itemType = Instance.GetType().GetElementType();
 
             object item = ReflectionUtils.CreateInstanceFromType(itemType);
             return item;
@@ -197,15 +197,15 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateItemExplicit()
         {
-            if (this.Instance == null)
+            if (Instance == null)
                 return null;
 
             Type itemType = null;
-            var arInst = this.Instance as Array;
+            var arInst = Instance as Array;
             if (arInst != null && arInst.Length > 0)
                itemType = arInst.GetValue(0).GetType();            
             if (itemType == null)
-               itemType = this.Instance.GetType().GetElementType();
+               itemType = Instance.GetType().GetElementType();
 
             object item = ReflectionUtils.CreateInstanceFromType(itemType);
             return item;
@@ -218,14 +218,19 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object Item(int index)
         {
-            if (this.Instance == null)
+            if (Instance == null)
                 return null;
 
-            Array ar = this.Instance as Array;
+            Array ar = Instance as Array;
 
             try
             {
                 object val = ar.GetValue(index);
+                if (val == null)
+                    return null;
+
+                wwDotNetBridge.FixupReturnValue(val);
+
                 return val;
             }
             catch { }
@@ -241,7 +246,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool SetItem(int index, object value)
         {
-            Array ar = this.Instance as Array;
+            Array ar = Instance as Array;
             ar.SetValue(value, index);
 
             return true;
@@ -256,7 +261,9 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool AddItem(object item)
         {
-            Array ar = this.Instance as Array;
+            item = wwDotNetBridge.FixupParameter(item);
+            
+            Array ar = Instance as Array;
 
             Type itemType = null;
             if (item != null)
@@ -269,7 +276,7 @@ namespace Westwind.WebConnection
             // *** This may be ambigous - could mean no property or array exists and is null
             if (ar == null)
             {
-                if (!this.CreateEmptyArray(itemType.FullName))
+                if (!CreateEmptyArray(itemType.FullName))
                     return false;
             }
                         
@@ -280,7 +287,7 @@ namespace Westwind.WebConnection
             ar = copiedArray;
             ar.SetValue(item, size);
 
-            this.Instance = ar;
+            Instance = ar;
 
             return true;
         }
@@ -293,7 +300,7 @@ namespace Westwind.WebConnection
         public bool RemoveItem(int index)
         {
             // *** USe Reflection to get a reference to the array Property
-            Array ar = this.Instance as Array; 
+            Array ar = Instance as Array; 
             
             // *** This may be ambigous - could mean no property or array exists and is null
             if (ar == null)
@@ -318,7 +325,7 @@ namespace Westwind.WebConnection
                     newArrayCount++;
                 }
             }
-            this.Instance = newArray;
+            Instance = newArray;
             return true;
         }
 
@@ -328,7 +335,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool Clear()
         {
-            Array ar = this.Instance as Array;
+            Array ar = Instance as Array;
             if (ar == null)
                 return true;  
 
@@ -336,7 +343,7 @@ namespace Westwind.WebConnection
                 return true;
 
             var type = ar.GetValue(0).GetType();
-            this.Instance = Array.CreateInstance(type, 0);
+            Instance = Array.CreateInstance(type, 0);
 
 
             return true;
@@ -364,7 +371,7 @@ namespace Westwind.WebConnection
             {
             	ar.SetValue(al[i],i);
             }
-            this.Instance = ar;
+            Instance = ar;
         }
     }
 

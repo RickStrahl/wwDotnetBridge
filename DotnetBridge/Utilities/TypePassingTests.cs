@@ -1,5 +1,4 @@
-﻿#if DEBUG
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
@@ -41,6 +40,21 @@ namespace Westwind.WebConnection
             return byteData;
         }
 
+        public Single PassSingle(Single number)
+        {
+            return number + 10.2F;
+        }
+
+        public long PassLong(long number)
+        {
+            return number + 10;
+        }
+
+        public long[] PassLongArray(long[] numbers)
+        {
+            return numbers;
+        }
+
         public TestCustomer[] GetCustomerArray()
         {
             TestCustomer[] customers = new TestCustomer[2];
@@ -68,8 +82,27 @@ namespace Westwind.WebConnection
                 return customers.Length;
 
             return 0;
-        }        
+        }
+
+        /// <summary>
+        /// Pass in 15 parameters and return the value of the last
+        /// </summary>
+        /// <returns></returns>
+        public int Pass24Parameters(int p1, int p2, int p3, int p4, int p5, int p6, int p7,
+                                    int p8, int p9, int p10, int p11, int p12, int p13, int p14, int p15,
+                                    int p16, int p17, int p18, int p19, int p20,
+                                    int p21, int p22, int p23, int p24)
+        {
+            return p24;
+        }
+
+        public int PassUnlimitedParameters(params Int32[] numbers)
+        {
+            return numbers.Length;
+        }
     }
+
+
 
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.AutoDual)]
@@ -102,4 +135,3 @@ namespace Westwind.WebConnection
     }
 
 }
-#endif

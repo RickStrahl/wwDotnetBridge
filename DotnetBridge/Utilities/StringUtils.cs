@@ -540,7 +540,7 @@ namespace Westwind.Utilities
                 {
                     // *** read the next 2 chars and parse into a char
                     temp = (char)Int32.Parse(((char)sr.Read()).ToString() + ((char)sr.Read()).ToString(),
-                        System.Globalization.NumberStyles.HexNumber);
+                        NumberStyles.HexNumber);
                     sb.Append(temp);
                 }
                 else
@@ -642,15 +642,15 @@ namespace Westwind.Utilities
 
 
             // *** Expand embedded hyperlinks
-            System.Text.RegularExpressions.RegexOptions options =
+            RegexOptions options =
                                                                   RegexOptions.Multiline |
                                                                   RegexOptions.IgnoreCase;
 
-            if (this.ParseFormattedLinks)
+            if (ParseFormattedLinks)
             {
                 pattern = @"\[(.*?)\|(.*?)]";
 
-                matchEval = new MatchEvaluator(this.ExpandFormattedLinks);
+                matchEval = new MatchEvaluator(ExpandFormattedLinks);
                 updated = Regex.Replace(text, pattern, matchEval, options);
             }
             else
@@ -658,7 +658,7 @@ namespace Westwind.Utilities
 
             pattern = @"([""'=]|&quot;)?(http://|ftp://|https://|www\.|ftp\.[\w]+)([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])";
 
-            matchEval = new MatchEvaluator(this.ExpandUrlsRegExEvaluator);
+            matchEval = new MatchEvaluator(ExpandUrlsRegExEvaluator);
             updated = Regex.Replace(updated, pattern, matchEval, options);
 
 
@@ -671,7 +671,7 @@ namespace Westwind.Utilities
         /// </summary>
         /// <param name="M"></param>
         /// <returns></returns>
-        private string ExpandUrlsRegExEvaluator(System.Text.RegularExpressions.Match M)
+        private string ExpandUrlsRegExEvaluator(Match M)
         {
             string Href = M.Value; // M.Groups[0].Value;
 
@@ -694,13 +694,13 @@ namespace Westwind.Utilities
                     Href = "mailto:" + Href;
             }
 
-            string Targ = !string.IsNullOrEmpty(this.Target) ? " target='" + this.Target + "'" : "";
+            string Targ = !string.IsNullOrEmpty(Target) ? " target='" + Target + "'" : "";
 
             return "<a href='" + Href + "'" + Targ +
                     ">" + Text + "</a>";
         }
 
-        private string ExpandFormattedLinks(System.Text.RegularExpressions.Match M)
+        private string ExpandFormattedLinks(Match M)
         {
             //string Href = M.Value; // M.Groups[0].Value;
 
@@ -719,7 +719,7 @@ namespace Westwind.Utilities
                     Href = "http://" + Href;
             }
 
-            string Targ = !string.IsNullOrEmpty(this.Target) ? " target='" + this.Target + "'" : "";
+            string Targ = !string.IsNullOrEmpty(Target) ? " target='" + Target + "'" : "";
 
             return "<a href='" + Href + "'" + Targ +
                     ">" + Text + "</a>";

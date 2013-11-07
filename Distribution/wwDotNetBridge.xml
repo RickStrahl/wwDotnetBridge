@@ -333,7 +333,10 @@
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.FixupReturnValue(System.Object)">
             <summary>
-            Fixes up a return value based on its type
+            Fixes up a return value to return to FoxPro 
+            based on its type. Fixes up some values to
+            be type safe for FoxPro and others are returned
+            as wrappers (ComArray, ComGuid)
             </summary>
             <param name="val"></param>
             <returns></returns>
@@ -359,6 +362,12 @@
             <summary>
             Returns error information if the call fails
             </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.TypePassingTests.Pass24Parameters(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Pass in 15 parameters and return the value of the last
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:Westwind.Utilities.FileUtils">
             <summary>

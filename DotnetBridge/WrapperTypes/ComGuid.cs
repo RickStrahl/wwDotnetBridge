@@ -33,11 +33,11 @@ namespace Westwind.WebConnection
         {
             get
             {
-                return this.Guid.ToString();
+                return Guid.ToString();
             }
             set
             {
-                this.Guid = new Guid(value);
+                Guid = new Guid(value);
             }
         }
 
@@ -46,7 +46,7 @@ namespace Westwind.WebConnection
         /// </summary>
         public void New()
         {
-            this.Guid = Guid.NewGuid();
+            Guid = Guid.NewGuid();
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Westwind.WebConnection
         /// </summary>
         public void Empty()
         {
-            this.Guid = Guid.Empty;
+            Guid = Guid.Empty;
         }
 
     }
