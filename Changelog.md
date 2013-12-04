@@ -1,6 +1,11 @@
 #wwDotnetBridge Change Log
 --------------------------
+##Version 5.68
+*not released yet
 
+* **Address concerns for running on XP**
+Change compiler target using Visual Studio 2013 runtimes for ClrHost.dll.
+This fixes potential problems on Windows XP.
 
 ##Version 5.67
 *Nov. 8, 2013
