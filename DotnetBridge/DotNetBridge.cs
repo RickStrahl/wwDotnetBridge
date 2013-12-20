@@ -34,6 +34,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using Newtonsoft.Json;
 using Westwind.Utilities;
 using System.IO;
 using System.Data;
@@ -1384,6 +1385,8 @@ namespace Westwind.WebConnection
             }
             if (type == typeof(long) || type == typeof(Int64) )
                 return Convert.ToDecimal(val);
+            if (type == typeof (char))
+                return val.ToString();
             if (type == typeof(byte[]))
             {
                 // this ensures byte[] is not treated like an array (below)                
@@ -1522,13 +1525,105 @@ namespace Westwind.WebConnection
         }
 
 
-
-
         public string GetVersionInfo()
         {
             string res = @".NET Version: " + Environment.Version.ToString() + "\r\n" +
                GetType().Assembly.CodeBase;
             return res;
         }
+
+
+        // These are included only in the commercial version of Web Connection
+        // the open source version omits these
+        #region JsonXmlConversions
+
+        /// <summary>
+        /// Returns a JSON string from a .NET object. Note: doesn't
+        /// work with FoxPro COM objects - only Interop .NET objects
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="formatted"></param>
+        /// <returns></returns>
+        public string ToJson(object value, bool formatted)
+        {
+            try
+            {
+                return JsonConvert.SerializeObject(
+                                value,
+                                formatted ? Formatting.Indented : Formatting.None);
+            }
+            catch (Exception ex)
+            {
+                SetError(ex, true);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Deserializes a JSON object
+        /// </summary>
+        /// <param name="json"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public object FromJson(string json, Type type)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject(json, type);
+            }
+            catch (Exception ex)
+            {
+                SetError(ex, true);
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// Returns an XML object from a .NET object. Note doesn't
+        /// work with FoxPro COM object - only Interop .NET objects
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public string ToXml(object value)
+        {
+            string xmlResultString = null;
+
+            try
+            {
+                SerializationUtils.SerializeObject(value, out xmlResultString, true);
+            }
+            catch (Exception ex)
+            {
+                SetError(ex, true);
+                return null;
+            }
+            return xmlResultString;
+        }
+
+
+        /// <summary>
+        /// Deserializes an object from an XML string that was 
+        /// generated in format the same as generated from ToXml()
+        /// </summary>
+        /// <param name="xml"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public object FromXml(string xml, Type type)
+        {
+            try
+            {
+                return SerializationUtils.DeSerializeObject(xml, type);
+            }
+            catch (Exception ex)
+            {
+                SetError(ex, true);
+                return null;
+            }
+        }
+
+        #endregion
+
+
     }
 }

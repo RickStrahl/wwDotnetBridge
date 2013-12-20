@@ -162,7 +162,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
 	ELSE
 		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
-		   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
+	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
 
 		lcError = SPACE(2048)
 		lnSize = 0
@@ -327,7 +327,9 @@ ENDFUNC
 ************************************************************************
 FUNCTION InvokeMethod(loObject, lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,;
 										  lvParm6, lvParm7, lvParm8, lvParm9, lvParm10,;
-										  lvParm11, lvParm12, lvParm13, lvParm14, lvParm15)
+										  lvParm11, lvParm12, lvParm13, lvParm14, lvParm15,;
+										  lvParm16, lvParm17, lvParm18, lvParm19, lvParm20,;
+										  lvParm21, lvParm22, lvParm23, lvParm24)
 LOCAL loBridge, lnParms, loResult
 
 this.SetError()
@@ -337,6 +339,8 @@ loBridge = this.oDotNetBridge
 lnParms = PCOUNT()
 loResult = NULL
 DO CASE
+    CASE lnParms = 2
+      loResult = loBridge.InvokeMethod(loObject, lcMethod)
 	CASE lnParms = 3
 	  loResult = loBridge.InvokeMethod_OneParm(loObject, lcMethod, lvParm1)
 	CASE lnParms = 4
@@ -357,18 +361,18 @@ DO CASE
 	  loResult = loBridge.InvokeMethod_NineParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)
 	CASE lnParms = 12
 	  loResult = loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	  
-	CASE lnParms = 13
-	  loResult = loBridge.InvokeMethod_ElevenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11)	  
-	CASE lnParms = 14
-	  loResult = loBridge.InvokeMethod_TwelveParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11, lvParm12)	  
-	CASE lnParms = 15
-	  loResult = loBridge.InvokeMethod_ThirteenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11, lvParm12, lvParm13)	  
-	CASE lnParms = 16
-	  loResult = loBridge.InvokeMethod_FourteenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11, lvParm12, lvParm13, lvParm14)	  
-	CASE lnParms = 17
-	  loResult = loBridge.InvokeMethod_FifteenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10, lvParm11, lvParm12, lvParm13, lvParm14, lvParm15)	  	  
+
 	OTHERWISE
-	  loResult = loBridge.InvokeMethod(loObject, lcMethod)
+      	    LOCAL loArray as Westwind.WebConnection.ComArray
+	    loArray = this.CreateArray("System.Object")
+
+	    LOCAL lvParm
+	    FOR lnX = 1 TO lnParms-2
+		   	lvParm = EVALUATE("lvParm" + TRANSFORM(lnX))
+		   	loArray.AddItem(lvParm)   	
+	    ENDFOR
+	    
+	    RETURN THIS.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
 ENDCASE
 
 IF ISNULL(loResult) OR loBridge.Error
@@ -1109,8 +1113,10 @@ DO CASE
       loVal.SetInt64(lvFoxValue)
   CASE lcType = "byte"
       loVal.SetByte(lvFoxValue)
+  CASE lcType = "char"
+      loVal.SetChar(lvFoxValue)
   CASE lcType = "dbnull"
-      loVal.SetDbNull()
+      loVal.SetDbNull()     
 
   *** CAST Conversions
   CASE lcType = "decimal"

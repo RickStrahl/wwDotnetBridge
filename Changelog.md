@@ -7,9 +7,14 @@
 Change compiler target using Visual Studio 2013 runtimes for ClrHost.dll.
 This fixes potential problems on Windows XP.
 
+* **Add support for char parameters and results**
+char parameters can now be set with ComValue::SetChar() by passing in
+either a string value or number. You can also use loBridge.ConvertToDotnetValue()
+to create the ComValue structure. char results are converted to string when
+returned from .NET method calls.
+
 ##Version 5.67
 *Nov. 8, 2013
-
 
 * **ComArray::AddItem() Auto Type Conversion**
 When you add items to an array, AddItem() now automatically

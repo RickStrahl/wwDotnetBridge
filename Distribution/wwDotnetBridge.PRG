@@ -1113,8 +1113,10 @@ DO CASE
       loVal.SetInt64(lvFoxValue)
   CASE lcType = "byte"
       loVal.SetByte(lvFoxValue)
+  CASE lcType = "char"
+      loVal.SetChar(lvFoxValue)
   CASE lcType = "dbnull"
-      loVal.SetDbNull()
+      loVal.SetDbNull()     
 
   *** CAST Conversions
   CASE lcType = "decimal"

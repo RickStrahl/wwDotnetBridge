@@ -55,6 +55,12 @@ namespace Westwind.WebConnection
             return numbers;
         }
 
+        public char PassChar(char value)
+        {
+            return value;
+        }
+
+
         public TestCustomer[] GetCustomerArray()
         {
             TestCustomer[] customers = new TestCustomer[2];

@@ -66,6 +66,16 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
+        /// Sets a character value from a string or integer
+        /// </summary>
+        /// <param name="val"></param>
+        public void SetChar(object val)
+        {
+            Value = Convert.ToChar(val);
+        }
+
+
+        /// <summary>
         /// Sets a Decimal value. This can actually 
         /// be done in FoxPro with CAST(val as Currency)
         /// </summary>
