@@ -363,7 +363,7 @@ DO CASE
 	  loResult = loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	  
 
 	OTHERWISE
-      	    LOCAL loArray as Westwind.WebConnection.ComArray
+      	LOCAL loArray as Westwind.WebConnection.ComArray
 	    loArray = this.CreateArray("System.Object")
 
 	    LOCAL lvParm
@@ -375,7 +375,7 @@ DO CASE
 	    RETURN THIS.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
 ENDCASE
 
-IF ISNULL(loResult) OR loBridge.Error
+IF loBridge.Error
    this.cErrorMsg = loBridge.ErrorMessage
    this.lError = .T.
 ENDIF   
@@ -429,7 +429,7 @@ ENDCASE
 
 loResult = loBridge.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
 
-IF ISNULL(loResult) OR loBridge.Error
+IF loBridge.Error
    this.cErrorMsg = loBridge.ErrorMessage
    this.lError = .T.
 ENDIF   
@@ -538,7 +538,7 @@ DO CASE
 	  loResult = loBridge.InvokeStaticMethod(lcTypeName, lcMethod)
 ENDCASE
 
-IF ISNULL(loResult) OR loBridge.Error
+IF loBridge.Error
    this.cErrorMsg = loBridge.ErrorMessage
    this.lError = .T.
 ENDIF   
