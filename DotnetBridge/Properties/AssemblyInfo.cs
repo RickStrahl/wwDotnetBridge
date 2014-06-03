@@ -9,12 +9,12 @@ using System.Security;
 #if SHAREWARE
 [assembly: AssemblyTitle("Unregistered: West Wind .NET Bridge Connector (.NET). --- Please register your copy at www.west-wind.com/wwstore")]
 #else
-[assembly: AssemblyTitle("West Wind .NET Bridge Connector (.NET)")]
+[assembly: AssemblyTitle("West Wind wwDotnetBridge .NET Bridge Connector (.NET)")]
 #endif
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("West Wind Technologies")]
 [assembly: AssemblyProduct("West Wind Client Tools")]
-[assembly: AssemblyCopyright("Copyright ©  2007-2013")]
+[assembly: AssemblyCopyright("©  West Wind Technologies 2007-2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -38,5 +38,5 @@ using System.Security;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("5.67")]
-//[assembly: AssemblyFileVersion("5.40.0.0")]
+[assembly: AssemblyVersion("5.68")]
+[assembly: AssemblyFileVersion("5.68.0.0")]

@@ -1,7 +1,7 @@
 #wwDotnetBridge Change Log
 --------------------------
 ##Version 5.68
-*not released yet
+*June 2, 2014
 
 * **Address concerns for running on XP**
 Change compiler target using Visual Studio 2013 runtimes for ClrHost.dll.
@@ -12,6 +12,20 @@ char parameters can now be set with ComValue::SetChar() by passing in
 either a string value or number. You can also use loBridge.ConvertToDotnetValue()
 to create the ComValue structure. char results are converted to string when
 returned from .NET method calls.
+
+* **ComValue SetSingle()**
+Allows assigning a .NET Single value from a FoxPro number to be used the 
+dynamically invoked methods.
+
+* **ComValue.SetValueFromEnum()**
+Allows you to set an Enum Value from a type and constant name and 
+assign it to ComValue. Allows passing Enum parameters to .NET which
+otherwise is not possible as enums are static values. 
+
+* **Fixed error handling to be more consistent**
+Changed the error handling behavior of all method that capture
+errors to return the base error message. Made consistent across
+wwDotnetBridge calls.
 
 ##Version 5.67
 *Nov. 8, 2013

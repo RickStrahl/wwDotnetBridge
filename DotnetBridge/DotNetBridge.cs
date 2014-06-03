@@ -34,7 +34,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Reflection;
-using Newtonsoft.Json;
 using Westwind.Utilities;
 using System.IO;
 using System.Data;
@@ -557,8 +556,8 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                SetError(ex, true);
-                return null;
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
             }
 
             return FixupReturnValue(Result);
@@ -588,8 +587,8 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                SetError(ex, true);
-                return null;
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
             }
             return Result;
         }
@@ -613,8 +612,8 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                SetError(ex, true);
-                return false;
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
             }
 
             return true;
@@ -636,9 +635,10 @@ namespace Westwind.WebConnection
                 Type type = GetTypeFromName(EnumTypeName);
                 return Enum.GetName(type, Value);
             }
-            catch
+            catch(Exception ex)
             {
-                SetError("Invalid enum value");
+                SetError(ex.GetBaseException());
+                throw ex.GetBaseException();
             }
 
             return null;
@@ -685,6 +685,14 @@ namespace Westwind.WebConnection
         }
 
 
+        /// <summary>
+        /// Invokes a method with an explicit array of parameters
+        /// Allows for any number of parameters to be passed.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="method"></param>
+        /// <param name="parms"></param>
+        /// <returns></returns>
         public object InvokeMethodWithParameterArray(object instance, string method, object[] parms)
         {
             return InvokeMethod_InternalWithObjectArray(instance, method, parms);
@@ -700,8 +708,6 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object InvokeMethod_OneParm(object Instance, string Method, object Parm1)
         {
-            Parm1 = FixupParameter(Parm1);
-
             return InvokeMethod_Internal(Instance, Method, Parm1);
         }
 
@@ -715,135 +721,47 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object InvokeMethod_TwoParms(object Instance, string Method, object Parm1, object Parm2)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2);
         }
 
         public object InvokeMethod_ThreeParms(object Instance, string Method, object Parm1, object Parm2, object Parm3)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3);
         }
         public object InvokeMethod_FourParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-            Parm4 = FixupParameter(Parm4);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4);
         }
         public object InvokeMethod_FiveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-            Parm4 = FixupParameter(Parm4);
-            Parm5 = FixupParameter(Parm5);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5);
         }
         public object InvokeMethod_SixParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-            Parm4 = FixupParameter(Parm4);
-            Parm5 = FixupParameter(Parm5);
-            Parm6 = FixupParameter(Parm6);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6);
         }
         public object InvokeMethod_SevenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-            Parm4 = FixupParameter(Parm4);
-            Parm5 = FixupParameter(Parm5);
-            Parm6 = FixupParameter(Parm6);
-            Parm7 = FixupParameter(Parm7);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7);
         }
         public object InvokeMethod_EightParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-            Parm4 = FixupParameter(Parm4);
-            Parm5 = FixupParameter(Parm5);
-            Parm6 = FixupParameter(Parm6);
-            Parm7 = FixupParameter(Parm7);
-            Parm8 = FixupParameter(Parm8);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8);
         }
         public object InvokeMethod_NineParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-            Parm4 = FixupParameter(Parm4);
-            Parm5 = FixupParameter(Parm5);
-            Parm6 = FixupParameter(Parm6);
-            Parm7 = FixupParameter(Parm7);
-            Parm8 = FixupParameter(Parm8);
-            Parm9 = FixupParameter(Parm9);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9);
         }
         public object InvokeMethod_TenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-            Parm4 = FixupParameter(Parm4);
-            Parm5 = FixupParameter(Parm5);
-            Parm6 = FixupParameter(Parm6);
-            Parm7 = FixupParameter(Parm7);
-            Parm8 = FixupParameter(Parm8);
-            Parm9 = FixupParameter(Parm9);
-            Parm10 = FixupParameter(Parm10);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10);
         }
         public object InvokeMethod_ElevenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10, object Parm11)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-            Parm4 = FixupParameter(Parm4);
-            Parm5 = FixupParameter(Parm5);
-            Parm6 = FixupParameter(Parm6);
-            Parm7 = FixupParameter(Parm7);
-            Parm8 = FixupParameter(Parm8);
-            Parm9 = FixupParameter(Parm9);
-            Parm10 = FixupParameter(Parm10);
-            Parm11 = FixupParameter(Parm11);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10, Parm11);
         }
         public object InvokeMethod_TwelveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10, object Parm11, object Parm12)
         {
-            Parm1 = FixupParameter(Parm1);
-            Parm2 = FixupParameter(Parm2);
-            Parm3 = FixupParameter(Parm3);
-            Parm4 = FixupParameter(Parm4);
-            Parm5 = FixupParameter(Parm5);
-            Parm6 = FixupParameter(Parm6);
-            Parm7 = FixupParameter(Parm7);
-            Parm8 = FixupParameter(Parm8);
-            Parm9 = FixupParameter(Parm9);
-            Parm10 = FixupParameter(Parm10);
-            Parm11 = FixupParameter(Parm11);
-            Parm12 = FixupParameter(Parm12);
-
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10, Parm11, Parm12);
         }
 
@@ -857,102 +775,6 @@ namespace Westwind.WebConnection
             }
             return InvokeMethod_InternalWithObjectArray(Instance, Method, ParmArray.Instance as object[]);
         }
-
-        public object GetProperty(object Instance, string Property)
-        {
-            LastException = null;
-            try
-            {
-                object val = ReflectionUtils.GetPropertyCom(Instance, Property);
-                val = FixupReturnValue(val);
-                return val;
-            }
-            catch (Exception ex)
-            {
-                SetError(ex, true);
-                throw ex.GetBaseException();
-            }
-        }
-
-        public object GetPropertyEx(object Instance, string Property)
-        {
-            LastException = null;
-            try
-            {
-                object val = ReflectionUtils.GetPropertyEx(Instance, Property);
-                val = FixupReturnValue(val);
-                return val;
-            }
-            catch (Exception ex)
-            {
-                SetError(ex, true);
-                throw ex.GetBaseException();
-            }
-        }
-
-        /// <summary>
-        /// Sets a property of a .NET object with a value
-        /// </summary>
-        /// <param name="Instance"></param>
-        /// <param name="Property"></param>
-        /// <param name="Value"></param>
-        public void SetProperty(ref object Instance, string Property, object Value)
-        {
-            LastException = null;
-
-            if (Value is DBNull)
-                Value = null;
-
-            Value = FixupParameter(Value);
-            try
-            {
-                ReflectionUtils.SetPropertyCom(Instance, Property, Value);
-            }
-            catch (Exception ex)
-            {
-                SetError(ex, true);
-                throw ex.GetBaseException();
-            }
-        }
-
-        /// <summary>
-        /// Sets a property of a .NET object with a value using extended syntax.
-        /// 
-        /// This method supports '.' syntax so you can use "Property.ChildProperty"
-        /// to walk the object hierarchy in the string property parameter. 
-        /// 
-        /// This method also supports accessing of Array/Collection indexers (Item[1])
-        /// </summary>
-        /// <param name="Instance"></param>
-        /// <param name="Property"></param>
-        /// <param name="Value"></param>
-        public void SetPropertyEx(ref object Instance, string Property, object Value)
-        {
-            LastException = null;
-            try
-            {
-                if (Value is DBNull)
-                    Value = null;
-
-                Value = FixupParameter(Value);
-                ReflectionUtils.SetPropertyEx(Instance, Property, Value);
-            }
-            catch (Exception ex)
-            {
-                LastException = ex;
-                SetError(ex, true);
-                throw ex.GetBaseException();
-            }
-        }
-
-        //public object InvokeMethod_OneParm(string Method, object Parm1)
-        //{
-        //    return InvokeMethod_Internal(Method, Parm1);
-        //}
-        //public object InvokeMethod_OneParm(string Method, object Parm1)
-        //{
-        //    return InvokeMethod_Internal(Method, Parm1);
-        //}
 
         protected object InvokeMethod_Internal(object Instance, string Method, params object[] args)
         {
@@ -988,12 +810,110 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                SetError(ex, true);
+                SetError(ex.GetBaseException(), true);
                 throw ex.GetBaseException();
             }
 
             return FixupReturnValue(result);
         }
+
+        public object GetProperty(object Instance, string Property)
+        {
+            LastException = null;
+            try
+            {
+                object val = ReflectionUtils.GetPropertyCom(Instance, Property);
+                val = FixupReturnValue(val);
+                return val;
+            }
+            catch (Exception ex)
+            {
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
+            }
+        }
+
+        public object GetPropertyEx(object Instance, string Property)
+        {
+            LastException = null;
+            try
+            {
+                object val = ReflectionUtils.GetPropertyEx(Instance, Property);
+                val = FixupReturnValue(val);
+                return val;
+            }
+            catch (Exception ex)
+            {
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
+            }
+        }
+
+        /// <summary>
+        /// Sets a property of a .NET object with a value
+        /// </summary>
+        /// <param name="Instance"></param>
+        /// <param name="Property"></param>
+        /// <param name="Value"></param>
+        public void SetProperty(ref object Instance, string Property, object Value)
+        {
+            LastException = null;
+
+            if (Value is DBNull)
+                Value = null;
+
+            Value = FixupParameter(Value);
+            try
+            {
+                ReflectionUtils.SetPropertyCom(Instance, Property, Value);
+            }
+            catch (Exception ex)
+            {
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
+            }
+        }
+
+        /// <summary>
+        /// Sets a property of a .NET object with a value using extended syntax.
+        /// 
+        /// This method supports '.' syntax so you can use "Property.ChildProperty"
+        /// to walk the object hierarchy in the string property parameter. 
+        /// 
+        /// This method also supports accessing of Array/Collection indexers (Item[1])
+        /// </summary>
+        /// <param name="Instance"></param>
+        /// <param name="Property"></param>
+        /// <param name="Value"></param>
+        public void SetPropertyEx(ref object Instance, string Property, object Value)
+        {
+            LastException = null;
+            try
+            {
+                if (Value is DBNull)
+                    Value = null;
+
+                Value = FixupParameter(Value);
+                ReflectionUtils.SetPropertyEx(Instance, Property, Value);
+            }
+            catch (Exception ex)
+            {
+                LastException = ex;
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
+            }
+        }
+
+        //public object InvokeMethod_OneParm(string Method, object Parm1)
+        //{
+        //    return InvokeMethod_Internal(Method, Parm1);
+        //}
+        //public object InvokeMethod_OneParm(string Method, object Parm1)
+        //{
+        //    return InvokeMethod_Internal(Method, Parm1);
+        //}
+
+
 
         #region Array Functions
 
@@ -1338,6 +1258,10 @@ namespace Westwind.WebConnection
             if (val == null)
                 return null;
 
+            // Fox nulls come in as DbNull values
+            if (val is DBNull)
+                return null;
+
             Type type = val.GetType();
 
             // *** Fix up binary SafeArrays into byte[]
@@ -1533,6 +1457,8 @@ namespace Westwind.WebConnection
         }
 
 
+#if false
+
         // These are included only in the commercial version of Web Connection
         // the open source version omits these
         #region JsonXmlConversions
@@ -1624,6 +1550,6 @@ namespace Westwind.WebConnection
 
         #endregion
 
-
+#endif
     }
 }

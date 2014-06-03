@@ -66,6 +66,15 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
+        /// Set a float value
+        /// </summary>
+        /// <param name="val"></param>
+        public void SetFloat(object val)
+        {
+            SetSingle(val);
+        }
+
+        /// <summary>
         /// Sets a character value from a string or integer
         /// </summary>
         /// <param name="val"></param>
@@ -112,22 +121,39 @@ namespace Westwind.WebConnection
         /// allows to pass enum values to methods and constructors
         /// to ensure that method signatures match properly
         /// </summary>
-        /// <param name="enumString">full type and value name. Example: System.Windows.Forms.MessageBoxOptions.OK</param>
-        public void SetEnum(string enumString)
+        /// <param name="enumValue">full type and value name. Example: System.Windows.Forms.MessageBoxOptions.OK</param>
+        public void SetEnum(string enumValue)
         {
-            if (string.IsNullOrEmpty(enumString))
-                throw new ArgumentNullException("Enum value not set.");
+            if (string.IsNullOrEmpty(enumValue))
+                throw new ArgumentNullException("Enum type is not set.");
             
-            int at = enumString.LastIndexOf('.');
+            int at = enumValue.LastIndexOf('.');
             
             if (at == -1)
                 throw new ArgumentException("Invalid format for enum value.");
 
-            string type = enumString.Substring(0, at);
-            string property = enumString.Substring(at+1);
+            string type = enumValue.Substring(0, at);
+            string property = enumValue.Substring(at+1);
 
             var bridge = new wwDotNetBridge();
             Value = bridge.GetStaticProperty(type,property);
+        }
+
+        /// <summary>
+        /// Assigns an enum value that is based on a numeric (flag) value
+        /// or a combination of flag values.
+        /// </summary>
+        /// <param name="enumType">Enum type name (System.Windows.Forms.MessageBoxOptions)</param>
+        /// <param name="enumValue">numeric flag value to set enum to</param>
+        public void SetEnumFlag(string enumType, int enumValue)
+        {
+            if (string.IsNullOrEmpty(enumType))
+                throw new ArgumentNullException("Enum type is not set.");
+
+            var bridge = new wwDotNetBridge();
+            Type type = bridge.GetTypeFromName(enumType);
+
+            Value = Enum.ToObject(type, enumValue);
         }
 
 
@@ -164,6 +190,12 @@ namespace Westwind.WebConnection
         {
             wwDotNetBridge bridge = new wwDotNetBridge();
             Value = bridge.GetStaticProperty(typeName,property);
+        }
+
+        public void SetValueFromEnum(string enumType, string enumName)
+        {
+            wwDotNetBridge bridge = new wwDotNetBridge();
+            Value = bridge.GetStaticProperty(enumType, enumName);
         }
 
         /// <summary>

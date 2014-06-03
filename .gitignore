@@ -13,3 +13,5 @@ TestResults
 
 *.user
 *.suo
+ClrHost/ClrHost.aps
+wwDotNetBridge.opensdf

@@ -190,6 +190,16 @@
             <param name="Method"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethodWithParameterArray(System.Object,System.String,System.Object[])">
+            <summary>
+            Invokes a method with an explicit array of parameters
+            Allows for any number of parameters to be passed.
+            </summary>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parms"></param>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod_OneParm(System.Object,System.String,System.Object)">
             <summary>
             Invokes a method with one parameter
@@ -1169,6 +1179,18 @@
             </summary>
             <param name="val"></param>
         </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetFloat(System.Object)">
+            <summary>
+            Set a float value
+            </summary>
+            <param name="val"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetChar(System.Object)">
+            <summary>
+            Sets a character value from a string or integer
+            </summary>
+            <param name="val"></param>
+        </member>
         <member name="M:Westwind.WebConnection.ComValue.SetDecimal(System.Object)">
             <summary>
             Sets a Decimal value. This can actually 
@@ -1195,7 +1217,15 @@
             allows to pass enum values to methods and constructors
             to ensure that method signatures match properly
             </summary>
-            <param name="enumString">full type and value name. Example: System.Windows.Forms.MessageBoxOptions.OK</param>
+            <param name="enumValue">full type and value name. Example: System.Windows.Forms.MessageBoxOptions.OK</param>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetEnumFlag(System.String,System.Int32)">
+            <summary>
+            Assigns an enum value that is based on a numeric (flag) value
+            or a combination of flag values.
+            </summary>
+            <param name="enumType">Enum type name (System.Windows.Forms.MessageBoxOptions)</param>
+            <param name="enumValue">numeric flag value to set enum to</param>
         </member>
         <member name="M:Westwind.WebConnection.ComValue.SetDbNull">
             <summary>
