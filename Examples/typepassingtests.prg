@@ -11,12 +11,10 @@ loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
 
 *** Pass parameters by Reference
 *** Create ComValue objects for each parameter
-loInt = loBridge.CreateComValue()
-loInt.Value = INT(10)
-loString = loBridge.CreateComValue()
-loString.Value = "Hello World."
-loDecimal = loBridge.CreateComValue()
-loDecimal.Value = CAST( 5.22 as Currency)
+loInt = loBridge.CreateComValue(INT(10))
+loString = loBridge.CreateComValue("Hello World.")
+loDecimal = loBridge.CreateComValue().SetLong(10)
+* CAST( 5.22 as Currency))
 ? "Original:"
 ? loInt.Value, loString.Value, loDecimal.Value
 
@@ -24,10 +22,16 @@ lobridge.InvokeStaticMethod("Westwind.WebConnection.TypePassingTests",;
                             "PassByReferenceStatic",;
                             loInt,loString,loDecimal)
 
+*!*	lobridge.InvokeMethod(loNet,;
+*!*	                            "PassByReference",;
+*!*	                            loInt,loString,loDecimal)
+
+
 *** Look at the result values
 ? "Updated:"
 ? loInt.Value, loString.Value, loDecimal.Value
 
+RETURN
 
 
 

@@ -688,8 +688,13 @@ ENDFUNC
 ***      Pass:
 ***    Return:
 ************************************************************************
-FUNCTION CreateComValue()
-RETURN this.CreateInstance("Westwind.WebConnection.ComValue")
+FUNCTION CreateComValue(lvValue)
+LOCAL loVal
+loVal = this.CreateInstance("Westwind.WebConnection.ComValue")
+if(PCOUNT()=1)
+   loVal.Value = lvValue
+ENDIF
+RETURN loVal
 ENDFUNC
 *   CreateComValue
 
