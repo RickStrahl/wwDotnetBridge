@@ -542,22 +542,35 @@ namespace Westwind.WebConnection
             }
 
             // fix up all parameters
-            Array ar = args as Array;
-            for (int i = 0; i < args.Length; i++)
+            object[] ar;
+            if (args == null || args.Length == 0)
+                ar = new object[0];
+            else
             {
-                ar.SetValue(FixupParameter(args[i]), i);
+                ar = new object[args.Length];
+                for (int i = 0; i < args.Length; i++)
+                {
+                    ar[i] = FixupParameter(args[i]);
+                }
             }
 
             ErrorMessage = "";
             object Result = null;
             try
             {
-                Result = type.InvokeMember(Method, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, type, args);
+                Result = type.InvokeMember(Method, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, type, ar);
             }
             catch (Exception ex)
             {
                 SetError(ex.GetBaseException(), true);
                 throw ex.GetBaseException();
+            }
+
+            // Update ComValue parameters to support ByRef Parameters
+            for (int i = 0; i < ar.Length; i++)
+            {
+                if (args[i] is ComValue)
+                    ((ComValue)args[i]).Value = FixupReturnValue(ar[i]);
             }
 
             return FixupReturnValue(Result);
@@ -776,27 +789,44 @@ namespace Westwind.WebConnection
             return InvokeMethod_InternalWithObjectArray(Instance, Method, ParmArray.Instance as object[]);
         }
 
-        protected object InvokeMethod_Internal(object Instance, string Method, params object[] args)
+        internal object InvokeMethod_Internal(object Instance, string Method, params object[] args)
         {
-            Array ar = args as Array;
-            for (int i = 0; i < args.Length; i++)
+            SetError();
+
+            object[] ar;
+            if (args == null || args.Length == 0)
+                ar = new object[0];
+            else
             {
-                ar.SetValue(FixupParameter(args[i]), i);
+                ar = new object[args.Length];
+                for (int i = 0; i < args.Length; i++)
+                {
+                    ar[i] = FixupParameter(args[i]);
+                }
             }
 
-            SetError();
+            
             object result = null;
             try
             {
-                result = ReflectionUtils.CallMethodCom(Instance, Method, args);
+                result = ReflectionUtils.CallMethodCom(Instance, Method, ar);
             }
             catch (Exception ex)
             {
                 SetError(ex.GetBaseException(), true);
                 throw ex.GetBaseException();
             }
+
+            // Update ComValue parameters to support ByRef Parameters
+            for (int i = 0; i < ar.Length; i++)
+            {
+                if (args[i] is ComValue)
+                    ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
+            }
+            
             return FixupReturnValue(result);
         }
+
 
 
         protected object InvokeMethod_InternalWithObjectArray(object Instance, string Method, object[] args)

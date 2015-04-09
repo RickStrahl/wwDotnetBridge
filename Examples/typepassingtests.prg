@@ -1,4 +1,4 @@
-
+CLEAR
 do wwDotNetBridge
 LOCAL loBridge as wwDotNetBridge
 loBridge = GetwwDotnetBridge()
@@ -7,6 +7,28 @@ loBridge = GetwwDotnetBridge()
 
 LOCAL loNet as Westwind.WebConnection.TypePassingTests
 loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
+
+
+*** Pass parameters by Reference
+*** Create ComValue objects for each parameter
+loInt = loBridge.CreateComValue()
+loInt.Value = INT(10)
+loString = loBridge.CreateComValue()
+loString.Value = "Hello World."
+loDecimal = loBridge.CreateComValue()
+loDecimal.Value = CAST( 5.22 as Currency)
+? "Original:"
+? loInt.Value, loString.Value, loDecimal.Value
+
+lobridge.InvokeStaticMethod("Westwind.WebConnection.TypePassingTests",;
+                            "PassByReferenceStatic",;
+                            loInt,loString,loDecimal)
+
+*** Look at the result values
+? "Updated:"
+? loInt.Value, loString.Value, loDecimal.Value
+
+
 
 
 *** Return a .NET STRUCT
@@ -40,11 +62,9 @@ loComValue.SetValueFromInvokeStaticMethod("Westwind.WebConnection.TypePassingTes
 ? loBridge.GetPropertyEx(loComValue,"Value.StringValue")
 
 
-RETURN
-
 
 *loNet.DecimalValue = 1.0
-loBridge.SetProperty(loNet,"DecimalValue",1)
+loBridge.SetProperty(loNet,"DecimalValue",CAST(1 as Currency))
 ?loBridge.GetProperty(loNet,"DecimalValue")
 
 

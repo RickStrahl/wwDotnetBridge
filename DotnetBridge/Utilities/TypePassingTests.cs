@@ -10,7 +10,6 @@ namespace Westwind.WebConnection
     [ClassInterface(ClassInterfaceType.AutoDual)]
     public class TypePassingTests
     {
-
         public decimal? DecimalValue { get; set; }
 
         public TypePassingTests()
@@ -112,6 +111,24 @@ namespace Westwind.WebConnection
 
             return customers;
         }
+
+
+        public void PassByReference(ref int intValue, ref string stringValue, ref decimal decimalValue)
+        {
+            intValue = intValue*2;
+            decimalValue = decimalValue*2;
+            stringValue += " Updated!";
+        }
+
+
+        public static void PassByReferenceStatic(ref int intValue, ref string stringValue, ref decimal decimalValue)
+        {
+            intValue = intValue*2;
+            decimalValue = decimalValue*2;
+            stringValue += " Updated!";
+        }
+
+
 
         public int PassCustomerArray(TestCustomer[] customers)
         {
