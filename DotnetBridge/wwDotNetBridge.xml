@@ -373,6 +373,20 @@
             Returns error information if the call fails
             </summary>
         </member>
+        <member name="M:Westwind.WebConnection.TypePassingTests.PassEnumArray(System.Windows.Forms.MessageBoxButtons[])">
+            <summary>
+            </summary>
+            <example>
+            LOCAL loArray as Westwind.WebConnection.ComArray
+            loArray = loBridge.Createarray("System.Windows.Forms.MessageBoxButtons")
+            loComValue = loBridge.CreateComValue()
+            loComValue.SetEnum("System.Windows.Forms.MessageBoxButtons.OK")
+            loArray.AddItem( loComValue) 
+            ? loBridge.InvokeMethod(loTest,"PassEnumArray",loArray)
+            </example>
+            <param name="buttons"></param>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.TypePassingTests.Pass24Parameters(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
             <summary>
             Pass in 15 parameters and return the value of the last
@@ -1269,6 +1283,15 @@
             <param name="objectRef">Object instance</param>
             <param name="method">Method to call</param>
             <param name="parms">An array of the parameters passed (use ComArray and InvokeMethod)</param>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetValueFromInvokeStaticMethod(System.String,System.String,Westwind.WebConnection.ComArray)">
+            <summary>
+            Invokes a static method with the passed parameters and sets the Value property
+            from the result value.
+            </summary>
+            <param name="typeName"></param>
+            <param name="method"></param>
+            <param name="parms"></param>
         </member>
         <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateInstance(System.String,Westwind.WebConnection.ComArray)">
             <summary>

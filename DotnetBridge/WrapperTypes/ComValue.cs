@@ -216,6 +216,8 @@ namespace Westwind.WebConnection
             SetValueFromInvokeMethod(objectRef, method, list.ToArray());            
         }
 
+
+
         /// <summary>
         /// Sets the Value property from a method call that passes it's positional arguments
         /// as an array.
@@ -227,6 +229,25 @@ namespace Westwind.WebConnection
         {
             wwDotNetBridge bridge = new wwDotNetBridge();
             Value = bridge.InvokeMethodWithParameterArray(objectRef, method, parms);
+        }
+
+
+        /// <summary>
+        /// Invokes a static method with the passed parameters and sets the Value property
+        /// from the result value.
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="method"></param>
+        /// <param name="parms"></param>
+        public void SetValueFromInvokeStaticMethod(string typeName, string method, ComArray parms)
+        {
+            wwDotNetBridge bridge = new wwDotNetBridge();
+            var list = new List<object>();
+            if (parms.Instance != null)
+                foreach (object item in parms.Instance as IEnumerable)
+                    list.Add(item);
+
+            Value = bridge.InvokeStaticMethod_Internal(typeName, method, list.ToArray());
         }
 
         /// <summary>

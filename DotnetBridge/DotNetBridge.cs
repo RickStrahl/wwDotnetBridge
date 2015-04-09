@@ -530,7 +530,7 @@ namespace Westwind.WebConnection
         /// <param name="Method"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        protected object InvokeStaticMethod_Internal(string TypeName, string Method, params object[] args)
+        internal object InvokeStaticMethod_Internal(string TypeName, string Method, params object[] args)
         {
             SetError();
 

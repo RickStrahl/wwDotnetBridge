@@ -170,7 +170,7 @@ namespace Westwind.Utilities
                 }
                 catch {}  // ignore locked files
             }
-        }
+        }        
             
 		
     }

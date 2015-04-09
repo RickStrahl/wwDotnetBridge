@@ -1,12 +1,16 @@
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 bin
 obj
+.vs
 Release
 Debug
 *.sdf
 *.pdb
 *.tlb
 *.vbr
+*.fxp
+*.opensdf
+*
 
 # mstest test results
 TestResults
@@ -14,4 +18,3 @@ TestResults
 *.user
 *.suo
 ClrHost/ClrHost.aps
-wwDotNetBridge.opensdf

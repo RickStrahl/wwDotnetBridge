@@ -1,5 +1,5 @@
 *** This flag defines West Wind's commercial version
-*** The open source version should be set to .F.
+*** The open source version should be set to .F. 
 #DEFINE IS_WESTWIND    .F.
 
 SET PROCEDURE TO wwDotNetBridge ADDITIVE

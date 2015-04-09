@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace Westwind.WebConnection
 {
@@ -9,6 +10,14 @@ namespace Westwind.WebConnection
     [ClassInterface(ClassInterfaceType.AutoDual)]
     public class TypePassingTests
     {
+
+        public decimal? DecimalValue { get; set; }
+
+        public TypePassingTests()
+        {
+            DecimalValue = 1.0M;
+        }
+
         public Guid GetGuid()
         {
             return Guid.NewGuid();
@@ -45,6 +54,11 @@ namespace Westwind.WebConnection
             return number + 10.2F;
         }
 
+        public Decimal PassDecimal(decimal number)
+        {
+            return number + 11.2M;
+        }
+
         public long PassLong(long number)
         {
             return number + 10;
@@ -60,6 +74,23 @@ namespace Westwind.WebConnection
             return value;
         }
 
+        public StructValue ReturnStruct(int intVal, string stringVal)
+        {
+            return new StructValue
+            {
+                IntValue = intVal,
+                StringValue = stringVal
+            };
+        }
+
+        public static StructValue ReturnStructStatic(int intVal, string stringVal)
+        {
+            return new StructValue
+            {
+                IntValue = intVal,
+                StringValue = stringVal
+            };
+        }
 
         public TestCustomer[] GetCustomerArray()
         {
@@ -91,6 +122,26 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
+        /// </summary>
+        /// <example>
+        /// LOCAL loArray as Westwind.WebConnection.ComArray
+        /// loArray = loBridge.Createarray("System.Windows.Forms.MessageBoxButtons")
+        /// loComValue = loBridge.CreateComValue()
+        /// loComValue.SetEnum("System.Windows.Forms.MessageBoxButtons.OK")
+        /// loArray.AddItem( loComValue) 
+        /// ? loBridge.InvokeMethod(loTest,"PassEnumArray",loArray)
+        /// </example>
+        /// <param name="buttons"></param>
+        /// <returns></returns>
+        public int PassEnumArray(MessageBoxButtons[] buttons)
+        {
+            if (buttons == null)
+                return 0;
+
+            return buttons.Length;
+        }
+
+        /// <summary>
         /// Pass in 15 parameters and return the value of the last
         /// </summary>
         /// <returns></returns>
@@ -106,6 +157,8 @@ namespace Westwind.WebConnection
         {
             return numbers.Length;
         }
+
+
     }
 
 
@@ -138,6 +191,12 @@ namespace Westwind.WebConnection
             Street = string.Empty;
             City = string.Empty;
         }
+    }
+
+    public struct StructValue
+    {
+        public int IntValue { get; set; }
+        public string StringValue { get; set; }
     }
 
 }

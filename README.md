@@ -1,6 +1,6 @@
 #wwDotnetBridge
 ---------------
-###.NET Interop made easy for Visual FoxPro
+### .NET Interop made easy for Visual FoxPro 9
 
 wwDotnetBridge is a .NET Runtime Hosting engine and .NET access helper for Visual FoxPro. It allows hosting of the .NET runtime in a Win32 application, 
 and accessing .NET components without having to register them first.
@@ -127,16 +127,34 @@ Here's another example that demonstrates a few more features including calling s
 		ENDIF
 	ENDFOR
 
-##Resources
+## Resources
 There's much more functionality available. Please check out the documentation for more info.
 
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
 * [Documentation](http://west-wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
 
-##License
-This library is published under MIT license terms:
+## Project Sponsors
+The following people/organizations have provided sponsorship to this project by way of direct donations or for paid development as part of a development project using these tools:
 
-Copyright &copy; 2012 Rick Strahl, West Wind Technologies
+* **Bill Suthman - Monosynth**<br/>
+Bill provided a sizable donation to the project and valuable feedback for a host of improvements and bug fixes.
+
+* **Craig Tucker - Alabama Software**<br/>
+Craig offered early support and feedback for this project and billed project time for a number of additions to the library as part of a larger project.
+
+* **Sunil Rjamara  - WeatherTrend**<br/>
+Sunil required a number of custom integrations into their FoxPro product that resulted in discovery of a number of edge cases that ended up getting integrated into wwDotnetBridge. WeatherTrend kindly donated a chunk of billable time to adding a handful of these small features.
+
+Want to sponsor this project, need customization or want make a donation to show your support? You can contact me directly at rstrahl@west-wind.com or you can also make a donation online via PayPal.
+
+* [Make a donation for wwDotnetBridge using PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
+* [Make a donation for wwDotnetBridge using our Web Store](http://store.west-wind.com/product/donation)
+
+
+## License
+This library is published under **MIT license** terms:
+
+Copyright &copy; 2012-2015 Rick Strahl, West Wind Technologies
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
