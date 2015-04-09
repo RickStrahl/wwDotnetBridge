@@ -37,6 +37,12 @@ Changed the error handling behavior of all method that capture
 errors to return the base error message. Made consistent across
 wwDotnetBridge calls.
 
+* **Add support for nested member strings to GetProperty/SetProperty/InvokeMethod**<br/>
+You can now use . syntax in string based property/method names for all indirect methods, negating the need to use methods like GetPropertyEx or SetPropertyEx. You can now specify member names like "Address.Street" or "Error.ToHtml" directly in the various base methods. Use this feature to get around intermediary types that FoxPro can't access (Value types, generics etc.).
+
+* **Better Support for Reference Parameters**<br/>
+You can now pass parameters by reference using the indirect InvokeMethod/InvokeStaticMethod methods by passing parameters using a ComValue structure. The .Value property that holds the inbound parameter also receives any changed values that are modified by the method call.
+
 * **Fix Null Value Handling**<br/>
 Fixed bug with NULL values passed to wwDotnetBridge calls. COM Interop changes Fox NULLs to DbNulls which failed. Indirect methods now translate DbNull values to raw .NET nulls when passed. You can still pass DbNull with ComValue.SetDbNull() if needed.
 
