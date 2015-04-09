@@ -32,6 +32,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using Westwind.Utilities;
@@ -776,7 +777,7 @@ namespace Westwind.WebConnection
         public object InvokeMethod_TwelveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10, object Parm11, object Parm12)
         {
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10, Parm11, Parm12);
-        }
+        } 
 
         public object InvokeMethod_ParameterArray(object Instance, string Method, object ParameterArray)
         {
@@ -804,12 +805,14 @@ namespace Westwind.WebConnection
                     ar[i] = FixupParameter(args[i]);
                 }
             }
-
             
             object result = null;
             try
             {
-                result = ReflectionUtils.CallMethodCom(Instance, Method, ar);
+                if(Method.Contains(".") || Method.Contains("["))
+                    result = ReflectionUtils.CallMethodEx(Instance, Method, ar);
+                else
+                    result = ReflectionUtils.CallMethodCom(Instance, Method, ar);
             }
             catch (Exception ex)
             {
@@ -827,7 +830,7 @@ namespace Westwind.WebConnection
             return FixupReturnValue(result);
         }
 
-
+     
 
         protected object InvokeMethod_InternalWithObjectArray(object Instance, string Method, object[] args)
         {
@@ -836,7 +839,10 @@ namespace Westwind.WebConnection
 
             try
             {
-                result = ReflectionUtils.CallMethodCom(Instance, Method, args);
+                if (Method.Contains(".") || Method.Contains("["))
+                    result = ReflectionUtils.CallMethodEx(Instance, Method, args);
+                else
+                    result = ReflectionUtils.CallMethodCom(Instance, Method, args);
             }
             catch (Exception ex)
             {
@@ -852,7 +858,13 @@ namespace Westwind.WebConnection
             LastException = null;
             try
             {
-                object val = ReflectionUtils.GetPropertyCom(Instance, Property);
+                object val;
+
+                if (Property.Contains(".") || Property.Contains("["))
+                    val = ReflectionUtils.GetPropertyEx(Instance, Property);
+                else
+                    val = ReflectionUtils.GetPropertyCom(Instance, Property);
+
                 val = FixupReturnValue(val);
                 return val;
             }
@@ -863,6 +875,15 @@ namespace Westwind.WebConnection
             }
         }
 
+
+        /// <summary>
+        /// Returns a property value by allowing . syntax to drill
+        /// into nested objects. Use this method to step over objects 
+        /// that FoxPro can't directly access (like structs, generics etc.)
+        /// </summary>
+        /// <param name="Instance"></param>
+        /// <param name="Property"></param>
+        /// <returns></returns>
         public object GetPropertyEx(object Instance, string Property)
         {
             LastException = null;
@@ -895,7 +916,10 @@ namespace Westwind.WebConnection
             Value = FixupParameter(Value);
             try
             {
-                ReflectionUtils.SetPropertyCom(Instance, Property, Value);
+                if (Property.Contains(".") || Property.Contains("["))
+                    ReflectionUtils.SetPropertyEx(Instance, Property, Value);
+                else
+                    ReflectionUtils.SetPropertyCom(Instance, Property, Value);
             }
             catch (Exception ex)
             {
@@ -1356,7 +1380,13 @@ namespace Westwind.WebConnection
                 ComArray comArray = new ComArray();
                 comArray.Instance = val as Array;
                 return comArray;
-            }
+            }     
+            //else if (type.IsValueType)
+            //{
+            //    var comValue = new ComValue();
+            //    comValue.Value = val;
+            //    return comValue;
+            //}
 
             return val;
         }

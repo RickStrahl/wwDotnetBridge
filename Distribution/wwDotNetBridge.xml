@@ -219,6 +219,16 @@
             <param name="Parm2"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetPropertyEx(System.Object,System.String)">
+            <summary>
+            Returns a property value by allowing . syntax to drill
+            into nested objects. Use this method to step over objects 
+            that FoxPro can't directly access (like structs, generics etc.)
+            </summary>
+            <param name="Instance"></param>
+            <param name="Property"></param>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.SetProperty(System.Object@,System.String,System.Object)">
             <summary>
             Sets a property of a .NET object with a value

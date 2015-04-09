@@ -9,30 +9,22 @@ LOCAL loNet as Westwind.WebConnection.TypePassingTests
 loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
 
 
-*** Pass parameters by Reference
-*** Create ComValue objects for each parameter
 loInt = loBridge.CreateComValue(INT(10))
 loString = loBridge.CreateComValue("Hello World.")
-loDecimal = loBridge.CreateComValue().SetLong(10)
-* CAST( 5.22 as Currency))
-? "Original:"
+loDecimal = loBridge.CreateComValue(CAST( 5.22 as Y))
+lobridge.InvokeMethod(loNet,"PassByReference",loInt,loString,loDecimal)
+
 ? loInt.Value, loString.Value, loDecimal.Value
 
+loInt = loBridge.CreateComValue(INT(10))
+loInt.Value = INT(10)
+loString = loBridge.CreateComValue("Hello World.")
+loDecimal = loBridge.CreateComValue(CAST( 5.22 as Currency))
 lobridge.InvokeStaticMethod("Westwind.WebConnection.TypePassingTests",;
                             "PassByReferenceStatic",;
                             loInt,loString,loDecimal)
 
-*!*	lobridge.InvokeMethod(loNet,;
-*!*	                            "PassByReference",;
-*!*	                            loInt,loString,loDecimal)
-
-
-*** Look at the result values
-? "Updated:"
 ? loInt.Value, loString.Value, loDecimal.Value
-
-RETURN
-
 
 
 *** Return a .NET STRUCT
@@ -46,13 +38,14 @@ loComValue.SetValueFromInvokeMethod(loNet,"ReturnStruct",loComArray)
 
 *** Can't do this because structure is not accessible in VFP
 *? loComValue.Value.IntValue
-? loBridge.GetPropertyEx(loComValue,"Value.IntValue")
-? loBridge.GetPropertyEx(loComValue,"Value.StringValue")
+? loBridge.GetProperty(loComValue,"Value.IntValue")
+? loBridge.GetProperty(loComValue,"Value.StringValue")
+? loBridge.InvokeMethod(loComValue,"Value.ToString")
 
 ?
 ?
 
-*** Return a .NET STRUCT
+*** Return a .NET STRUCT from a static method
 loComValue = loBridge.CreateComValue()
 loComArray = loBridge.CreateArray("System.Object")
 loComArray.AddItem(1)
@@ -68,9 +61,8 @@ loComValue.SetValueFromInvokeStaticMethod("Westwind.WebConnection.TypePassingTes
 
 
 *loNet.DecimalValue = 1.0
-loBridge.SetProperty(loNet,"DecimalValue",CAST(1 as Currency))
+loBridge.SetProperty(loNet,"DecimalValue",CAST(1 as currency))
 ?loBridge.GetProperty(loNet,"DecimalValue")
-
 
 
 *** PassLongArray
@@ -131,6 +123,4 @@ loComValue.SetChar(51)
 ? loBridge.InvokeMethod(loNet,"PassChar",loComValue)
 
 
-
 RETURN
-
