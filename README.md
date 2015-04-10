@@ -2,32 +2,36 @@
 ---------------
 ### .NET Interop made easy for Visual FoxPro 9
 
-wwDotnetBridge is a .NET Runtime Hosting engine and .NET access helper for Visual FoxPro. It allows hosting of the .NET runtime in a Win32 application, 
-and accessing .NET components without having to register them first.
+wwDotnetBridge is a small library designed to make it easy to call .NET components from Visual FoxPro. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro.
 
-It provides the following enhancements over plain COM Interop:
+wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM do not natively support. For example, COM cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections. 
+
+## Features at a glance
+wwDotnetBridge provides the following enhancements over plain COM Interop:
 
 * Access most .NET Components directly even those not marked [ComVisible]
 * Requires no COM Registration for .NET Assemblies
-* Create types with parameterized constructors
-* Support for many natively unsupported .NET types and values
-* Access static method/members, structs, binary data, guids, DbNulls
+* Instantiate types with parameterized constructors
 * Call overloaded methods using standard method names
-* Automatically fixes up problematic .NET Types
+* Support for many natively unsupported .NET types and values
+* Access Static members, Value/Struct types, Generics, Binary, Guids, DbNulls
+* Automatically fix up problematic .NET Types on method returns
 * Provides easy Array access with ComArray helper class
-* ComValue structure to help with .NET type conversions
-* Ability to keep values entirely in .NET with ComValue
-* Assign values directly to properties without passing through FoxPro
+* ComValue class to store results and parameters in .NET
+* ComValue can help with problem .NET type conversions
+* ComArray class that wraps all returned Array and Collections
+* ComArray allows easy creation, updating and managing of Enumerable types
 * Multi-threading library built-in
-* wwDotnetBridge .NET Helper also works with regular COM Interop (w/o runtime hosting)
+* wwDotnetBridge also works with regular COM Interop (w/o runtime hosting)
 
-##Online Documentation:
+
+## Online Documentation:
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
 * [.NET COM Interop with wwDotnetBridge White Paper](http://west-wind.com/presentations/wwDotnetBridge/wwDotnetBridge.pdf)
 * [Documentation](http://west-wind.com/webconnection/docs/?page=_24n1cfw3a.htm)
 * [ChangeLog](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
 
-##How it works
+## How it works
 
 This library consists of 3 components (all provided in source):
 
@@ -133,31 +137,44 @@ There's much more functionality available. Please check out the documentation fo
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
 * [Documentation](http://west-wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
 
+
+
 ## Project Sponsors
 The following people/organizations have provided sponsorship to this project by way of direct donations or for paid development as part of a development project using these tools:
 
-* **Bill Suthman - Monosynth**<br/>
+#### West Wind Technologies
+wwDotnetBridge was originally developed for [West Wind Client Tools](http://west-wind.com/webconnection) and [West Wind Web Connection](http://west-wind.com/wconnect), which continue to include a slightly modified version of wwDotnetBridge. West Wind Technologies has kindly open sourced wwDotnetBridge to extend the reach of FoxPro just a bit longer by allowing easy integration with .NET and allowing more people to access this useful functionality.
+
+wwDotnetBridge updates are initially developed for both of the commercial products with any changes merged into this project when changes are made. The commercial versions also include a few add-on features used by the products. If you want a fully supported version of wwDotnetBridge or would like to sponsor further development efforts on wwDotnetBridge, you can show your support by optionally purchasing a license for either of these products.
+
+* [West Wind Web Connection](http://west-wind.com/webconnection)
+* [West Wind Internet and Client Tools](http://west-wind.com/WestwindClientTools.aspx)
+
+
+#### Bill Suthman - Monosynth
 Bill provided a sizable donation to the project and valuable feedback for a host of improvements and bug fixes.
 
-* **Craig Tucker - Alabama Software**<br/>
+#### Craig Tucker - Alabama Software
 Craig offered early support and feedback for this project and billed project time for a number of additions to the library as part of a larger project.
 
-* **Sunil Rjamara  - WeatherTrend**<br/>
+#### Sunil Rjamara  - WeatherTrend
 Sunil required a number of custom integrations into their FoxPro product that resulted in discovery of a number of edge cases that ended up getting integrated into wwDotnetBridge. WeatherTrend kindly donated a chunk of billable time to adding a handful of these small features.
 
 Want to sponsor this project, need customization or want make a donation to show your support? You can contact me directly at rstrahl@west-wind.com or you can also make a donation online via PayPal.
 
 * [Make a donation for wwDotnetBridge using PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
 * [Make a donation for wwDotnetBridge using our Web Store](http://store.west-wind.com/product/donation)
+* [Purchase a license for West Wind Internet and Client Tools](http://store.west-wind.com/product/wwclient50/)
 
 
 ## License
-This library is published under **MIT license** terms:
+This library is licensed under **MIT license** terms:
 
-Copyright &copy; 2012-2015 Rick Strahl, West Wind Technologies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+>Copyright &copy; 2012-2015 Rick Strahl, West Wind Technologies
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+>
+>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
