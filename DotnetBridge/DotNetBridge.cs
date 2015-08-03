@@ -594,35 +594,39 @@ namespace Westwind.WebConnection
                 return null;
             }
 
-            object Result = null;
+            object val = null;
             try
             {
-                Result = type.InvokeMember(Property, BindingFlags.Static | BindingFlags.Public | BindingFlags.GetField | BindingFlags.GetProperty, null, type, null);
+                val = type.InvokeMember(Property, BindingFlags.Static | BindingFlags.Public | BindingFlags.GetField | BindingFlags.GetProperty, null, type, null);
+                val = FixupReturnValue(val);
             }
             catch (Exception ex)
             {
                 SetError(ex.GetBaseException(), true);
                 throw ex.GetBaseException();
             }
-            return Result;
+            return val;
         }
 
-        public bool SetStaticProperty(string TypeName, string Property, object Value)
+        public bool SetStaticProperty(string typeName, string property, object value)
         {
             SetError();
 
-            Type type = GetTypeFromName(TypeName);
+            
+            Type type = GetTypeFromName(typeName);
             if (type == null)
             {
                 SetError("Unable to find type signature. Please make sure you call LoadAssembly first.");
                 return false;
             }
 
+            value = FixupParameter(value);
+            
             ErrorMessage = "";
-            object Result = null;
+            object result = null;
             try
             {
-                Result = type.InvokeMember(Property, BindingFlags.Static | BindingFlags.Public | BindingFlags.SetField | BindingFlags.SetProperty, null, type, new object[1] { Value });
+                type.InvokeMember(property, BindingFlags.Static | BindingFlags.Public | BindingFlags.SetField | BindingFlags.SetProperty, null, type, new object[1] { value });
             }
             catch (Exception ex)
             {

@@ -48,6 +48,8 @@ loBridge.Invokestaticmethod("System.Diagnostics.EventLog",;
 							"Logging error from FoxPro " + TRANSFORM(DATETIME()),;
 							loValue, 10 )
 
+
+
 *** Display Event Log Entries
 loEventLog = loBridge.Createinstance("System.Diagnostics.EventLog","Application",".",lcSource)
 *,lcSource,"Application")

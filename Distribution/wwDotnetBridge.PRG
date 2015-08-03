@@ -1,6 +1,7 @@
 *** This flag defines West Wind's commercial version
-*** The open source version should be set to .F. 
+*** The open source version should be set to .F.
 #DEFINE IS_WESTWIND    .F.
+#DEFINE IS_LEGACY 	   .T.
 
 SET PROCEDURE TO wwDotNetBridge ADDITIVE
 
@@ -453,21 +454,6 @@ ENDFUNC
 *   GetProperty
 
 ************************************************************************
-*  GetPropertyEx
-****************************************
-***  Function: Gets a property from a .NET object using .syntax for 
-***            for the property as well as supporting arrays
-***    Assume:
-***      Pass: 
-***    Return:
-************************************************************************
-FUNCTION GetPropertyEx(loInstance,lcProperty)
-RETURN this.oDotNetBridge.GetPropertyEx(loInstance, lcProperty)
-ENDFUNC
-*   GetProperty
-
-
-************************************************************************
 *  SetProperty
 ****************************************
 ***  Function: Sets a property on a .NET object
@@ -480,18 +466,6 @@ this.oDotNetBridge.SetProperty(loInstance, lcProperty, lvValue)
 ENDFUNC
 *   SetProperty
 
-************************************************************************
-*  SetProperty
-****************************************
-***  Function: Sets a property on a .NET object
-***    Assume:
-***      Pass:
-***    Return:
-************************************************************************
-FUNCTION SetPropertyEx(loInstance, lcProperty, lvValue)
-this.oDotNetBridge.SetPropertyEx(loInstance, lcProperty, lvValue)
-ENDFUNC
-*   SetProperty
 
 ************************************************************************
 *  InvokeStaticMethod
@@ -1274,6 +1248,36 @@ ENDFUNC
 *   FromXml
 
 #ENDIF
+
+#IF IS_LEGACY
+************************************************************************
+*  GetPropertyEx
+****************************************
+***  Function: Gets a property from a .NET object using .syntax for 
+***            for the property as well as supporting arrays
+***    Assume: OBSOLETE - just use 
+***      Pass: 
+***    Return:
+************************************************************************
+FUNCTION GetPropertyEx(loInstance,lcProperty)
+RETURN this.oDotNetBridge.GetPropertyEx(loInstance, lcProperty)
+ENDFUNC
+*   GetPropertyEx
+
+************************************************************************
+*  SetPropertyEx
+****************************************
+***  Function: Sets a property on a .NET object 
+***    Assume: OBSOLETE - Just use GetProperty()
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION SetPropertyEx(loInstance, lcProperty, lvValue)
+this.oDotNetBridge.SetPropertyEx(loInstance, lcProperty, lvValue)
+ENDFUNC
+*   SetProperty
+#ENDIF
+
 
 ENDDEFINE
 *EOC wwDotNetBridge 

@@ -1,10 +1,8 @@
 *** Demonstrates:
-***
-***  Reading an Enum Value
-***  Loading a .NET CLR Type
-***  Accessing an Array Property using GetPropertyEx()
-***  Accessing nested properties with GetPropertyEx
-
+*** Reading an Enum Value
+*** Loading a .NET CLR Type
+*** Accessing an Array Property using GetPropertyEx()
+*** Accessing nested properties with GetPropertyEx
 CLEAR
 
 *** Load library
@@ -12,38 +10,37 @@ DO wwDotNetBridge
 
 *** Create instance of wwDotnetBridge
 LOCAL loBridge as wwDotNetBridge
-loBridge = CreateObject("wwDotNetBridge","V4")
+loBridge = CreateObject("wwDotNetBridge")
 
+*** Create an instance of 509Store
 loStore = loBridge.CreateInstance("System.Security.Cryptography.X509Certificates.X509Store")
 
-? loBridge.cErrorMsg
-
 *** Grab a static Enum value
-leReadOnly = loBridge.GetEnumvalue("System.Security.Cryptography.X509Certificates.OpenFlags.ReadOnly")
+leReadOnly = loBridge.GetEnumvalue("System.Security.Cryptography.X509Certificates.OpenFlags","ReadOnly")
 
 *** Use the enum value
-loStore.Open(leReadOnly)   && 0 - if value is known
+loStore.Open(leReadOnly) &&leReadOnly)
 
-*** Returns a .NET Collection of store items
+*** Alternately you can use the enum value if known
+*loStore.Open(0) &&leReadOnly)
+
+*** Collection of Certificates
 laCertificates = loStore.Certificates
 
-*** Many Collections don't work over regular COM Interop
+*** Collections don't work over regular COM Interop
 *** so use indirect access
 lnCount = loBridge.GetProperty(laCertificates,"Count")
 
 *** Loop through Certificates
-FOR lnX = 0 TO lnCount -1
-	*** Access collection item indirectly using extended syntax
-	*** that supports nested objects and array/collection [] brackets
-	*** For example: Certificates[0]
+FOR lnX = 1 TO lnCount -1
+	*** Access collection item indirectly
 	LOCAL loCertificate as System.Security.Cryptography.X509Certificates.X509Certificate2	
 	loCertificate = loBridge.GetPropertyEx(loStore,"Certificates[" + TRANSFORM(lnX) + "]")
 	
 	IF !ISNULL(loCertificate)
 		? loCertificate.FriendlyName
 		? loCertificate.SerialNumber
-		? loCertificate.GetName()
-		*? loBridge.GetPropertyEx(loCertificate,"IssuerName.Name")
+		? loBridge.GetPropertyEx(loCertificate,"IssuerName.Name")
 	ENDIF
 ENDFOR
 

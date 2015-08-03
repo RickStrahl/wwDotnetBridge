@@ -14,18 +14,21 @@ SET PROCEDURE TO wwUtils ADDITIVE
 
 do wwDotNetBridge
 LOCAL loBridge as wwDotNetBridge
-loBridge = CreateObject("wwDotNetBridge")
+loBridge = GetwwDotnetBridge("V4")
 
 *** Load a .NET assembly from the GAC - use Reflector 
 *** to inspect the full name on the DLL
-loBridge.LoadAssembly("System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
+? loBridge.LoadAssembly("System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
 
 lcFileName = FULLPATH("sailbig.jpg")
+? lcFileName
 
 loBmp = loBridge.Createinstance("System.Drawing.Bitmap",lcFileName)
+? loBmp
+? loBridge.cErRORMSG
 
 *** Recalculate the size ratio
-lnWidth = 150
+lnWidth = 100
 lnHeight = (lnWidth/loBmp.Width) * loBmp.Height
 
 *** Note: you have to cast numbers to the exact type
@@ -55,5 +58,5 @@ loBmp.Dispose()
 loBmp2.Save(FULLPATH("sailbig_resized.jpg"))
 loBmp2.Dispose()
 
-*** Show the image
-GoUrl( FULLPATH("sailbig_resized.jpg"))
+*** Show the image in Windows Viewer
+GoUrl( FULLPATH("sailbig_resized.jpg") )

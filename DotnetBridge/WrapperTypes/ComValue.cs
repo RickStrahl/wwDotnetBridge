@@ -315,5 +315,17 @@ namespace Westwind.WebConnection
             Guid guid = (Guid) Value;
             return guid.ToString();
         }
+
+        /// <summary>
+        /// Returns the string value of the embedded Value object
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            if (Value == null)
+                return "null";
+
+            return Value.ToString();
+        }
     }
 }

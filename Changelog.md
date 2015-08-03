@@ -1,5 +1,21 @@
+
 # wwDotnetBridge Change Log
 --------------------------
+## Version 5.75
+*not released yet*
+* **Fix Static Property Read and Assignments to fix up Values**  
+Fix issue where `SetStaticProperty()` and `GetStaticProperty()` would not properly fix up common .NET and FoxPro type conversions where known problems exist (long->int,DbNull->null etc.). Also caused problems on the new Static assignment methods on the ComValue object.
+
+* **Add ComValue.ToString() Method**  
+Add method that returns the ToString() method result from the stored .NET value. Avoids having to use InvokeMethod() to get the value's string representation explicitly since the value is most likely not accessible from FoxPro.
+
+* **Update ClrHost Win32 Project to VS2015**  
+Updated the project to the new version of Visual Studio to minimize requirements for the VC++ VS2010 compiler. VS2015 Community is free and can be used by anybody to compile this code.
+
+* **Cleanup examples**  
+Cleaned up a number of the examples to represent recent version changes.
+
+
 ## Version 5.72
 *April 9th, 2015*
 

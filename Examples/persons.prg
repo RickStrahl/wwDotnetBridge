@@ -12,9 +12,10 @@ loBridge = CreateObject("wwDotNetBridge","V4")
 loBridge.LoadAssembly("InteropExamples.dll")
 IF loBridge.lError
    ? loBridge.cErrorMsg
+   return
 ENDIF
 
-loFox = loBridge.CreateInstance("InteropExamples.Examples")
+loFox = loBridge.CreateInstance("InteropExamples.PersonExamples")
 IF loBridge.lError
    ? loBridge.cErrorMsg
 ENDIF

@@ -55,8 +55,9 @@ loComValue.SetValueFromInvokeStaticMethod("Westwind.WebConnection.TypePassingTes
 
 *** Can't do this because structure is not accessible in VFP
 *? loComValue.Value.IntValue
-? loBridge.GetPropertyEx(loComValue,"Value.IntValue")
-? loBridge.GetPropertyEx(loComValue,"Value.StringValue")
+? loBridge.GetProperty(loComValue,"Value.IntValue")
+? loBridge.GetProperty(loComValue,"Value.StringValue")
+? loBridge.InvokeMethod(loComValue,"Value.ToString")
 
 
 
