@@ -26,10 +26,6 @@ Provides an easy way to see what the actual type stored in the `.Value` structur
 * **ComValue::SetUInt64 and SetUInt32 Methods**  
 Added additional type conversions for UInt64 and UInt32 types.
 
-
-
-## Version 5.75
-*Jan 6th, 2016*
 * **Fix Static Property Read and Assignments to fix up Values**  
 Fix issue where `SetStaticProperty()` and `GetStaticProperty()` would not properly fix up common .NET and FoxPro type conversions where known problems exist (long->int,DbNull->null etc.). Also caused problems on the new Static assignment methods on the ComValue object.
 
