@@ -34,6 +34,24 @@ namespace Westwind.WebConnection
         private object _Value = null;
 
 
+        public object GetValue()
+        {
+            var bridge = new wwDotNetBridge();
+            return bridge.GetProperty(this,"Value");
+        }
+
+        /// <summary>
+        /// Returns the name of the type in the Value structure
+        /// </summary>
+        /// <returns></returns>
+        public string GetTypeName()
+        {
+            if (this.Value == null)
+                return "null";
+
+            return Value.GetType().FullName;
+        }
+
         /// <summary>
         /// Sets a Short value which is not supported
         /// in Visual FoxPro
@@ -54,6 +72,28 @@ namespace Westwind.WebConnection
         {
             // unbox numeric value
             Value = Convert.ToInt64(val);
+        }
+
+        /// <summary>
+        /// Sets an UInt64 value which is not supported
+        /// in Visual FoxPro
+        /// </summary>
+        /// <param name="val"></param>
+        public void SetUInt64(object val)
+        {
+            // unbox numeric value
+            Value = Convert.ToUInt64(val);
+        }
+
+        /// <summary>
+        /// Sets an UInt64 value which is not supported
+        /// in Visual FoxPro
+        /// </summary>
+        /// <param name="val"></param>
+        public void SetUInt32(object val)
+        {
+            // unbox numeric value
+            Value = Convert.ToUInt32(val);
         }
 
         /// <summary>
@@ -166,6 +206,21 @@ namespace Westwind.WebConnection
             Value = DBNull.Value;
         }
 
+
+        /// <summary>
+        /// Method that sets the Value property by fixing up any
+        /// values based on GetProperty() rules. This means if you pass 
+        /// an ComArray the raw array will be unpacked and stored for example.
+        /// </summary>
+        public void SetValue(object value)
+        {
+            object obj = this;
+            wwDotNetBridge bridge = new wwDotNetBridge();
+            bridge.SetProperty(obj,"Value",value);
+        }
+
+
+
         /// <summary>
         /// Sets the Value property from a property retrieved from .NET
         /// Useful to transfer value in .NET that are marshalled incorrectly
@@ -178,6 +233,7 @@ namespace Westwind.WebConnection
             wwDotNetBridge bridge = new wwDotNetBridge();
             Value = bridge.GetProperty(objectRef,property);
         }
+
 
         /// <summary>
         /// Sets the value property from a static property retrieved from .NET.
@@ -216,7 +272,7 @@ namespace Westwind.WebConnection
             SetValueFromInvokeMethod(objectRef, method, list.ToArray());            
         }
 
-
+        
 
         /// <summary>
         /// Sets the Value property from a method call that passes it's positional arguments
@@ -251,19 +307,15 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Sets the Value property from a CreateInstance call. Useful for
-        /// value types that can't be passed back to FoxPro.
+        /// Invokes a method on the <see cref="System.Convert">System.Convert</see> static class 
+        /// to perform conversions that are supported by that object
         /// </summary>
-        /// <param name="typeName"></param>
-        /// <param name="parms"></param>
-        public void SetValueFromCreateInstance(string typeName, ComArray parms)
+        /// <param name="method">The Convert method name to call as a string</param>
+        /// <param name="value">The Value to convert</param>
+        public void SetValueFromSystemConvert(string method, object value)
         {
-            var list = new List<object>();
-            if (parms.Instance != null)
-                foreach(object item in parms.Instance as IEnumerable)                
-                    list.Add(item);
-                
-              SetValueFromCreateInstance(typeName, list.ToArray());
+            // we want the raw value
+            Value = ReflectionUtils.CallStaticMethod("System.Convert", method,value);
         }
 
         /// <summary>
@@ -272,7 +324,23 @@ namespace Westwind.WebConnection
         /// </summary>
         /// <param name="typeName"></param>
         /// <param name="parms"></param>
-        public void SetValueFromCreateInstance(string typeName, object[] parms)
+        public void SetValueFromCreateInstance(string typeName, ComArray parms)
+        {
+            var list = new List<object>();
+            if (parms != null && parms.Instance != null)
+                foreach(object item in parms.Instance as IEnumerable)                
+                    list.Add(item);
+                
+              SetValueFromCreateInstance_Internal(typeName, list.ToArray());
+        }
+
+        /// <summary>
+        /// Sets the Value property from a CreateInstance call. Useful for
+        /// value types that can't be passed back to FoxPro.
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="parms"></param>
+        protected void SetValueFromCreateInstance_Internal(string typeName, object[] parms)
         {            
             wwDotNetBridge bridge = new wwDotNetBridge();            
             Value = bridge.CreateInstance_Internal(typeName, parms);
@@ -286,12 +354,14 @@ namespace Westwind.WebConnection
         /// <param name="value"></param>
         public void SetGuid(object value)
         {
-            if (value == null)
+            if (value == null || value is DBNull)
                 Value = Guid.NewGuid();
             else if (value is ComGuid)
                 Value = ((ComGuid) value).Guid;
             else if (value is String)
+            {
                 Value = new Guid(value as string);
+            }
         }
 
         /// <summary>

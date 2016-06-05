@@ -224,6 +224,40 @@
             <param name="Parm2"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethodAsync(System.Object,System.Object,System.String,System.Object[])">
+            <summary>
+            Invokes a method on a new thread and fires OnCompleted and OnError
+            events on a passed in callback object.
+            </summary>
+            <param name="callBack">
+            A callback object that has to have two methods:
+            OnCompleted(lvResult, lcMethod)
+            OnError(lcErrorMsg,loException, lcMethod)        
+            </param>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethodAsync(System.Object,System.String,System.String,System.Object[])">
+            <summary>
+            Invokes a method on a new thread and fires OnCompleted and OnError
+            events on a passed in callback object.
+            </summary>
+            <param name="callBack">
+            A callback object that has to have two methods:
+            OnCompleted(lvResult, lcMethod)
+            OnError(lcErrorMsg,loException, lcMethod)        
+            </param>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge._InvokeMethodAsync(System.Object)">
+            <summary>
+            Internal handler method that actually makes the async call on a thread
+            </summary>
+            <param name="parmList"></param>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetPropertyEx(System.Object,System.String)">
             <summary>
             Returns a property value by allowing . syntax to drill
@@ -234,7 +268,7 @@
             <param name="Property"></param>
             <returns></returns>
         </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetProperty(System.Object@,System.String,System.Object)">
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetProperty(System.Object,System.String,System.Object)">
             <summary>
             Sets a property of a .NET object with a value
             </summary>
@@ -242,7 +276,7 @@
             <param name="Property"></param>
             <param name="Value"></param>
         </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetPropertyEx(System.Object@,System.String,System.Object)">
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetPropertyEx(System.Object,System.String,System.Object)">
             <summary>
             Sets a property of a .NET object with a value using extended syntax.
             
@@ -308,6 +342,14 @@
             <param name="baseObject">The object that has the Array property</param>
             <param name="arrayObject">The array property name as a string</param>
             <param name="item">The item to set it to. Should not be null.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetIndexedProperty(System.Object,System.Int32)">
+            <summary>
+            Returns an indexed property Value
+            </summary>
+            <param name="baseList"></param>
+            <param name="index"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetArrayItem(System.Object,System.String,System.Int32)">
@@ -609,6 +651,12 @@
             set to the appropriate .NET subtype.
             </summary>
         </member>
+        <member name="M:Westwind.WebConnection.ComValue.GetTypeName">
+            <summary>
+            Returns the name of the type in the Value structure
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.ComValue.SetInt16(System.Object)">
             <summary>
             Sets a Short value which is not supported
@@ -619,6 +667,20 @@
         <member name="M:Westwind.WebConnection.ComValue.SetInt64(System.Object)">
             <summary>
             Sets an Int64 value which is not supported
+            in Visual FoxPro
+            </summary>
+            <param name="val"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetUInt64(System.Object)">
+            <summary>
+            Sets an UInt64 value which is not supported
+            in Visual FoxPro
+            </summary>
+            <param name="val"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetUInt32(System.Object)">
+            <summary>
+            Sets an UInt64 value which is not supported
             in Visual FoxPro
             </summary>
             <param name="val"></param>
@@ -683,6 +745,13 @@
             value type for FoxPro.
             </summary>
         </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetValue(System.Object)">
+            <summary>
+            Method that sets the Value property by fixing up any
+            values based on GetProperty() rules. This means if you pass 
+            an ComArray the raw array will be unpacked and stored for example.
+            </summary>
+        </member>
         <member name="M:Westwind.WebConnection.ComValue.SetValueFromProperty(System.Object,System.String)">
             <summary>
             Sets the Value property from a property retrieved from .NET
@@ -729,6 +798,14 @@
             <param name="method"></param>
             <param name="parms"></param>
         </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetValueFromSystemConvert(System.String,System.Object)">
+            <summary>
+            Invokes a method on the <see cref="T:System.Convert">System.Convert</see> static class 
+            to perform conversions that are supported by that object
+            </summary>
+            <param name="method">The Convert method name to call as a string</param>
+            <param name="value">The Value to convert</param>
+        </member>
         <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateInstance(System.String,Westwind.WebConnection.ComArray)">
             <summary>
             Sets the Value property from a CreateInstance call. Useful for
@@ -737,7 +814,7 @@
             <param name="typeName"></param>
             <param name="parms"></param>
         </member>
-        <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateInstance(System.String,System.Object[])">
+        <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateInstance_Internal(System.String,System.Object[])">
             <summary>
             Sets the Value property from a CreateInstance call. Useful for
             value types that can't be passed back to FoxPro.
@@ -932,6 +1009,15 @@
             </summary>
             <param name="params"></param>
             1st - Method name, 2nd - 1st parameter, 3rd - 2nd parm etc.
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.Utilities.ReflectionUtils.CallStaticMethod(System.String,System.String,System.Object[])">
+            <summary>
+            Invokes a static method
+            </summary>
+            <param name="typeName"></param>
+            <param name="method"></param>
+            <param name="parms"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.Utilities.ReflectionUtils.CallMethodEx(System.Object,System.String,System.Object[])">

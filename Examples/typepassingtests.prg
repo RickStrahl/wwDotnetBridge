@@ -5,8 +5,59 @@ loBridge = GetwwDotnetBridge()
 
 ? loBridge.GetDotnetVersion()
 
+loValue = loBridge.CreateComValue()
+
+loValue.SetValueFromSystemConvert("ToInt32",22)
+? loValue.ToString()  && 20  
+? loValue.GetTypeName()
+? loValue.Value
+
+loValue.SetValueFromSystemConvert("ToUInt64","23")
+? loValue.ToString()  && 20
+? loValue.GetTypeName()  && System.UInt64
+
+RETURN
+
+
 LOCAL loNet as Westwind.WebConnection.TypePassingTests
 loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
+
+
+loStrings = loBridge.CreateArray("System.String")
+loStrings.AddItem("It's")
+loStrings.AddItem("BigDay")
+
+LOCAL loValue as Westwind.WebConnection.ComValue
+loValue = loBridge.CreateComValue(loStrings)
+
+lobridge.InvokeMethod(loNet,"PassArrayByReference",loValue)
+
+loStringsResult =  loValue.GetValue()
+*loBridge.GetProperty(loValue,"Value")
+? loStringsResult.Count
+
+RETURN
+
+
+
+
+*** UInt64
+LOCAL loU64 as Westwind.WebConnection.ComValue
+loU64 = loBridge.CreateComValue(0)
+loU64.SetUInt64(10)
+? loBridge.SetProperty(loNet,"UInt64Value",loU64)
+? loU64.ToString()
+
+
+LOCAL loParms as WESTWIND.WebConnection.ComArray
+loParms = loBridge.CreateArray("System.Object")
+loParms.AddItem(INT(20))
+
+loU64 = loBridge.CreateComValue()
+loU64.SetValueFromInvokeStaticMethod("System.Convert","ToUInt64",loParms)
+? loU64.ToString()
+
+RETURN
 
 
 loInt = loBridge.CreateComValue(INT(10))

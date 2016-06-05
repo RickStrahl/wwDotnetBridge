@@ -1,8 +1,35 @@
 
 # wwDotnetBridge Change Log
---------------------------
+
+<small>[Latest Online Documentation](http://west-wind.com/webconnection/docs/_24n1cfw3a.htm)</small>
+
+
+## Version 6.0
+*June 8th, 2016*
+
+* **wwDotnetBridge.dll is now compiled for .NET 4.0**  
+This version of wwDotnetBridge is compiled for and requires .NET 4.0. 4.0 is offers a number of performance and feature enhancements for developement as well as looser security policy when executing code - we've long been recommending to **always** use .NET 4.0. In this version .NET 4.0 is now the default and this assembly is compiled for .NET 4.0. .NET 4.0 is the default installation of .NET with Windows 7 and later and .NET 2.0 is no longer installed by default on Windows 10, so 4.0 is the most common version installed. This change should not break any code accessing V2 assemblies, but you will need to run with .NET 4.x or later installed.
+
+
+* **InvokeMethodAsync() and InvokeStaticMethodAsync()**  
+You can now invoke any .NET method asynchronously and optionally receive a callback when the async operation is complete. New method that allows invoking .NET methods on an instance asynchronously. You pass in callback object that receives `OnCompleted()` and `OnError()` callbacks to get notified of completion of the async operation.
+
+* **wwDotnetBridge::GetIndexedProperty()**    
+New method adds the ability to retrieve an indexed value from an IList based object like arrays and generic lists more easily.
+
+* **ComValue::SetValueFromSystemConvert()**  
+Method that allows wwDotnetBridge to set a value from the .NET `System.Convert` static class in a simpler way. System.Convert() will try to coerce a value to a specific type more aggressively so things like a string can be converted to a number for example.
+
+* **ComValue::GetTypeName()**  
+Provides an easy way to see what the actual type stored in the `.Value` structure is. Useful for debugging.
+
+* **ComValue::SetUInt64 and SetUInt32 Methods**  
+Added additional type conversions for UInt64 and UInt32 types.
+
+
+
 ## Version 5.75
-*not released yet*
+*Jan 6th, 2016*
 * **Fix Static Property Read and Assignments to fix up Values**  
 Fix issue where `SetStaticProperty()` and `GetStaticProperty()` would not properly fix up common .NET and FoxPro type conversions where known problems exist (long->int,DbNull->null etc.). Also caused problems on the new Static assignment methods on the ComValue object.
 

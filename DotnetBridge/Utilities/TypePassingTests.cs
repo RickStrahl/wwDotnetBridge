@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Westwind.WebConnection
@@ -12,9 +13,23 @@ namespace Westwind.WebConnection
     {
         public decimal? DecimalValue { get; set; }
 
+        public UInt64   Uint64Value { get; set; }
+
         public TypePassingTests()
         {
             DecimalValue = 1.0M;
+        }
+
+        public string HelloWorld(string name)
+        {
+            Thread.Sleep(2000);
+            return "Hello world " + name;
+        }
+
+        public static string HelloWorldStatic(string name)
+        {
+            Thread.Sleep(3000);
+            return "Hello static world " + name;
         }
 
         public Guid GetGuid()
@@ -118,6 +133,13 @@ namespace Westwind.WebConnection
             intValue = intValue*2;
             decimalValue = decimalValue*2;
             stringValue += " Updated!";
+        }
+
+        public void PassArrayByReference(ref string[] stringValues)
+        {
+            var list = new List<string>(stringValues);
+            list.AddRange(new string[] { "One", "More", "set", "of", "words" });
+            stringValues = list.ToArray();
         }
 
 

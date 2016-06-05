@@ -339,11 +339,41 @@ namespace Westwind.Utilities
             catch (Exception ex)
             {
                 if (ex.InnerException != null)
-                    throw ex.InnerException;
+                    throw ex.GetBaseException();
                 else
                     throw new ApplicationException("Failed to retrieve method signature or invoke method");
             }
         }
+
+        /// <summary>
+        /// Invokes a static method
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <param name="method"></param>
+        /// <param name="parms"></param>
+        /// <returns></returns>
+        public static object CallStaticMethod(string typeName, string method, params object[] parms)
+        {
+
+            Type type = GetTypeFromName(typeName);
+            if (type == null)
+                throw new ArgumentException("Invalid type reference: " + typeName);
+            
+            try
+            {
+                return type.InvokeMember(method, 
+                    BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod,
+                    null, type, parms);
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException != null)
+                    throw ex.GetBaseException();
+                
+                throw new ApplicationException("Failed to retrieve method signature or invoke method");
+            }
+        }
+
 
 
         /// <summary>
@@ -603,9 +633,13 @@ namespace Westwind.Utilities
         /// <returns></returns>
         public static object GetPropertyCom(object instance, string property)
         {
-            return instance.GetType().InvokeMember(property, MemberAccess | BindingFlags.GetProperty | BindingFlags.GetField | BindingFlags.IgnoreReturn, null,
-                                                instance, null);
+            return instance.GetType().InvokeMember(property,
+                BindingFlags.Public | BindingFlags.NonPublic |
+                BindingFlags.Instance | BindingFlags.IgnoreCase |
+                BindingFlags.GetProperty | BindingFlags.GetField,
+                null, instance, null);
         }
+
 
 
         /// <summary>

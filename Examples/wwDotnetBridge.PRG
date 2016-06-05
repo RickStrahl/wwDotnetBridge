@@ -1,6 +1,7 @@
 *** This flag defines West Wind's commercial version
 *** The open source version should be set to .F.
-#DEFINE IS_WESTWIND    .F.
+#DEFINE IS_WESTWIND        .F.
+#DEFINE IS_LEGACY 	   .T.
 
 SET PROCEDURE TO wwDotNetBridge ADDITIVE
 
@@ -60,10 +61,10 @@ ENDFUNC
 DEFINE CLASS wwDotNetBridge AS Custom
 *************************************************************
 *: Author: Rick Strahl
-*:         (c) West Wind Technologies, 2007-2012
+*:         (c) West Wind Technologies, 2007-2016
 *:Contact: http://www.west-wind.com
 *:Created: 05/10/2007
-*:Updated: 9/25/2012
+*:Updated: 6/06/2016
 *************************************************************
 #IF .F.
 *:Help Documentation
@@ -98,7 +99,7 @@ ENDFUNC
 
 *** Default CLR Version. Note: you can override
 *** this by specify V2,V4 in the Init() of the class
-cClrVersion = "v2.0.50727"
+cClrVersion = "v4.0.30319"
 lUseCom = .F.
 
 *** Don't set here: Use CREATEOBJECT("wwDotNetBridge","V4")
@@ -363,7 +364,7 @@ DO CASE
 	  loResult = loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	  
 
 	OTHERWISE
-      	    LOCAL loArray as Westwind.WebConnection.ComArray
+      	LOCAL loArray as Westwind.WebConnection.ComArray
 	    loArray = this.CreateArray("System.Object")
 
 	    LOCAL lvParm
@@ -375,7 +376,7 @@ DO CASE
 	    RETURN THIS.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
 ENDCASE
 
-IF ISNULL(loResult) OR loBridge.Error
+IF loBridge.Error
    this.cErrorMsg = loBridge.ErrorMessage
    this.lError = .T.
 ENDIF   
@@ -429,7 +430,7 @@ ENDCASE
 
 loResult = loBridge.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
 
-IF ISNULL(loResult) OR loBridge.Error
+IF loBridge.Error
    this.cErrorMsg = loBridge.ErrorMessage
    this.lError = .T.
 ENDIF   
@@ -437,6 +438,99 @@ ENDIF
 RETURN loResult
 ENDFUNC
 *   InvokeMethod
+
+************************************************************************
+*  InvokeMethodAsync
+****************************************
+***  Function: Invokes a method in .NET Asynchronously on a new thread
+***      Pass:  loCallbackEvents - CallbackAsyncEvents object
+***                                Implement OnCompleted() and OnError()
+***             loInstance       - Instance of object to call
+***             lcMethod         - Method on instance to call
+***             lvParm1-10       - 0 - 10 parameters
+***    Return:  nothing
+************************************************************************
+FUNCTION InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)
+LOCAL lnParms
+
+lnParms = PCOUNT()
+LOCAL loBridge as wwDotNetBridge
+loBridge = this.oDotnetBridge
+
+DO CASE
+  CASE lnParms = 3
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod)
+  CASE lnParms = 4
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1)
+  CASE lnParms = 5
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1,lvParm2)     
+  CASE lnParms = 6
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3)     
+  CASE lnParms = 7
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)     
+  CASE lnParms = 8
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)          
+  CASE lnParms = 9
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)      
+  CASE lnParms = 10
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)      
+  CASE lnParms = 11
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)      
+  CASE lnParms = 12
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)      
+  CASE lnParms = 13
+     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)           
+ENDCASE
+
+ENDFUNC
+*   InvokeMethodAsync
+
+
+************************************************************************
+*  InvokeMethodAsync
+****************************************
+***  Function: Invokes a static method in .NET Asynchronously on a new thread
+***      Pass:  loCallbackEvents - CallbackAsyncEvents object
+***                                Implement OnCompleted() and OnError()
+***             lcTypeName       - .NET Type on which static method lives
+***             lcMethod         - Method on instance to call
+***             lvParm1-10       - 0 - 10 parameters
+***    Return:  nothing
+************************************************************************
+FUNCTION InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)
+LOCAL lnParms, loBridge as wwDotNetBridge
+lnParms = PCOUNT()
+
+loBridge = this.oDotnetBridge
+
+DO CASE
+  CASE lnParms = 3
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod)
+  CASE lnParms = 4
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1)
+  CASE lnParms = 5
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1,lvParm2)     
+  CASE lnParms = 6
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3)     
+  CASE lnParms = 7
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)     
+  CASE lnParms = 8
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)          
+  CASE lnParms = 9
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)      
+  CASE lnParms = 10
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)      
+  CASE lnParms = 11
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)      
+  CASE lnParms = 12
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)      
+  CASE lnParms = 13
+     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)           
+ENDCASE
+
+ENDFUNC
+*   InvokeMethodAsync
+
 
 
 ************************************************************************
@@ -453,19 +547,18 @@ ENDFUNC
 *   GetProperty
 
 ************************************************************************
-*  GetPropertyEx
+*  GetIndexedProperty
 ****************************************
-***  Function: Gets a property from a .NET object using .syntax for 
-***            for the property as well as supporting arrays
+***  Function: Returns a value from an indexed property of an array
+***            or a list.
 ***    Assume:
-***      Pass: 
+***      Pass:
 ***    Return:
 ************************************************************************
-FUNCTION GetPropertyEx(loInstance,lcProperty)
-RETURN this.oDotNetBridge.GetPropertyEx(loInstance, lcProperty)
+FUNCTION GetIndexedProperty(loInstance, lnIndex)
+RETURN this.oDotnetBridge.GetIndexedProperty(loInstance,lnIndex)
 ENDFUNC
-*   GetProperty
-
+*   GetIndexedProperty
 
 ************************************************************************
 *  SetProperty
@@ -480,18 +573,6 @@ this.oDotNetBridge.SetProperty(loInstance, lcProperty, lvValue)
 ENDFUNC
 *   SetProperty
 
-************************************************************************
-*  SetProperty
-****************************************
-***  Function: Sets a property on a .NET object
-***    Assume:
-***      Pass:
-***    Return:
-************************************************************************
-FUNCTION SetPropertyEx(loInstance, lcProperty, lvValue)
-this.oDotNetBridge.SetPropertyEx(loInstance, lcProperty, lvValue)
-ENDFUNC
-*   SetProperty
 
 ************************************************************************
 *  InvokeStaticMethod
@@ -538,7 +619,7 @@ DO CASE
 	  loResult = loBridge.InvokeStaticMethod(lcTypeName, lcMethod)
 ENDCASE
 
-IF ISNULL(loResult) OR loBridge.Error
+IF loBridge.Error
    this.cErrorMsg = loBridge.ErrorMessage
    this.lError = .T.
 ENDIF   
@@ -688,8 +769,14 @@ ENDFUNC
 ***      Pass:
 ***    Return:
 ************************************************************************
-FUNCTION CreateComValue()
-RETURN this.CreateInstance("Westwind.WebConnection.ComValue")
+FUNCTION CreateComValue(lvValue)
+LOCAL loVal
+loVal = this.CreateInstance("Westwind.WebConnection.ComValue")
+
+if(PCOUNT()=1)
+   this.SetProperty(loVal,"Value",lvValue)
+ENDIF
+RETURN loVal
 ENDFUNC
 *   CreateComValue
 
@@ -802,6 +889,22 @@ FUNCTION GetType(lvValue)
 RETURN this.InvokeMethod(this.oDotnetBridge,"GetType",lvValue)
 ENDFUNC
 *   GetType
+
+************************************************************************
+*  GetTypeName
+****************************************
+***  Function: Returns the name of the type of the passed value.
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetTypeName(lvValue)
+LOCAL loType
+loType = this.InvokeMethod(this.oDotnetBridge,"GetType",lvValue)
+RETURN loType.ToString()
+ENDFUNC
+*   GetTypeName
+
 
 ************************************************************************
 *  GetTypeFromName
@@ -1270,8 +1373,100 @@ ENDFUNC
 
 #ENDIF
 
+#IF IS_LEGACY
+************************************************************************
+*  GetPropertyEx
+****************************************
+***  Function: Gets a property from a .NET object using .syntax for 
+***            for the property as well as supporting arrays
+***    Assume: OBSOLETE - just use 
+***      Pass: 
+***    Return:
+************************************************************************
+FUNCTION GetPropertyEx(loInstance,lcProperty)
+RETURN this.oDotNetBridge.GetPropertyEx(loInstance, lcProperty)
+ENDFUNC
+*   GetPropertyEx
+
+************************************************************************
+*  SetPropertyEx
+****************************************
+***  Function: Sets a property on a .NET object 
+***    Assume: OBSOLETE - Just use GetProperty()
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION SetPropertyEx(loInstance, lcProperty, lvValue)
+this.oDotNetBridge.SetPropertyEx(loInstance, lcProperty, lvValue)
+ENDFUNC
+*   SetProperty
+#ENDIF
+
+
 ENDDEFINE
 *EOC wwDotNetBridge 
+
+
+*************************************************************
+DEFINE CLASS AsyncCallbackEvents AS Custom
+*************************************************************
+*: Author: Rick Strahl
+*:         (c) West Wind Technologies, 2015
+*:Contact: http://www.west-wind.com
+*:Created: 12/23/2015
+*************************************************************
+#IF .F.
+*:Help Documentation
+*:Topic:
+Class AsyncCallbackEvents
+
+*:Description:
+Create a subclass of this class and pass to InvokeMethodAsync
+as a callback object. When the method call completes or fails
+the OnCompleted or OnError methods are fired.
+
+Make sure this object stays in scope for the duration of
+the async call - otherwise the callback will fail.
+
+*:Example:
+
+*:Remarks:
+
+*:SeeAlso:
+
+
+*:ENDHELP
+#ENDIF
+
+
+************************************************************************
+*  OnCompleted
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION OnCompleted(lvResult,lcMethod)
+ENDFUNC
+*   OnCompleted
+
+************************************************************************
+*  OnError
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION OnError(lcMessage, loException,lcMethod)
+ENDFUNC
+*   OnError
+
+ENDDEFINE
+
+*EOC AsyncCallbackEvents 
+
 
 
 ************************************************************************

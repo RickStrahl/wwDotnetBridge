@@ -2,7 +2,7 @@
 /*
  **************************************************************
  *  Author: Rick Strahl 
- *          © West Wind Technologies, 2009-2013
+ *          © West Wind Technologies, 2009-2016
  *          http://www.west-wind.com/
  * 
  * Created: 4/10/2009
@@ -31,14 +31,21 @@
 */
 #endregion
 
+// comment for OpenSource version
+//#define WestwindProduct
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Reflection;
+#if WestwindProduct
+using Newtonsoft.Json;
+#endif
 using Westwind.Utilities;
 using System.IO;
 using System.Data;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 
@@ -691,6 +698,8 @@ namespace Westwind.WebConnection
             return type;
         }
 
+
+
         /// <summary>
         /// Invokes a method with no parameters
         /// </summary>
@@ -794,7 +803,7 @@ namespace Westwind.WebConnection
             return InvokeMethod_InternalWithObjectArray(Instance, Method, ParmArray.Instance as object[]);
         }
 
-        internal object InvokeMethod_Internal(object Instance, string Method, params object[] args)
+        internal object InvokeMethod_Internal(object instance, string method, params object[] args)
         {
             SetError();
 
@@ -813,10 +822,10 @@ namespace Westwind.WebConnection
             object result = null;
             try
             {
-                if(Method.Contains(".") || Method.Contains("["))
-                    result = ReflectionUtils.CallMethodEx(Instance, Method, ar);
+                if(method.Contains(".") || method.Contains("["))
+                    result = ReflectionUtils.CallMethodEx(instance, method, ar);
                 else
-                    result = ReflectionUtils.CallMethodCom(Instance, Method, ar);
+                    result = ReflectionUtils.CallMethodCom(instance, method, ar);
             }
             catch (Exception ex)
             {
@@ -857,6 +866,107 @@ namespace Westwind.WebConnection
             return FixupReturnValue(result);
         }
 
+
+        /// <summary>
+        /// Invokes a method on a new thread and fires OnCompleted and OnError
+        /// events on a passed in callback object.
+        /// </summary>
+        /// <param name="callBack">
+        /// A callback object that has to have two methods:
+        /// OnCompleted(lvResult, lcMethod)
+        /// OnError(lcErrorMsg,loException, lcMethod)        
+        /// </param>
+        /// <param name="instance"></param>
+        /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        public void InvokeMethodAsync(object callBack, object instance, string method, params object[] parameters)
+        {
+            if (callBack == null || string.IsNullOrEmpty(method))
+                throw new ApplicationException("You have to pass a callback object and method name.");
+
+            var t = new Thread(_InvokeMethodAsync);
+
+            var parms = new object[5];
+            parms[0] = callBack;
+            parms[1] = instance;
+            parms[2] = method;
+            parms[3] = parameters;
+            parms[4] = false; // isStatic
+            t.Start(parms);
+        }
+
+        /// <summary>
+        /// Invokes a method on a new thread and fires OnCompleted and OnError
+        /// events on a passed in callback object.
+        /// </summary>
+        /// <param name="callBack">
+        /// A callback object that has to have two methods:
+        /// OnCompleted(lvResult, lcMethod)
+        /// OnError(lcErrorMsg,loException, lcMethod)        
+        /// </param>
+        /// <param name="instance"></param>
+        /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        public void InvokeStaticMethodAsync(object callBack, string typeName, string method, params object[] parameters)
+        {
+            if (callBack == null || string.IsNullOrEmpty(method))
+                throw new ApplicationException("You have to pass a callback object and method name.");
+
+            var t = new Thread(_InvokeMethodAsync);
+
+            var parms = new object[5];
+            parms[0] = callBack;
+            parms[1] = typeName;
+            parms[2] = method;
+            parms[3] = parameters;
+            parms[4] = true; // isStatic
+            t.Start(parms);
+        }
+
+        /// <summary>
+        /// Internal handler method that actually makes the async call on a thread
+        /// </summary>
+        /// <param name="parmList"></param>
+        private void _InvokeMethodAsync(object parmList)
+        {
+            object[] parms = parmList as object[];
+
+            object cb = parms[0];
+            object instance = parms[1];
+            string method = parms[2] as string;
+            object[] parameters = parms[3] as object[];
+            bool isStatic = false;
+            if (parms.Length > 4)
+                isStatic = (bool) parms[4];
+
+            object result = null;
+            try
+            {
+                if (!isStatic)
+                {
+                    if (parameters == null || parameters.Length < 1)
+                        result = InvokeMethod_Internal(instance, method);
+                    else
+                        result = InvokeMethod_Internal(instance, method, parameters);
+                }
+                else
+                {
+                    if (parameters == null || parameters.Length < 1)
+                        result = InvokeStaticMethod_Internal(instance as string, method);
+                    else
+                        result = InvokeStaticMethod_Internal(instance as String, method, parameters);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                InvokeMethod_Internal(cb, "onError", ex.Message, ex.GetBaseException(), method);
+                return;
+            }
+
+            InvokeMethod_Internal(cb, "onCompleted", result, method);
+        }       
+        
         public object GetProperty(object Instance, string Property)
         {
             LastException = null;
@@ -910,7 +1020,7 @@ namespace Westwind.WebConnection
         /// <param name="Instance"></param>
         /// <param name="Property"></param>
         /// <param name="Value"></param>
-        public void SetProperty(ref object Instance, string Property, object Value)
+        public void SetProperty(object Instance, string Property, object Value)
         {
             LastException = null;
 
@@ -943,7 +1053,7 @@ namespace Westwind.WebConnection
         /// <param name="Instance"></param>
         /// <param name="Property"></param>
         /// <param name="Value"></param>
-        public void SetPropertyEx(ref object Instance, string Property, object Value)
+        public void SetPropertyEx(object Instance, string Property, object Value)
         {
             LastException = null;
             try
@@ -1153,6 +1263,28 @@ namespace Westwind.WebConnection
                                   null, baseObject, new object[1] { ar });
 
             return true;
+        }
+
+
+        private object _tvalue;
+
+        /// <summary>
+        /// Returns an indexed property Value
+        /// </summary>
+        /// <param name="baseList"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public object GetIndexedProperty(object baseList, int index)
+        {
+            try
+            {
+                _tvalue = baseList;
+                return GetPropertyEx(this, "_tvalue[" + index + "]");
+            }
+            finally
+            {                
+                _tvalue = null;
+            }
         }
 
         /// <summary>
@@ -1521,7 +1653,7 @@ namespace Westwind.WebConnection
         }
 
 
-#if false
+#if WestwindProduct
 
         // These are included only in the commercial version of Web Connection
         // the open source version omits these
