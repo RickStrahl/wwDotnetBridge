@@ -11,6 +11,8 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 
 * Access most .NET Components directly even those not marked [ComVisible]
 * Requires no COM Registration for .NET Assemblies
+* Call any .NET method and set and get properties
+* Call any .NET method asynchronously and get called back on completion
 * Instantiate types with parameterized constructors
 * Call overloaded methods using standard method names
 * Support for many natively unsupported .NET types and values
