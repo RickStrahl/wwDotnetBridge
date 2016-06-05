@@ -132,17 +132,70 @@ FOR lnX = 0 TO lnCount -1
 ENDFOR
 ```
 
-You can also call methods asynchronously and get called back when the method has completed executing:
+You can also call any .NET method asynchronously and get called back when the method has completed executing:
+
+```foxpro
+DO wwDotnetBridge
+
+LOCAL loBridge as wwDotnetBridge
+loBridge = GetwwDotnetBridge("V4")
+
+loHttp = loBridge.CreateInstance("System.Net.WebClient")
 
 
+*** Create a callback object - object has to be 'global'
+*** so it's still around when the callback returns
+*** Use Public or attach to long lived object like form or _Screen
+PUBLIC loCallback
+loCallBack = CREATEOBJECT("HttpCallback")
 
 
-## Resources
+*** Make the async call - returns immediately
+loBridge.InvokeMethodAsync(loCallback, loHttp, ;
+                        "DownloadData",;
+                        "http://west-wind.com/files/HelpBuilderSetup.exe")
+
+? "Download has started... running in background."
+
+RETURN
+
+
+*** Callback class 
+DEFINE CLASS HttpCallback as Custom
+
+
+FUNCTION OnCompleted(lvResult, lcMethod)
+
+? "Http Call completed"
+? "Received: " + TRANS(LEN(lvResult),"999,999,999")
+
+lcFile = ADDBS(SYS(2023)) + "HelpBuilderSetup.exe"
+
+*** Write to file to temp folder
+STRTOFILE(lvResult,lcFile)
+
+*** Launch the downloaded installer
+TRY
+	*** Open the Zip file
+	DO wwutils
+	GoUrl(lcFile)
+CATCH
+ENDTRY
+
+ENDFUNC
+
+FUNCTION OnError(lcErrorMessage, loException, lcMethod)
+? lcErrorMessage
+ENDFUNC
+
+ENDDEFINE
+```
+
+### Resources
 There's much more functionality available. Please check out the documentation for more info.
 
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
 * [Documentation](http://west-wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
-
 
 
 ## Project Sponsors
@@ -157,11 +210,12 @@ wwDotnetBridge updates are initially developed for both of the commercial produc
 * [West Wind Internet and Client Tools](http://west-wind.com/WestwindClientTools.aspx)
 
 
-#### Bill Suthman - Monosynth
-Bill provided a sizable donation to the project and valuable feedback for a host of improvements and bug fixes.
-
 #### Craig Tucker - Alabama Software
 Craig offered early support and feedback for this project and billed project time for a number of additions to the library as part of a larger project.
+
+
+#### Bill Suthman - Monosynth
+Bill provided a sizable donation to the project and valuable feedback for a host of improvements and bug fixes.
 
 #### Sunil Rjamara  - WeatherTrend
 Sunil required a number of custom integrations into their FoxPro product that resulted in discovery of a number of edge cases that ended up getting integrated into wwDotnetBridge. WeatherTrend kindly donated a chunk of billable time to adding a handful of these small features.
@@ -174,8 +228,6 @@ Want to sponsor this project, need customization or want make a donation to show
 
 
 ## License
-
-
 This library is licensed under **MIT license** terms:
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
