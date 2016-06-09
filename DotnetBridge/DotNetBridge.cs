@@ -932,9 +932,13 @@ namespace Westwind.WebConnection
             object[] parms = parmList as object[];
 
             object cb = parms[0];
+            if (cb is DBNull)
+                cb = null;
+
             object instance = parms[1];
             string method = parms[2] as string;
             object[] parameters = parms[3] as object[];
+
             bool isStatic = false;
             if (parms.Length > 4)
                 isStatic = (bool) parms[4];
@@ -954,17 +958,19 @@ namespace Westwind.WebConnection
                     if (parameters == null || parameters.Length < 1)
                         result = InvokeStaticMethod_Internal(instance as string, method);
                     else
-                        result = InvokeStaticMethod_Internal(instance as String, method, parameters);
+                        result = InvokeStaticMethod_Internal(instance as string, method, parameters);
                 }
 
             }
             catch (Exception ex)
             {
-                InvokeMethod_Internal(cb, "onError", ex.Message, ex.GetBaseException(), method);
+                if (cb != null)
+                    InvokeMethod_Internal(cb, "onError", ex.Message, ex.GetBaseException(), method);
                 return;
             }
 
-            InvokeMethod_Internal(cb, "onCompleted", result, method);
+            if(cb != null)
+                InvokeMethod_Internal(cb, "onCompleted", result, method);
         }       
         
         public object GetProperty(object Instance, string Property)
