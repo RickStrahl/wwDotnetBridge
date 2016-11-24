@@ -891,22 +891,6 @@ ENDFUNC
 *   GetType
 
 ************************************************************************
-*  GetTypeName
-****************************************
-***  Function: Returns the name of the type of the passed value.
-***    Assume:
-***      Pass:
-***    Return:
-************************************************************************
-FUNCTION GetTypeName(lvValue)
-LOCAL loType
-loType = this.InvokeMethod(this.oDotnetBridge,"GetType",lvValue)
-RETURN loType.ToString()
-ENDFUNC
-*   GetTypeName
-
-
-************************************************************************
 *  GetTypeFromName
 ****************************************
 ***  Function:
