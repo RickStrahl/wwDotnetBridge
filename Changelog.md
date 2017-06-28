@@ -3,8 +3,19 @@
 
 <small>[Latest Online Documentation](http://west-wind.com/webconnection/docs/_24n1cfw3a.htm)</small>
 
+### Version 6.15
+*June 27th, 2017*
 
-## Version 6.0
+* **InitializeDotnetVersion()**  
+An explicit function to initialize the .NET Runtime for the entire application. Although this function doesn't really do anything but create an instance of wwDotnetBridge with a specific version, the function makes it clear that this initializes the .NET version for the entire application.
+
+* **Add explicit support for TLS 1.2**  
+The DLL now explicitly allows TLS 1.2 without setting config file settings. This was causing some issues with http connections to servers that explicitly require TLS 1.2.
+
+* **.NET and C++ Solutiuon Compiled on VS2017**   
+Both the C# and C++ projects now compile under Visual Studio 2017. You'll need the VS 2017 XP C++/ATL tooling installed in VS 2017y in order to compile ClrHost.
+
+### Version 6.0
 *June 8th, 2016*
 
 * **wwDotnetBridge.dll is now compiled for .NET 4.0**  
@@ -39,7 +50,7 @@ Updated the project to the new version of Visual Studio to minimize requirements
 Cleaned up a number of the examples to represent recent version changes.
 
 
-## Version 5.72
+### Version 5.72
 *April 9th, 2015*
 
 * **Address concerns for running on XP**<br/>
@@ -85,7 +96,7 @@ You can now pass parameters by reference using the indirect InvokeMethod/InvokeS
 * **Fix Null Value Handling**<br/>
 Fixed bug with NULL values passed to wwDotnetBridge calls. COM Interop changes Fox NULLs to DbNulls which failed. Indirect methods now translate DbNull values to raw .NET nulls when passed. You can still pass DbNull with ComValue.SetDbNull() if needed.
 
-## Version 5.67
+### Version 5.67
 *Nov. 8, 2013*
 
 * **ComArray::AddItem() Auto Type Conversion**<br/>

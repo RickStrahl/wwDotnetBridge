@@ -13,7 +13,7 @@ CLEAR
 
 do wwDotNetBridge
 LOCAL loBridge as wwDotNetBridge
-loBridge = CreateObject("wwDotNetBridge","V4")
+loBridge = GetwwDotnetBridge()
 
 lcSource = "FoxProEvents"
 lcLogType = "Application"
@@ -45,7 +45,7 @@ loValue.SetEnum("System.Diagnostics.EventLogEntryType.Error")
 loBridge.Invokestaticmethod("System.Diagnostics.EventLog",;
 							"WriteEntry",;
 							lcSource,;
-							"Logging error from FoxPro " + TRANSFORM(DATETIME()),;
+							"Demo of logging an error from FoxPro " + TRANSFORM(DATETIME()),;
 							loValue, 10 )
 
 
@@ -62,6 +62,7 @@ loEvents = loBridge.GetProperty(loEventLog,"Entries")
 
 ? "Entries: " + TRANSFORM(loEvents.Count)
 
+? "Showing last 10 entries:"
 lnTo =  MIN(loEvents.Count,10)
 FOR lnX = loEvents.Count-1 TO loEvents.Count-lnTo STEP -1
 	loEvent = loEvents.Item(lnX)
