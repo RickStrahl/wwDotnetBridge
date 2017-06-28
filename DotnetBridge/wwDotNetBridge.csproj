@@ -57,6 +57,7 @@
     <DocumentationFile>wwDotNetBridge.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Shareware|AnyCPU' ">
     <OutputPath>..\..\Fox\</OutputPath>

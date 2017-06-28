@@ -1172,6 +1172,7 @@
             String utility class that provides a host of string related operations
             </summary>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:Westwind.Utilities.StringUtils.GenerateUniqueId(System.Int32)" -->
         <member name="M:Westwind.Utilities.StringUtils.FixHTMLForDisplay(System.String)">
             <summary>
             Replaces and  and Quote characters to HTML safe equivalents.

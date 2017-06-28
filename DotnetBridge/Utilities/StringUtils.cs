@@ -48,6 +48,38 @@ namespace Westwind.Utilities
     public partial class StringUtils
     {
 
+
+        /// <summary>
+        /// Generates a unique Id as a string of up to 16 characters.
+        /// Based on a GUID and the size takes that subset of a the
+        /// Guid's 16 bytes to create a string id.
+        /// 
+        /// String Id contains numbers and lower case alpha chars 36 total.
+        /// 
+        /// Sizes: 6 gives roughly 99.97% uniqueness. 
+        ///        8 gives less than 1 in a million doubles.
+        ///        16 will give full GUID strength uniqueness
+        /// </summary>
+        /// <returns></returns>
+        /// <summary>
+        public static string GenerateUniqueId(int stringSize = 8)
+        {
+            string chars = "abcdefghijkmnopqrstuvwxyz1234567890";
+            StringBuilder result = new StringBuilder(stringSize);
+            int count = 0;
+
+
+
+            foreach (byte b in Guid.NewGuid().ToByteArray())
+            {
+                result.Append(chars[b % (chars.Length)]);
+                count++;
+                if (count >= stringSize)
+                    return result.ToString();
+            }
+            return result.ToString();
+        }
+
         /// <summary>
         /// Replaces and  and Quote characters to HTML safe equivalents.
         /// </summary>

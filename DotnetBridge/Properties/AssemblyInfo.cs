@@ -9,16 +9,16 @@ using System.Security;
 #if SHAREWARE
 [assembly: AssemblyTitle("Unregistered: West Wind .NET Bridge Connector (.NET). --- Please register your copy at www.west-wind.com/wwstore")]
 #else
-[assembly: AssemblyTitle("West Wind wwDotnetBridge .NET Bridge Connector (.NET)")]
+[assembly: AssemblyTitle("West Wind .NET Bridge Connector (.NET)")]
 #endif
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("West Wind Technologies")]
 [assembly: AssemblyProduct("West Wind Client Tools")]
-[assembly: AssemblyCopyright("©  West Wind Technologies 2007-2016")]
+[assembly: AssemblyCopyright("Copyright ©  2007-2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: AllowPartiallyTrustedCallers]
+//[assembly: AllowPartiallyTrustedCallers]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -38,5 +38,5 @@ using System.Security;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("6.0.0.0")]
-[assembly: AssemblyFileVersion("6.0.0.0")]
+[assembly: AssemblyVersion("6.15.0")]
+

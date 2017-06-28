@@ -44,6 +44,7 @@ using Newtonsoft.Json;
 using Westwind.Utilities;
 using System.IO;
 using System.Data;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -65,6 +66,9 @@ namespace Westwind.WebConnection
     [ProgId("Westwind.wwDotNetBridge")]
     public class wwDotNetBridge
     {
+
+        private static bool _firstLoad = true;
+
         /// <summary>
         /// Returns error information if the call fails
         /// </summary>
@@ -89,7 +93,15 @@ namespace Westwind.WebConnection
         {
             if (Environment.Version.Major >= 4)
             {
-                LoadAssembly("System.Core");                
+                LoadAssembly("System.Core");
+
+                if (_firstLoad)
+                {
+                    // Ssl3,Tls,Tls11,Tls12
+                    ServicePointManager.SecurityProtocol = (SecurityProtocolType) 4080;
+
+                    _firstLoad = false;
+                }
             }
         }
 
@@ -281,7 +293,7 @@ namespace Westwind.WebConnection
                 if (args == null)
                     instance = AppDomain.CurrentDomain.CreateInstanceAndUnwrap(AssemblyName, TypeName);
                 else
-                    instance = AppDomain.CurrentDomain.CreateInstanceAndUnwrap(AssemblyName, TypeName, false, BindingFlags.Default, null, args, null, null, null);
+                    instance = AppDomain.CurrentDomain.CreateInstanceAndUnwrap(AssemblyName, TypeName, false, BindingFlags.Default, null, args, null, null);
             }
             catch (TargetInvocationException ex)
             {
@@ -1087,8 +1099,7 @@ namespace Westwind.WebConnection
         //    return InvokeMethod_Internal(Method, Parm1);
         //}
 
-
-
+        
         #region Array Functions
 
         /// <summary>

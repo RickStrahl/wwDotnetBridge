@@ -1,9 +1,9 @@
+SET PROCEDURE TO wwDotnetBridge ADDITIVE
+
 *** This flag defines West Wind's commercial version
 *** The open source version should be set to .F.
 #DEFINE IS_WESTWIND        .F.
 #DEFINE IS_LEGACY 	   .T.
-
-SET PROCEDURE TO wwDotNetBridge ADDITIVE
 
 #IF IS_WESTWIND
 	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
@@ -54,6 +54,22 @@ IF VARTYPE(__DOTNETBRIDGE) != "O"
    ENDIF
 ENDIF
 RETURN __DOTNETBRIDGE
+ENDFUNC
+
+************************************************************************
+*  InitializeDotnetVersion()
+****************************************
+***  Function: Explicit method that simply creates a wwDotnetBridge
+***            instance. Call this method at the beginning of your
+***            app to force the .NET Runtime version that will be
+***            used throughout the entire application.
+***    Assume: Call this method in your application startup
+***      Pass: "V4" or "V2"
+***    Return: wwDotnetBridge instance 
+***            (you don't have to do anything with it)
+************************************************************************
+FUNCTION InitializeDotnetVersion(lcVersion)
+RETURN GetwwDotnetBridge(lcVersion)
 ENDFUNC
 
 
