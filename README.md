@@ -2,15 +2,15 @@
 
 #### .NET Interop made easy for Visual FoxPro 9
 
-wwDotnetBridge is a small library designed to make it easy to call .NET components from Visual FoxPro. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro.
+wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro.
 
-wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM do not natively support. For example, COM cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections. 
+wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
 
 ### Features at a glance
 wwDotnetBridge provides the following enhancements over plain COM Interop:
 
 * Access most .NET Components directly even those not marked [ComVisible]
-* Requires no COM Registration for .NET Assemblies
+* Requires no COM Registration
 * Call any .NET method and set and get properties
 * Call any .NET method asynchronously and get called back on completion
 * Instantiate types with parameterized constructors
@@ -20,11 +20,10 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * Automatically fix up problematic .NET Types on method returns
 * Provides easy Array access with ComArray helper class
 * ComValue class to store results and parameters in .NET
-* ComValue can help with problem .NET type conversions
-* ComArray class that wraps all returned Array and Collections
+* ComValue helps with problem .NET type conversions
 * ComArray allows easy creation, updating and managing of Enumerable types
 * Multi-threading library built-in
-* wwDotnetBridge also works with regular COM Interop (w/o runtime hosting)
+* wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
 
 
 ### Online Documentation:
@@ -206,7 +205,7 @@ The following people/organizations have provided sponsorship to this project by 
 ### West Wind Technologies
 wwDotnetBridge was originally developed for [West Wind Client Tools](http://west-wind.com/webconnection) and [West Wind Web Connection](http://west-wind.com/wconnect), which continue to include a slightly modified version of wwDotnetBridge. West Wind Technologies has kindly open sourced wwDotnetBridge to extend the reach of FoxPro just a bit longer by allowing easy integration with .NET and allowing more people to access this useful functionality.
 
-wwDotnetBridge updates are initially developed for both of the commercial products with any changes merged into this project when changes are made. The commercial versions also include a few add-on features used by the products. If you want a fully supported version of wwDotnetBridge or would like to sponsor further development efforts on wwDotnetBridge, you can show your support by optionally purchasing a license for either of these products.
+wwDotnetBridge updates are initially developed for both of the commercial products with any changes merged into this project when changes are made. The commercial versions also include a few add-on features used by the products such as an SMTP client, SFTP support, Encryption and Image management utilities through .NET wrappers. If you want a fully supported version of wwDotnetBridge or would like to sponsor further development efforts on wwDotnetBridge, you can show your support by purchasing a license for either of these products.
 
 * [West Wind Web Connection](http://west-wind.com/webconnection)
 * [West Wind Internet and Client Tools](http://west-wind.com/WestwindClientTools.aspx)
@@ -215,13 +214,13 @@ wwDotnetBridge updates are initially developed for both of the commercial produc
 #### Craig Tucker - Alabama Software
 Craig offered early support and feedback for this project and billed project time for a number of additions to the library as part of a larger project.
 
-
 #### Bill Suthman - Monosynth
 Bill provided a sizable donation to the project and valuable feedback for a host of improvements and bug fixes.
 
 #### Sunil Rjamara  - WeatherTrend
 Sunil required a number of custom integrations into their FoxPro product that resulted in discovery of a number of edge cases that ended up getting integrated into wwDotnetBridge. WeatherTrend kindly donated a chunk of billable time to adding a handful of these small features.
 
+#### Want to be a Sponsor?
 Want to sponsor this project, need customization or want make a donation to show your support? You can contact me directly at rstrahl@west-wind.com or you can also make a donation online via PayPal.
 
 * [Make a donation for wwDotnetBridge using PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
@@ -234,7 +233,7 @@ This library is licensed under **MIT license** terms:
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-<small>&copy; 2012-2016 Rick Strahl, West Wind Technologies</small>
+<small>&copy; 2012-2017 Rick Strahl, West Wind Technologies</small>
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
