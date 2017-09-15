@@ -39,6 +39,9 @@ This library consists of 3 components (all provided in source):
 * wwDotnetBridge.dll  - .NET assembly Proxy and Helper
 * wwDotnetBridge.prg - FoxPro front end to .NET Proxy
 
+> #### Make sure DLLs can be found!
+> Make sure CrlHost.dll (or wwIpstuff.dll for commercial West Wind tools) and wwDotnetBridge are accessible via the FoxPro path. Ideally you'll want to have these DLLs in your current executing path of the application - typically the root folder of the application.
+
 If you're using FoxPro you can simply use the wwDotnetBridge.prg class to load an assembly and fire away at it or access existing .NET components directly.
 
 This example loads the OpenPop .NET library and accesses a POP3 mailbox to display messages waiting:
