@@ -22,7 +22,7 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * ComValue class to store results and parameters in .NET
 * ComValue helps with problem .NET type conversions
 * ComArray allows easy creation, updating and managing of Enumerable types
-* Multi-threading library built-in
+* Multi-threading library built-in 
 * wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
 
 
