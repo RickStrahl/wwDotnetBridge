@@ -6,6 +6,17 @@ wwDotnetBridge is a small library designed to make it easy to **call .NET compon
 
 wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
 
+> #### wwDotnetBridge and .NET Versions
+> The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
+>
+> * .NET 4.0 (full framework), 4.5+
+> * Windows 7 and newer
+> * Windows Server 2008 R2 and newer
+>
+> For support of Windows XP, Server 2003 and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008.
+
+
+
 ### Features at a glance
 wwDotnetBridge provides the following enhancements over plain COM Interop:
 
