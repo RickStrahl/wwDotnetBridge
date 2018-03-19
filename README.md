@@ -2,9 +2,9 @@
 
 #### .NET Interop made easy for Visual FoxPro 9
 
-wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro.
+wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro all without having to register components via COM.
 
-wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
+wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections, and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
 
 > #### wwDotnetBridge and .NET Versions
 > The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
@@ -15,7 +15,57 @@ wwDotnetBridge also provides a host of tools to make it possible to access .NET 
 >
 > For support of Windows XP, Server 2003 and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008.
 
+### Getting Started
+Somewhere in the startup of your application call `InitializeDotnetVersion()`:
 
+```foxpro
+*** Load dependencies and add to Procedure stack
+*** Make sure wwDotnetBridge.prg wwDotnetBridge.dll wwIPStuff.dll 
+*** are in your FoxPro path
+DO wwDotnetBridge
+InitializeDotnetVersion("V4") 
+```
+
+This ensures that wwDotnetBridge loads with the specified **single version of the .NET Runtime** that your FoxPro application can load.
+
+> #### @icon-warning  Unable to load CLR Instance Errors
+> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, you probably need to unblock the wwdotnetbridge.dll or need to ensure that the wwdotnetbridge.dll and wwipstuff.dll are in your FoxPro path. Please see [Unable to load CLR Instance](https://www.west-wind.com/webconnection/wwClient_docs/_3rf12jtma.htm) for more info.
+
+Then when you need to utilize wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
+
+```foxpro
+*** Create or get cached instance of wwdotnetbridge
+LOCAL loBridge as wwDotnetBridge, loHttp
+loBridge = GetwwDotnetBridge()
+
+*** Create a built-in .NET class and run a method
+loHttp = loBridge.CreateInstance("System.Net.WebClient")
+loHttp.DownloadFile("http://west-wind.com/files/MarkdownMonsterSetup.exe",
+                    "MarkdownMonsterSetup.exe")
+DO wwUtils
+GoUrl(FULLPATH("MarkdownMonsterSetup.exe"))  && run it
+
+*** Load a custom .NET assembly
+loBridge.LoadAssembly("CustomDotnet.dll")
+
+*** Access a .NET component from the new assembly
+loItem = loBridge.CreateInstance("Custom.Item")
+
+*** Access properties directly
+? loItem.Sku
+loItem.Sku = "NewSku"
+lnTotal = loItem.CalculateTotal()
+
+*** Access non-accessible properties and methods indirectly
+lnFlagValue = loBridge.GetProperty(loItem,"Flag")
+lnFlagValue = loBridge.SetProperty(loItem,"Flag",5) 
+loBridge.InvokeMethod(loItem,"PassFlagValue",lnFlagValue)
+```
+
+We'll talk more about what you can do below or you can visit the online documentation or the detailed White Paper:
+
+* [wwDotnetBridge Online Documentation](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
+* [wwDotnetBridge White Paper](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
 
 ### Features at a glance
 wwDotnetBridge provides the following enhancements over plain COM Interop:
@@ -40,7 +90,7 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 ### Online Documentation:
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
 * [.NET COM Interop with wwDotnetBridge White Paper](http://west-wind.com/presentations/wwDotnetBridge/wwDotnetBridge.pdf)
-* [Documentation](http://west-wind.com/webconnection/docs/?page=_24n1cfw3a.htm)
+* [Documentation](http://west-wind.com/webconnection/docs/24n1cfw3a.htm)
 * [ChangeLog](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
 
 ### How it works
@@ -247,7 +297,7 @@ This library is licensed under **MIT license** terms:
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-<small>&copy; 2012-2017 Rick Strahl, West Wind Technologies</small>
+<small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
