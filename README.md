@@ -1,19 +1,18 @@
 # wwDotnetBridge
+### .NET Interop made easy for Visual FoxPro 9
 
-#### .NET Interop made easy for Visual FoxPro 9
-
-wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro all without having to register components via COM.
+wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party **libraries**, or build and access your own .NET components from FoxPro all without having to register components via COM.
 
 wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections, and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
 
 > #### wwDotnetBridge and .NET Versions
 > The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
 >
-> * .NET 4.0 (full framework), 4.5+
+> * .NET 4.5 or later
 > * Windows 7 and newer
 > * Windows Server 2008 R2 and newer
 >
-> For support of Windows XP, Server 2003 and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008.
+> For support of Windows XP, Server 2003 and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008. Note that you can use the new version just fine for loading .NET 1.1, 2.0 and 4.0 compiled assemblies.
 
 ### Getting Started
 Somewhere in the startup of your application call `InitializeDotnetVersion()`:
@@ -85,7 +84,6 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * ComArray allows easy creation, updating and managing of Enumerable types
 * Multi-threading library built-in 
 * wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
-
 
 ### Online Documentation:
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
@@ -275,16 +273,16 @@ wwDotnetBridge updates are initially developed for both of the commercial produc
 * [West Wind Internet and Client Tools](http://west-wind.com/WestwindClientTools.aspx)
 
 
-#### Craig Tucker - Alabama Software
+### Craig Tucker - Alabama Software
 Craig offered early support and feedback for this project and billed project time for a number of additions to the library as part of a larger project.
 
-#### Bill Suthman - Monosynth
+### Bill Suthman - Monosynth
 Bill provided a sizable donation to the project and valuable feedback for a host of improvements and bug fixes.
 
-#### Sunil Rjamara  - WeatherTrend
+### Sunil Rjamara  - WeatherTrend
 Sunil required a number of custom integrations into their FoxPro product that resulted in discovery of a number of edge cases that ended up getting integrated into wwDotnetBridge. WeatherTrend kindly donated a chunk of billable time to adding a handful of these small features.
 
-#### Want to be a Sponsor?
+### Want to be a Sponsor?
 Want to sponsor this project, need customization or want make a donation to show your support? You can contact me directly at rstrahl@west-wind.com or you can also make a donation online via PayPal.
 
 * [Make a donation for wwDotnetBridge using PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
@@ -303,5 +301,5 @@ The above copyright notice and this permission notice shall be included in all c
 
 ## NO WARRANTY
 > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
- 
+
+<small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>
