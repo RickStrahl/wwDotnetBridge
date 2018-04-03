@@ -5,7 +5,7 @@ wwDotnetBridge is a small library designed to make it easy to **call .NET compon
 
 wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections, and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
 
-> #### wwDotnetBridge and .NET Versions
+#### wwDotnetBridge and .NET Versions
 > The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
 >
 > * .NET 4.5 or later
@@ -14,7 +14,7 @@ wwDotnetBridge also provides a host of tools to make it possible to access .NET 
 >
 > For support of Windows XP, Server 2003 and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008. Note that you can use the new version just fine for loading .NET 1.1, 2.0 and 4.0 compiled assemblies.
 
-### Getting Started
+## Getting Started
 Somewhere in the startup of your application call `InitializeDotnetVersion()`:
 
 ```foxpro
@@ -66,7 +66,7 @@ We'll talk more about what you can do below or you can visit the online document
 * [wwDotnetBridge Online Documentation](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
 * [wwDotnetBridge White Paper](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
 
-### Features at a glance
+## Features at a glance
 wwDotnetBridge provides the following enhancements over plain COM Interop:
 
 * Access most .NET Components directly even those not marked [ComVisible]
@@ -85,13 +85,13 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * Multi-threading library built-in 
 * wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
 
-### Online Documentation:
+## Online Documentation:
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
 * [.NET COM Interop with wwDotnetBridge White Paper](http://west-wind.com/presentations/wwDotnetBridge/wwDotnetBridge.pdf)
 * [Documentation](http://west-wind.com/webconnection/docs/24n1cfw3a.htm)
 * [ChangeLog](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
 
-### How it works
+## How it works
 This library consists of 3 components (all provided in source):
 
 * ClrHost.dll - Win32 Loader for the .NET Runtime
@@ -254,7 +254,7 @@ ENDFUNC
 ENDDEFINE
 ```
 
-### Resources
+## Resources
 There's much more functionality available. Please check out the documentation for more info.
 
 * [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
@@ -293,13 +293,13 @@ Want to sponsor this project, need customization or want make a donation to show
 ## License
 This library is licensed under **MIT license** terms:
 
-> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 <small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-## NO WARRANTY
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+### NO WARRANTY
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>
