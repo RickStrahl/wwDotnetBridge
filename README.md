@@ -61,11 +61,6 @@ lnFlagValue = loBridge.SetProperty(loItem,"Flag",5)
 loBridge.InvokeMethod(loItem,"PassFlagValue",lnFlagValue)
 ```
 
-We'll talk more about what you can do below or you can visit the online documentation or the detailed White Paper:
-
-* [wwDotnetBridge Online Documentation](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
-* [wwDotnetBridge White Paper](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
-
 ## Features at a glance
 wwDotnetBridge provides the following enhancements over plain COM Interop:
 
@@ -85,11 +80,11 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * Multi-threading library built-in 
 * wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
 
-## Online Documentation:
-* [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
-* [.NET COM Interop with wwDotnetBridge White Paper](http://west-wind.com/presentations/wwDotnetBridge/wwDotnetBridge.pdf)
-* [Documentation](http://west-wind.com/webconnection/docs/24n1cfw3a.htm)
-* [ChangeLog](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
+## Documentation:
+* [Home Page](http://west-wind.com/wwDotnetBridge.aspx)
+* [API Documentation](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
+* [White Paper](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
+* [Change Log](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
 
 ## How it works
 This library consists of 3 components (all provided in source):
@@ -253,13 +248,6 @@ ENDFUNC
 
 ENDDEFINE
 ```
-
-## Resources
-There's much more functionality available. Please check out the documentation for more info.
-
-* [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
-* [Documentation](http://west-wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
-
 
 ## Project Sponsors
 The following people/organizations have provided sponsorship to this project by way of direct donations or for paid development as part of a development project using these tools:
