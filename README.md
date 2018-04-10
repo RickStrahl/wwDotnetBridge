@@ -80,7 +80,7 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * Multi-threading library built-in 
 * wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
 
-## Documentation:
+## Documentation
 * [Home Page](http://west-wind.com/wwDotnetBridge.aspx)
 * [API Documentation](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
 * [White Paper](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
