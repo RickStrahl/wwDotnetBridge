@@ -111,7 +111,7 @@ namespace Westwind.Utilities
         /// Fixes a plain text field for display as HTML by replacing carriage returns 
         /// with the appropriate br and p tags for breaks.
         /// </summary>
-        /// <param name="String Text">Input string</param>
+        /// <param name="htmlText">Input string</param>
         /// <returns>Fixed up string</returns>
         public static string DisplayMemo(string htmlText)
         {

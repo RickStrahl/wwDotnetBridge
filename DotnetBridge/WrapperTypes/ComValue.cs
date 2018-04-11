@@ -23,7 +23,7 @@ namespace Westwind.WebConnection
     {
         /// <summary>
         /// Internally this value is set by the various
-        /// SetXXX methods. It's of type objcect but 
+        /// SetXXX methods. It's of type object but 
         /// set to the appropriate .NET subtype.
         /// </summary>
         public object Value

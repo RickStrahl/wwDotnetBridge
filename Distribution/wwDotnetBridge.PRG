@@ -43,14 +43,14 @@ IF VARTYPE(__DOTNETBRIDGE) != "O"
    IF EMPTY(lcVersion)       
 	   lcVersion = GetHighestDotnetVersion()
 	   IF ISNULL(lcVersion)
-	       ERROR "Couldn't find a .NET version installed."
+		   ERROR "Couldn't find a .NET version installed."
 	   ENDIF
    ENDIF
    
    PUBLIC __DOTNETBRIDGE
    __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
    IF VARTYPE(__DOTNETBRIDGE) # "O"
-      RETURN NULL
+	  RETURN NULL
    ENDIF
 ENDIF
 RETURN __DOTNETBRIDGE
@@ -140,10 +140,10 @@ IF !EMPTY(lcVersion)
    LOCAL lcShortVer
    lcShortVer = UPPER(lcVersion)
    DO CASE 
-   	CASE lcShortVer == "V4"
-   	  lcVersion = "v4.0.30319"
+	CASE lcShortVer == "V4"
+	  lcVersion = "v4.0.30319"
 	CASE lcShortVer == "V2"
-      lcVersion = "v2.0.50727"     
+	  lcVersion = "v2.0.50727"     
    ENDCASE
 
    this.cClrVersion = lcVersion
@@ -179,7 +179,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
 	ELSE
 		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
-	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
+		DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
 
 		lcError = SPACE(2048)
 		lnSize = 0
@@ -269,16 +269,16 @@ lnParmCount = PCOUNT()
 DO CASE 
 	CASE lnParmCount = 2
 		loObject = loBridge.CreateInstance_OneParm(lcClass,lvParm1)
-    CASE lnParmCount = 3
-        loObject = loBridge.CreateInstance_TwoParms(lcClass,lvParm1, lvParm2)
-    CASE lnParmCount = 4
-        loObject = loBridge.CreateInstance_ThreeParms(lcClass,lvParm1, lvParm2, lvParm3)
-    CASE lnParmCount = 5
-        loObject = loBridge.CreateInstance_FourParms(lcClass,lvParm1, lvParm2, lvParm3, lvParm4)
-    CASE lnParmCount = 6
-        loObject = loBridge.CreateInstance_FiveParms(lcClass,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)        
-    OTHERWISE
-        loObject = loBridge.CreateInstance(lcClass)
+	CASE lnParmCount = 3
+		loObject = loBridge.CreateInstance_TwoParms(lcClass,lvParm1, lvParm2)
+	CASE lnParmCount = 4
+		loObject = loBridge.CreateInstance_ThreeParms(lcClass,lvParm1, lvParm2, lvParm3)
+	CASE lnParmCount = 5
+		loObject = loBridge.CreateInstance_FourParms(lcClass,lvParm1, lvParm2, lvParm3, lvParm4)
+	CASE lnParmCount = 6
+		loObject = loBridge.CreateInstance_FiveParms(lcClass,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)        
+	OTHERWISE
+		loObject = loBridge.CreateInstance(lcClass)
 ENDCASE
 
 IF ISNULL(loObject) OR loBridge.Error
@@ -313,16 +313,16 @@ lnParmCount = PCOUNT()
 DO CASE 
 	CASE lnParmCount = 4
 		loObject = loBridge.CreateInstanceOnType_OneParm(loInstance,lcProperty, lcClass,lvParm1)
-    CASE lnParmCount = 5
-        loObject = loBridge.CreateInstanceOnType_TwoParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2)
-    CASE lnParmCount = 6
-        loObject = loBridge.CreateInstanceOnType_ThreeParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2, lvParm3)
-    CASE lnParmCount = 7
-        loObject = loBridge.CreateInstanceOnType_FourParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2, lvParm3, lvParm4)
-    CASE lnParmCount = 8
-        loObject = loBridge.CreateInstanceOnType_FiveParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
-    OTHERWISE
-        loObject = loBridge.CreateInstanceOnType(loInstance,lcProperty,lcClass)
+	CASE lnParmCount = 5
+		loObject = loBridge.CreateInstanceOnType_TwoParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2)
+	CASE lnParmCount = 6
+		loObject = loBridge.CreateInstanceOnType_ThreeParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2, lvParm3)
+	CASE lnParmCount = 7
+		loObject = loBridge.CreateInstanceOnType_FourParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2, lvParm3, lvParm4)
+	CASE lnParmCount = 8
+		loObject = loBridge.CreateInstanceOnType_FiveParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+	OTHERWISE
+		loObject = loBridge.CreateInstanceOnType(loInstance,lcProperty,lcClass)
 ENDCASE
 
 IF ISNULL(loObject) OR loBridge.Error
@@ -356,8 +356,8 @@ loBridge = this.oDotNetBridge
 lnParms = PCOUNT()
 loResult = NULL
 DO CASE
-    CASE lnParms = 2
-      loResult = loBridge.InvokeMethod(loObject, lcMethod)
+	CASE lnParms = 2
+	  loResult = loBridge.InvokeMethod(loObject, lcMethod)
 	CASE lnParms = 3
 	  loResult = loBridge.InvokeMethod_OneParm(loObject, lcMethod, lvParm1)
 	CASE lnParms = 4
@@ -380,16 +380,16 @@ DO CASE
 	  loResult = loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	  
 
 	OTHERWISE
-      	LOCAL loArray as Westwind.WebConnection.ComArray
-	    loArray = this.CreateArray("System.Object")
+		LOCAL loArray as Westwind.WebConnection.ComArray
+		loArray = this.CreateArray("System.Object")
 
-	    LOCAL lvParm
-	    FOR lnX = 1 TO lnParms-2
-		   	lvParm = EVALUATE("lvParm" + TRANSFORM(lnX))
-		   	loArray.AddItem(lvParm)   	
-	    ENDFOR
-	    
-	    RETURN THIS.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
+		LOCAL lvParm
+		FOR lnX = 1 TO lnParms-2
+			lvParm = EVALUATE("lvParm" + TRANSFORM(lnX))
+			loArray.AddItem(lvParm)   	
+		ENDFOR
+		
+		RETURN THIS.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
 ENDCASE
 
 IF loBridge.Error
@@ -435,13 +435,13 @@ DO CASE
 	   *** It's a Fox array
 	   lnsize = ALEN(laParms)
 	   FOR lnX = 1 TO lnSize
-		   	loArray.AddItem(laParms[lnX])   	
+			loArray.AddItem(laParms[lnX])   	
 	   ENDFOR
 	CASE TYPE("laParms.Count") = "N"
 		*** It's a .NET array/collection
-	    FOR lnX =1 TO laParms.Count
-	    	loArray.AddItem(laParms[lnX])
-	    ENDFOR
+		FOR lnX =1 TO laParms.Count
+			loArray.AddItem(laParms[lnX])
+		ENDFOR
 ENDCASE
 
 loResult = loBridge.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
@@ -475,27 +475,27 @@ loBridge = this.oDotnetBridge
 
 DO CASE
   CASE lnParms = 3
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod)
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod)
   CASE lnParms = 4
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1)
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1)
   CASE lnParms = 5
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1,lvParm2)     
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1,lvParm2)     
   CASE lnParms = 6
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3)     
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3)     
   CASE lnParms = 7
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)     
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)     
   CASE lnParms = 8
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)          
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)          
   CASE lnParms = 9
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)      
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)      
   CASE lnParms = 10
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)      
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)      
   CASE lnParms = 11
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)      
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)      
   CASE lnParms = 12
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)      
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)      
   CASE lnParms = 13
-     loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)           
+	 loBridge.InvokeMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)           
 ENDCASE
 
 ENDFUNC
@@ -521,27 +521,27 @@ loBridge = this.oDotnetBridge
 
 DO CASE
   CASE lnParms = 3
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod)
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod)
   CASE lnParms = 4
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1)
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1)
   CASE lnParms = 5
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1,lvParm2)     
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1,lvParm2)     
   CASE lnParms = 6
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3)     
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3)     
   CASE lnParms = 7
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)     
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)     
   CASE lnParms = 8
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)          
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)          
   CASE lnParms = 9
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)      
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)      
   CASE lnParms = 10
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)      
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)      
   CASE lnParms = 11
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)      
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)      
   CASE lnParms = 12
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)      
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)      
   CASE lnParms = 13
-     loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)           
+	 loBridge.InvokeStaticMethodAsync(loCallbackEvents,lcTypeName,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)           
 ENDCASE
 
 ENDFUNC
@@ -599,7 +599,7 @@ ENDFUNC
 ***    Return:
 ************************************************************************
 FUNCTION InvokeStaticMethod(lcTypeName, lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,;
-                                                  lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)
+												  lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)
 LOCAL loBridge, lnParms, loResult
 
 this.SetError()
@@ -765,7 +765,7 @@ DO CASE
   CASE lcType = "O"
 	  loComArray = this.oDotnetBridge.CreateArrayFromInstance(lvArrayInstanceOrElementTypeString)
   OTHERWISE
-      THROW "Invalid parameter passed to CreateArray"
+	  THROW "Invalid parameter passed to CreateArray"
 ENDCASE
 
 IF ISNULL(loComArray)
@@ -906,6 +906,7 @@ RETURN this.InvokeMethod(this.oDotnetBridge,"GetType",lvValue)
 ENDFUNC
 *   GetType
 
+
 ************************************************************************
 *  GetTypeFromName
 ****************************************
@@ -918,6 +919,20 @@ FUNCTION GetTypeFromName(lcTypeName)
 RETURN this.InvokeMethod(this.oDotNetBridge,"GetTypeFromName",lcTypeName)
 ENDFUNC
 *   GetTypeFromName
+
+
+************************************************************************
+*  SubscribeToEvents
+****************************************
+***  Function: Handles all events of a source object for subsequent retrieval by calling WaitForEvent.
+***    Assume:
+***      Pass: The object for which to subscribe to events.
+***    Return: A new object of type EventSubscriber.
+************************************************************************
+FUNCTION SubscribeToEvents(loSource)
+RETURN this.CreateInstance("Westwind.WebConnection.EventSubscriber",loSource)
+ENDFUNC
+*   SubscribeToEvents
 
 
 ************************************************************************
@@ -1044,8 +1059,8 @@ IF loAdapter.Tables.Count < 1
 	RETURN .F.
 ENDIF
 FOR EACH loTable IN loAdapter.Tables
-    USE IN SELECT(loTable.Alias)
-    loTable.ToCursor(.F.,loTable.Alias)
+	USE IN SELECT(loTable.Alias)
+	loTable.ToCursor(.F.,loTable.Alias)
 ENDFOR
 
 RETURN .T.
@@ -1066,9 +1081,9 @@ LOCAL loTable, loTbl
 IF EMPTY(lvCursor)
    *** Get the first cursor if no cursor name is passed
    IF loAdapter.Tables.Count > 0
-   	  lvCursor = loAdapter.Tables[1].Alias
+	  lvCursor = loAdapter.Tables[1].Alias
    ELSE
-   	  RETURN .F.
+	  RETURN .F.
    ENDIF
 ENDIF   
 
@@ -1080,8 +1095,8 @@ ELSE
 	lvCursor = LOWER(lvCursor)
 	FOR EACH loTbl in loAdapter.Tables
 	   IF lvCursor == LOWER(loTbl.alias)
-	      loTable = loTbl
-	      EXIT
+		  loTable = loTbl
+		  EXIT
 	   ENDIF      
 	ENDFOR
 ENDIF
@@ -1129,7 +1144,7 @@ IF AT(":\",lcAssembly) > 0 OR AT("\\",lcAssembly) > 0
 		RETURN .F.
 	ENDIF
 ELSE
-    *** It's an assembly name
+	*** It's an assembly name
 	IF !loBridge.LoadAssembly(lcAssembly)
 		this.SetError(lobridge.ErrorMessage)
 		RETURN .F.
@@ -1211,29 +1226,29 @@ ENDIF
 DO CASE
   *** ComValue object conversions
   CASE lcType = "int16"
-      loVal.SetInt16(lvFoxValue)
+	  loVal.SetInt16(lvFoxValue)
   CASE lcType = "int64"
-      loVal.SetInt64(lvFoxValue)
+	  loVal.SetInt64(lvFoxValue)
   CASE lcType = "byte"
-      loVal.SetByte(lvFoxValue)
+	  loVal.SetByte(lvFoxValue)
   CASE lcType = "char"
-      loVal.SetChar(lvFoxValue)
+	  loVal.SetChar(lvFoxValue)
   CASE lcType = "dbnull"
-      loVal.SetDbNull()     
+	  loVal.SetDbNull()     
 
   *** CAST Conversions
   CASE lcType = "decimal"
-      RETURN NTOM(lvFoxValue)
-      *CAST(lvFoxValue as Currency)      
+	  RETURN NTOM(lvFoxValue)
+	  *CAST(lvFoxValue as Currency)      
   CASE lcType = "binary" OR lcType = "byte[]"
-      #IF VERSION(5) > 800
-	     RETURN CAST(lvFoxValue as BLOB)      
+	  #IF VERSION(5) > 800
+		 RETURN CAST(lvFoxValue as BLOB)      
 	  #ELSE
-	  	 RETURN CREATEBINARY(lvFoxValue)
-      #ENDIF
+		 RETURN CREATEBINARY(lvFoxValue)
+	  #ENDIF
   OTHERWISE
-  	  *** If no conversion exists just return the value as is
-      RETURN lvFoxValue
+	  *** If no conversion exists just return the value as is
+	  RETURN lvFoxValue
 ENDCASE
 
 RETURN loVal
@@ -1507,8 +1522,8 @@ FOR x = lnCount TO 1 STEP -1
    lcVersion = laNetDirs[x,1]
    lcTPath = ADDBS(lcFrameworkPath + lcVersion )
    IF FILE(lcTPath + "regasm.exe")
-     lcFrameworkPath = ADDBS(lcTPath)         
-     EXIT
+	 lcFrameworkPath = ADDBS(lcTPath)         
+	 EXIT
    ENDIF
 ENDFOR   
 

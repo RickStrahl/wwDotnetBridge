@@ -249,6 +249,24 @@ ENDFUNC
 ENDDEFINE
 ```
 
+## Events
+
+.NET delegates and events are not directly supported. If the .NET object is available as a registered COM object, the COM events which translate to native FoxPro events; COM event binding is separate from wwDotNetBridge.
+
+wwDotNetBridge supports an alternative approach to obtain events without COM registration. You can subscribe to all events of a .NET object by calling `wwDotNetBridge.SubscribeToEvents`. The function returns an `EventSubscriber` object, on which you can asynchronously call `WaitForEvent` with your event handler:
+
+    PUBLIC loHandler
+    loHandler = CREATEOBJECT("MyEventHandler")
+    loBridge.InvokeMethodAsync(loHandler,loSource,"WaitForEvents")
+
+In your event handler class (`MyEventHandler` in this example), you define `OnCompleted` to handle the event based on its name and parameters:
+
+    FUNCTION OnCompleted(lvResult,lcMethod)
+        * lvResult.Name is the event name.
+        * lvResult.Parameters is an array of the event's parameters.
+    ENDFUNC
+
+
 ## Project Sponsors
 The following people/organizations have provided sponsorship to this project by way of direct donations or for paid development as part of a development project using these tools:
 

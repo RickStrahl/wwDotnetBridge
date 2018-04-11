@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="DotNetBridge.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\EventSubscriber.cs" />
     <Compile Include="Utilities\TypePassingTests.cs" />
     <Compile Include="Utilities\FileUtils.cs" />
     <Compile Include="Utilities\ReflectionUtils.cs" />
