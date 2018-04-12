@@ -1541,31 +1541,41 @@ DEFINE CLASS EventSubscription as AsyncCallbackEvents
 *:  Usage: Used internally by SubscribeToEvents
 *************************************************************
 
-HIDDEN coBridge, coHandler, coSubscriber
+HIDDEN oBridge, oHandler, oSubscriber
 
 FUNCTION Setup(loBridge, loSource, loHandler)
-coBridge = loBridge
-coHandler = loHandler
-coSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource)
+this.oBridge = loBridge
+this.oHandler = loHandler
+this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource)
 this.HandleNextEvent()
 ENDFUNC
 
 PROCEDURE Destroy
-coSubscriber.Dispose()
+this.oSubscriber.Dispose()
 ENDPROC
  
 FUNCTION HandleNextEvent()
-coBridge.InvokeMethodAsync(this,coSubscriber,"WaitForEvent")
+this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")
 ENDFUNC
 
+** Forwards the event to a function named On{Event} with the event's parameters.
 FUNCTION OnCompleted(lvResult, lcMethod)
-coHandler.OnEvent(lvResult.Name, lvResult.Parameters)
+LOCAL loParams,lParamText,lCount
+IF ISNULL(lvResult) && If the call to WaitForEvent was canceled:
+	RETURN
+ENDIF
+loParams=CREATEOBJECT("EMPTY") && Workaround to index into array of parameters. 
+lParamText = ""
+IF NOT ISNULL(lvResult.Params)
+	lCount = 0
+	FOR EACH lParam IN lvResult.Params
+		lCount = lCount + 1
+		AddProperty(loParams,"P" + ALLTRIM(STR(lCount)),lParam)
+		lParamText = lParamText + ",loParams.P" + ALLTRIM(STR(lCount))
+	ENDFOR
+ENDIF
+=EVALUATE("this.oHandler.On" + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
 this.HandleNextEvent()
-ENDFUNC
-
-FUNCTION OnError(lcErrorMessage, loException, lcMethod)
-* TODO
-SET STEP ON
 ENDFUNC
 
 ENDDEFINE

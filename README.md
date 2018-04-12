@@ -253,19 +253,23 @@ ENDDEFINE
 
 .NET delegates and events are not directly supported. If the .NET object is available as a registered COM object, the COM events which translate to native FoxPro events; COM event binding is separate from wwDotNetBridge.
 
-wwDotNetBridge supports an alternative approach to obtain events without COM registration. You can subscribe to all events of a .NET object by calling `wwDotNetBridge.SubscribeToEvents`. The function returns an `EventSubscriber` object, on which you can asynchronously call `WaitForEvent` with your event handler:
+wwDotNetBridge supports an alternative approach to obtain events without COM registration. You can subscribe to all events of a .NET object by calling `wwDotNetBridge.SubscribeToEvents`. You pass the source object for the events and your handler object. The class for your handler object should have an `On...` function for each event.
 
-    PUBLIC loHandler
-    loHandler = CREATEOBJECT("MyEventHandler")
-    loBridge.InvokeMethodAsync(loHandler,loSource,"WaitForEvents")
+This example creates a `System.Net.Mail.SmtpClient` object and handles its one event, `SendCompleted`:
 
-In your event handler class (`MyEventHandler` in this example), you define `OnCompleted` to handle the event based on its name and parameters:
+    LOCAL loSmtpClient, loSmtpHandler, loSmtpEventSubscription
+    loSmtpClient = loBridge.CreateInstance("System.Net.Mail.SmtpClient")
+    loSmtpHandler = CREATEOBJECT("MySmtpEventHandler")
+    loSmtpEventSubscription = loBridge.SubscribeToEvents(loSmtpClient, loSmtpHandler)
+    * Send email here
 
-    FUNCTION OnCompleted(lvResult,lcMethod)
-        * lvResult.Name is the event name.
-        * lvResult.Parameters is an array of the event's parameters.
-    ENDFUNC
+    DEFINE CLASS MySmtpEventHandler as Custom
+    PROCEDURE OnSendCompleted(loSender, loEventArgs)
+        * Handle the event here
+    ENDPROC
+    ENDDEFINE
 
+The event subscription ends when the subscription object (`loSmtpEventSubscription` in the example) goes out of scope.
 
 ## Project Sponsors
 The following people/organizations have provided sponsorship to this project by way of direct donations or for paid development as part of a development project using these tools:

@@ -16,8 +16,8 @@ namespace Westwind.WebConnection
     {
         private readonly object _source;
         private readonly List<Delegate> _eventHandlers = new List<Delegate>();
-        private readonly ConcurrentQueue<InteropEvent> _interopEvents = new ConcurrentQueue<InteropEvent>();
-        private TaskCompletionSource<InteropEvent> _completion = new TaskCompletionSource<InteropEvent>();
+        private readonly ConcurrentQueue<RaisedEvent> _raisedEvents = new ConcurrentQueue<RaisedEvent>();
+        private TaskCompletionSource<RaisedEvent> _completion = new TaskCompletionSource<RaisedEvent>();
 
         public EventSubscriber(object source)
         {
@@ -46,35 +46,33 @@ namespace Westwind.WebConnection
             var events = _source.GetType().GetEvents();
             for (int e = 0; e < events.Length; ++e)
                 events[e].RemoveEventHandler(_source, _eventHandlers[e]);
+            _completion.TrySetCanceled();
         }
 
-        void QueueInteropEvent(string name, object[] parameters)
+        private void QueueInteropEvent(string name, object[] parameters)
         {
-            var interopEvent = new InteropEvent { Name = name, Parameters = parameters };
+            var interopEvent = new RaisedEvent { Name = name, Params = parameters };
             if (!_completion.TrySetResult(interopEvent))
-                _interopEvents.Enqueue(interopEvent);
+                _raisedEvents.Enqueue(interopEvent);
         }
 
         /// <summary>
         /// Waits until an event is raised, or returns immediately if a queued event is available.
         /// </summary>
-        /// <exception cref="TaskCanceledException"><see cref="CancelWait"/> was called while waiting.</exception>
-        public InteropEvent WaitForEvent()
+        /// <returns>The next event, or null if this subscriber has been disposed.</returns>
+        public RaisedEvent WaitForEvent()
         {
-            if (_interopEvents.TryDequeue(out var interopEvent)) return interopEvent;
-            _completion = new TaskCompletionSource<InteropEvent>();
-            return _completion.Task.Result;
-        }
-
-        public void CancelWait()
-        {
-            _completion.TrySetCanceled();
+            if (_raisedEvents.TryDequeue(out var interopEvent)) return interopEvent;
+            _completion = new TaskCompletionSource<RaisedEvent>();
+            var task = _completion.Task;
+            task.Wait();
+            return task.IsCanceled ? null : task.Result;
         }
     }
 
-    public class InteropEvent
+    public class RaisedEvent
     {
         public string Name { get; internal set; }
-        public object[] Parameters { get; internal set; }
+        public object[] Params { get; internal set; }
     }
 }
