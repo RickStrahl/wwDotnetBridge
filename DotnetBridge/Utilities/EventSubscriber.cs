@@ -12,8 +12,10 @@ namespace Westwind.WebConnection
     /// <summary>
     /// FoxPro interop access to .NET events. Handles all events of a source object for subsequent retrieval by a FoxPro client.
     /// </summary>
-    public class EventSubscriber
+    public sealed class EventSubscriber : IDisposable
     {
+        private readonly object _source;
+        private readonly List<Delegate> _eventHandlers = new List<Delegate>();
         private readonly ConcurrentQueue<InteropEvent> _interopEvents = new ConcurrentQueue<InteropEvent>();
         private TaskCompletionSource<InteropEvent> _completion = new TaskCompletionSource<InteropEvent>();
 
@@ -23,17 +25,27 @@ namespace Westwind.WebConnection
             _completion.SetResult(null);
 
             // For each event, adds a handler that calls QueueInteropEvent.
+            this._source = source;
             foreach (var ev in source.GetType().GetEvents()) {
                 var eventParams = ev.EventHandlerType.GetMethod("Invoke").GetParameters().Select(p => Expression.Parameter(p.ParameterType)).ToArray();
-                var eventHandler = Expression.Lambda(ev.EventHandlerType,
+                var eventHandlerLambda = Expression.Lambda(ev.EventHandlerType,
                     Expression.Call(
                         instance: Expression.Constant(this),
                         method: typeof(EventSubscriber).GetMethod(nameof(QueueInteropEvent), BindingFlags.NonPublic | BindingFlags.Instance),
                         arg0: Expression.Constant(ev.Name),
                         arg1: Expression.NewArrayInit(typeof(object), eventParams.Select(p => Expression.Convert(p, typeof(object))))),
                     eventParams);
-                ev.AddEventHandler(source, eventHandler.Compile());
+                var eventHandler = eventHandlerLambda.Compile();
+                ev.AddEventHandler(source, eventHandler);
+                _eventHandlers.Add(eventHandler);
             }
+        }
+
+        public void Dispose()
+        {
+            var events = _source.GetType().GetEvents();
+            for (int e = 0; e < events.Length; ++e)
+                events[e].RemoveEventHandler(_source, _eventHandlers[e]);
         }
 
         void QueueInteropEvent(string name, object[] parameters)
