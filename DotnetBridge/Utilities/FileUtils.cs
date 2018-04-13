@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Westwind.Utilities
+namespace Westwind.WebConnection
 {
 	/// <summary>
 	/// wwUtils class which contains a set of common utility classes for 

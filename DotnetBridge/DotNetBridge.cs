@@ -2,7 +2,7 @@
 /*
  **************************************************************
  *  Author: Rick Strahl 
- *          © West Wind Technologies, 2009-2016
+ *          (c) West Wind Technologies, 2009-2018
  *          http://www.west-wind.com/
  * 
  * Created: 4/10/2009
@@ -41,7 +41,7 @@ using System.Reflection;
 #if WestwindProduct
 using Newtonsoft.Json;
 #endif
-using Westwind.Utilities;
+
 using System.IO;
 using System.Data;
 using System.Net;
@@ -94,12 +94,11 @@ namespace Westwind.WebConnection
             if (Environment.Version.Major >= 4)
             {
                 LoadAssembly("System.Core");
-
+                
                 if (_firstLoad)
                 {
                     // Ssl3,Tls,Tls11,Tls12
-                    ServicePointManager.SecurityProtocol = (SecurityProtocolType) 4080;
-
+                    ServicePointManager.SecurityProtocol =   (SecurityProtocolType) 4080;
                     _firstLoad = false;
                 }
             }
