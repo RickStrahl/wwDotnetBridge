@@ -1,7 +1,13 @@
-
 # wwDotnetBridge Change Log
 
 <small>[Latest Online Documentation](http://west-wind.com/webconnection/docs/_24n1cfw3a.htm)</small>
+
+### Version 6.19
+* **wwDotnetBridge.dll is now compiled with .NET 4.5**  
+This version of wwDotnetBridge is compiled for and requires .NET 4.5 or later. 4.5 offers a number of performance and feature enhancements that are required to load .NET 4.5 and later components. The vast majority of Windows machines come pre-installed with a version of .NET 4.5 or later so this version is the now the default.
+
+* **Better Error information for wwDotnetBridge Load Errors**  
+wwDotnetBridge will now report better error information on load failures, when failing to load the runtime or initial wwdotnetbridge instance.
 
 ### Version 6.15
 *June 27th, 2017*
@@ -12,13 +18,13 @@ An explicit function to initialize the .NET Runtime for the entire application. 
 * **Add explicit support for TLS 1.2**  
 The DLL now explicitly allows TLS 1.2 without setting config file settings. This was causing some issues with http connections to servers that explicitly require TLS 1.2.
 
-* **.NET and C++ Solutiuon Compiled on VS2017**   
+* **.NET and C++ Solution Compiled on VS2017**   
 Both the C# and C++ projects now compile under Visual Studio 2017. You'll need the VS 2017 XP C++/ATL tooling installed in VS 2017y in order to compile ClrHost.
 
 ### Version 6.0
 *June 8th, 2016*
 
-* **wwDotnetBridge.dll is now compiled for .NET 4.0**  
+* **wwDotnetBridge.dll is now compiled with .NET 4.0**  
 This version of wwDotnetBridge is compiled for and requires .NET 4.0. 4.0 is offers a number of performance and feature enhancements for developement as well as looser security policy when executing code - we've long been recommending to **always** use .NET 4.0. In this version .NET 4.0 is now the default and this assembly is compiled for .NET 4.0. .NET 4.0 is the default installation of .NET with Windows 7 and later and .NET 2.0 is no longer installed by default on Windows 10, so 4.0 is the most common version installed. This change should not break any code accessing V2 assemblies, but you will need to run with .NET 4.x or later installed.
 
 
