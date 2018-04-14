@@ -257,17 +257,19 @@ wwDotNetBridge supports an alternative approach to obtain events without COM reg
 
 This example creates a `System.Net.Mail.SmtpClient` object and handles its one event, `SendCompleted`:
 
-    LOCAL loSmtpClient, loSmtpHandler, loSmtpEventSubscription
-    loSmtpClient = loBridge.CreateInstance("System.Net.Mail.SmtpClient")
-    loSmtpHandler = CREATEOBJECT("MySmtpEventHandler")
-    loSmtpEventSubscription = loBridge.SubscribeToEvents(loSmtpClient, loSmtpHandler)
-    * Send email here
+```foxpro
+LOCAL loSmtpClient, loSmtpHandler, loSmtpEventSubscription
+loSmtpClient = loBridge.CreateInstance("System.Net.Mail.SmtpClient")
+loSmtpHandler = CREATEOBJECT("MySmtpEventHandler")
+loSmtpEventSubscription = loBridge.SubscribeToEvents(loSmtpClient, loSmtpHandler)
+* Send email here
 
-    DEFINE CLASS MySmtpEventHandler as Custom
-    PROCEDURE OnSendCompleted(loSender, loEventArgs)
-        * Handle the event here
-    ENDPROC
-    ENDDEFINE
+DEFINE CLASS MySmtpEventHandler as Custom
+PROCEDURE OnSendCompleted(loSender, loEventArgs)
+* Handle the event here
+ENDPROC
+ENDDEFINE
+```
 
 The event subscription ends when the subscription object (`loSmtpEventSubscription` in the example) goes out of scope.
 
