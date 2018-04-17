@@ -38,15 +38,10 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 ************************************************************************
 FUNCTION GetwwDotNetBridge(lcVersion)
 IF VARTYPE(__DOTNETBRIDGE) != "O"
-   *** Auto-detect latest version
-   *** This requires wwUtils/wwApi
    IF EMPTY(lcVersion)       
-	   lcVersion = GetHighestDotnetVersion()
-	   IF ISNULL(lcVersion)
-	       ERROR "Couldn't find a .NET version installed."
-	   ENDIF
+		lcVersion = "V4"
    ENDIF
-   
+
    PUBLIC __DOTNETBRIDGE
    __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
    IF VARTYPE(__DOTNETBRIDGE) # "O"
@@ -1510,7 +1505,7 @@ ELSE
    lcFrameworkPath = TRIM(lcFrameworkPath)
 ENDIF
    
-*** Assume .NET 2.0
+*** Assume .NET 4.0
 lcVersion = NULL
    
    *** Try to find the largest version number

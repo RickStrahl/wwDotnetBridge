@@ -1308,8 +1308,8 @@ namespace Westwind.WebConnection
         /// <summary>
         /// Returns an indexed property Value
         /// </summary>
-        /// <param name="baseList"></param>
-        /// <param name="index"></param>
+        /// <param name="baseList">List object</param>
+        /// <param name="index">Index into the list</param>
         /// <returns></returns>
         public object GetIndexedProperty(object baseList, int index)
         {

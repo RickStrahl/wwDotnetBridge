@@ -906,6 +906,7 @@ RETURN this.InvokeMethod(this.oDotnetBridge,"GetType",lvValue)
 ENDFUNC
 *   GetType
 
+
 ************************************************************************
 *  GetTypeFromName
 ****************************************
@@ -918,6 +919,25 @@ FUNCTION GetTypeFromName(lcTypeName)
 RETURN this.InvokeMethod(this.oDotNetBridge,"GetTypeFromName",lcTypeName)
 ENDFUNC
 *   GetTypeFromName
+
+
+************************************************************************
+*  SubscribeToEvents
+****************************************
+***  Function: Handles all events of a source object for subsequent retrieval by calling WaitForEvent.
+***  loSource: The object for which to subscribe to events.
+*** loHandler: An object with a method OnEvent(loEventName, loParams).
+***    Return: A subscription object. The subscription ends when this object goes out of scope.
+************************************************************************
+FUNCTION SubscribeToEvents(loSource, loHandler)
+LOCAL loSubscription
+
+loSubscription = CREATEOBJECT("EventSubscription")
+loSubscription.Setup(this, loSource, loHandler)
+
+RETURN loSubscription
+ENDFUNC
+*   SubscribeToEvents
 
 
 ************************************************************************
@@ -1515,3 +1535,113 @@ ENDFOR
 RETURN lcVersion
 ENDFUNC
 *  GetHighestDotnetVersion
+
+
+*************************************************************
+DEFINE CLASS EventSubscription as AsyncCallbackEvents
+*************************************************************
+*:  Usage: Used internally by SubscribeToEvents
+*************************************************************
+HIDDEN oBridge, oHandler, oSubscriber
+
+
+oBridge = null
+oHandler = null
+oSubscriber = null
+
+************************************************************************
+*  Setup
+****************************************
+***  Function: Sets up the initial event binding from event source
+***            to event target
+************************************************************************
+FUNCTION Setup(loBridge, loSource, loHandler)
+
+this.oBridge = loBridge
+this.oHandler = loHandler
+this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource)
+
+this.HandleNextEvent()
+
+ENDFUNC
+*   Setup
+
+************************************************************************
+*  Destroy
+****************************************
+***  Function: Cleanup subscriber
+************************************************************************
+FUNCTION Destroy()
+this.Dispose()
+ENDFUNC
+*   Destroy
+
+************************************************************************
+*  Dispose
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION Dispose()
+IF !ISNULL(this.oSubscriber)
+	this.oSubscriber.Dispose()
+ENDIF
+ENDFUNC
+*   Dispose
+
+************************************************************************
+*  HandleNextEvent
+****************************************
+***  Function: 
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION HandleNextEvent()
+this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")
+ENDFUNC
+*   HandleNextEvent 
+
+
+************************************************************************
+*  OnCompleted
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION OnCompleted(lvResult, lcMethod)
+
+** Forwards the event to a function named On{Event} with the event's parameters.
+LOCAL loParams,lParamText,lCount
+IF ISNULL(lvResult) && If the call to WaitForEvent was canceled:
+	RETURN
+ENDIF
+
+loParams=CREATEOBJECT("EMPTY") && Workaround to index into array of parameters. 
+lParamText = ""
+IF !ISNULL(lvResult.Params)
+	lCount = 0
+	FOR EACH lParam IN lvResult.Params
+		lCount = lCount + 1
+		AddProperty(loParams,"P" + ALLTRIM(STR(lCount)),lParam)
+		lParamText = lParamText + ",loParams.P" + ALLTRIM(STR(lCount))
+	ENDFOR
+ENDIF
+
+TRY
+	=EVALUATE("this.oHandler.On" + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
+CATCH
+    ** We have to handle this otherwise the event chain is broken
+ENDTRY
+
+this.HandleNextEvent()
+
+ENDFUNC
+*   OnCompleted
+
+ENDDEFINE
+*EOC EventSubscription
