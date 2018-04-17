@@ -941,10 +941,10 @@ namespace Westwind.WebConnection
         private void _InvokeMethodAsync(object parmList)
         {
             object[] parms = parmList as object[];
-
-            object cb = parms[0];
-            if (cb is DBNull)
-                cb = null;
+            
+            object callBack = parms[0];
+            if (callBack is DBNull)
+                callBack = null;
 
             object instance = parms[1];
             string method = parms[2] as string;
@@ -975,13 +975,34 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                if (cb != null)
-                    InvokeMethod_Internal(cb, "onError", ex.Message, ex.GetBaseException(), method);
+                if (callBack != null)
+                {
+                    try
+                    {
+                        InvokeMethod_Internal(callBack, "onError", ex.Message, ex.GetBaseException(), method);
+                    }
+                    catch
+                    {
+                        // no error method - just eat it
+                        LastException = ex;
+                    }
+
+                }
                 return;
             }
 
-            if(cb != null)
-                InvokeMethod_Internal(cb, "onCompleted", result, method);
+            if (callBack != null)
+            {
+                try
+                {
+                    InvokeMethod_Internal(callBack, "onCompleted", result, method);                    
+                }
+                catch (Exception ex)
+                {
+                    // no callback method - just eat it
+                    LastException = ex;
+                }
+            }
         }       
         
         public object GetProperty(object Instance, string Property)
