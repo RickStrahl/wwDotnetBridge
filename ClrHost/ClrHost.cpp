@@ -123,7 +123,7 @@ DWORD WINAPI ClrCreateInstance( char *AssemblyName, char *className, char *Error
 	DWORD hr;
 
 	//Creates an instance of the type specified in the Assembly
-	hr = spDefAppDomain->CreateInstance(		
+	hr = spDefAppDomain->CreateInstance(
 										_bstr_t(AssemblyName), 
 										_bstr_t(className),
 										&spObjectHandle

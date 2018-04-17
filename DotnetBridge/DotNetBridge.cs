@@ -2,7 +2,7 @@
 /*
  **************************************************************
  *  Author: Rick Strahl 
- *          © West Wind Technologies, 2009-2016
+ *          (c) West Wind Technologies, 2009-2018
  *          http://www.west-wind.com/
  * 
  * Created: 4/10/2009
@@ -41,7 +41,7 @@ using System.Reflection;
 #if WestwindProduct
 using Newtonsoft.Json;
 #endif
-using Westwind.Utilities;
+
 using System.IO;
 using System.Data;
 using System.Net;
@@ -94,12 +94,11 @@ namespace Westwind.WebConnection
             if (Environment.Version.Major >= 4)
             {
                 LoadAssembly("System.Core");
-
+                
                 if (_firstLoad)
                 {
                     // Ssl3,Tls,Tls11,Tls12
-                    ServicePointManager.SecurityProtocol = (SecurityProtocolType) 4080;
-
+                    ServicePointManager.SecurityProtocol =   (SecurityProtocolType) 4080;
                     _firstLoad = false;
                 }
             }
@@ -942,10 +941,10 @@ namespace Westwind.WebConnection
         private void _InvokeMethodAsync(object parmList)
         {
             object[] parms = parmList as object[];
-
-            object cb = parms[0];
-            if (cb is DBNull)
-                cb = null;
+            
+            object callBack = parms[0];
+            if (callBack is DBNull)
+                callBack = null;
 
             object instance = parms[1];
             string method = parms[2] as string;
@@ -976,13 +975,34 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                if (cb != null)
-                    InvokeMethod_Internal(cb, "onError", ex.Message, ex.GetBaseException(), method);
+                if (callBack != null)
+                {
+                    try
+                    {
+                        InvokeMethod_Internal(callBack, "onError", ex.Message, ex.GetBaseException(), method);
+                    }
+                    catch
+                    {
+                        // no error method - just eat it
+                        LastException = ex;
+                    }
+
+                }
                 return;
             }
 
-            if(cb != null)
-                InvokeMethod_Internal(cb, "onCompleted", result, method);
+            if (callBack != null)
+            {
+                try
+                {
+                    InvokeMethod_Internal(callBack, "onCompleted", result, method);                    
+                }
+                catch (Exception ex)
+                {
+                    // no callback method - just eat it
+                    LastException = ex;
+                }
+            }
         }       
         
         public object GetProperty(object Instance, string Property)
@@ -1288,8 +1308,8 @@ namespace Westwind.WebConnection
         /// <summary>
         /// Returns an indexed property Value
         /// </summary>
-        /// <param name="baseList"></param>
-        /// <param name="index"></param>
+        /// <param name="baseList">List object</param>
+        /// <param name="index">Index into the list</param>
         /// <returns></returns>
         public object GetIndexedProperty(object baseList, int index)
         {

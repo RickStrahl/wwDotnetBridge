@@ -425,6 +425,17 @@
             </summary>
             <param name="AssemblyName"></param>
         </member>
+        <member name="T:Westwind.WebConnection.EventSubscriber">
+            <summary>
+            FoxPro interop access to .NET events. Handles all events of a source object for subsequent retrieval by a FoxPro client.
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.EventSubscriber.WaitForEvent">
+            <summary>
+            Waits until an event is raised, or returns immediately if a queued event is available.
+            </summary>
+            <returns>The next event, or null if this subscriber has been disposed.</returns>
+        </member>
         <member name="M:Westwind.WebConnection.TypePassingTests.PassEnumArray(System.Windows.Forms.MessageBoxButtons[])">
             <summary>
             </summary>
@@ -444,6 +455,747 @@
             Pass in 15 parameters and return the value of the last
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:Westwind.WebConnection.FileUtils">
+            <summary>
+            wwUtils class which contains a set of common utility classes for 
+            Formatting strings
+            Reflection Helpers
+            Object Serialization
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.CopyStream(System.IO.Stream,System.IO.Stream,System.Int32)">
+            <summary>
+            Copies the content of the one stream to another.
+            Streams must be open and stay open.
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.GetFileEncoding(System.String)">
+            <summary>
+            Detects the byte order mark of a file and returns
+            an appropriate encoding for the file.
+            </summary>
+            <param name="srcFile"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.OpenStreamReaderWithEncoding(System.String)">
+            <summary>
+            Opens a stream reader with the appropriate text encoding applied.
+            </summary>
+            <param name="srcFile"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.JustPath(System.String)">
+            <summary>
+            Returns the full path of a full physical filename
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.GetFullPath(System.String)">
+            <summary>
+            Returns a fully qualified path from a partial or relative
+            path.
+            </summary>
+            <param name="Path"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.GetRelativePath(System.String,System.String)">
+            <summary>
+            Returns a relative path string from a full path.
+            </summary>
+            <param name="FullPath">The path to convert. Can be either a file or a directory</param>
+            <param name="BasePath">The base path to truncate to and replace</param>
+            <returns>
+            Lower case string of the relative path. If path is a directory it's returned without a backslash at the end.
+            
+            Examples of returned values:
+             .\test.txt, ..\test.txt, ..\..\..\test.txt, ., ..
+            </returns>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.DeleteFiles(System.String,System.Int32)">
+            <summary>
+            Deletes files based on a file spec and a given timeout.
+            This routine is useful for cleaning up temp files in 
+            Web applications.
+            </summary>
+            <param name="filespec">A DOS filespec that includes path and/or wildcards to select files</param>
+            <param name="seconds">The timeout - if files are older than this timeout they are deleted</param>
+        </member>
+        <member name="T:Westwind.WebConnection.ReflectionUtils">
+            <summary>
+            Collection of Reflection and type conversion related utility functions
+            </summary>
+        </member>
+        <member name="F:Westwind.WebConnection.ReflectionUtils.MemberAccess">
+            <summary>
+            Binding Flags constant to be reused for all Reflection access methods.
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetProperty(System.Object,System.String)">
+            <summary>
+            Retrieve a property value from an object dynamically. This is a simple version
+            that uses Reflection calls directly. It doesn't support indexers.
+            </summary>
+            <param name="instance">Object to make the call on</param>
+            <param name="property">Property to retrieve</param>
+            <returns>Object - cast to proper type</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetField(System.Object,System.String)">
+            <summary>
+            Retrieve a field dynamically from an object. This is a simple implementation that's
+            straight Reflection and doesn't support indexers.
+            </summary>
+            <param name="Object">Object to retreve Field from</param>
+            <param name="Property">name of the field to retrieve</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyInternal(System.Object,System.String)">
+            <summary>
+            Parses Properties and Fields including Array and Collection references.
+            Used internally for the 'Ex' Reflection methods.
+            </summary>
+            <param name="Parent"></param>
+            <param name="Property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetPropertyInternal(System.Object,System.String,System.Object)">
+            <summary>
+            Parses Properties and Fields including Array and Collection references.
+            </summary>
+            <param name="Parent"></param>
+            <param name="Property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyEx(System.Object,System.String)">
+            <summary>
+            Returns a property or field value using a base object and sub members including . syntax.
+            For example, you can access: oCustomer.oData.Company with (this,"oCustomer.oData.Company")
+            This method also supports indexers in the Property value such as:
+            Customer.DataSet.Tables["Customers"].Rows[0]
+            </summary>
+            <param name="Parent">Parent object to 'start' parsing from. Typically this will be the Page.</param>
+            <param name="Property">The property to retrieve. Example: 'Customer.Entity.Company'</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyInfoEx(System.Object,System.String)">
+            <summary>
+            Returns a PropertyInfo object for a given dynamically accessed property
+            
+            Property selection can be specified using . syntax ("Address.Street" or "DataTable[0].Rows[1]") hence the 'Ex' name for this function.
+            </summary>
+            <param name="Parent"></param>
+            <param name="Property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyInfoInternal(System.Object,System.String)">
+            <summary>
+            Returns a PropertyInfo structure from an extended Property reference
+            </summary>
+            <param name="Parent"></param>
+            <param name="Property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetProperty(System.Object,System.String,System.Object)">
+            <summary>
+            Sets the property on an object. This is a simple method that uses straight Reflection 
+            and doesn't support indexers.
+            </summary>
+            <param name="obj">Object to set property on</param>
+            <param name="property">Name of the property to set</param>
+            <param name="value">value to set it to</param>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetField(System.Object,System.String,System.Object)">
+            <summary>
+            Sets the field on an object. This is a simple method that uses straight Reflection 
+            and doesn't support indexers.
+            </summary>
+            <param name="obj">Object to set property on</param>
+            <param name="property">Name of the field to set</param>
+            <param name="value">value to set it to</param>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetPropertyEx(System.Object,System.String,System.Object)">
+            <summary>
+            Sets a value on an object. Supports . syntax for named properties
+            (ie. Customer.Entity.Company) as well as indexers.
+            </summary>
+            <param name="Object ParentParent">
+            Object to set the property on.
+            </param>
+            <param name="String PropertyProperty">
+            Property to set. Can be an object hierarchy with . syntax and can 
+            include indexers. Examples: Customer.Entity.Company, 
+            Customer.DataSet.Tables["Customers"].Rows[0]
+            </param>
+            <param name="Object ValueValue">
+            Value to set the property to
+            </param>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethod(System.Object,System.String,System.Type[],System.Object[])">
+            <summary>
+            Calls a method on an object dynamically. This version requires explicit
+            specification of the parameter type signatures.
+            </summary>
+            <param name="instance">Instance of object to call method on</param>
+            <param name="method">The method to call as a stringToTypedValue</param>
+            <param name="parameterTypes">Specify each of the types for each parameter passed. 
+            You can also pass null, but you may get errors for ambiguous methods signatures
+            when null parameters are passed</param>
+            <param name="parms">any variable number of parameters.</param>        
+            <returns>object</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethod(System.Object,System.String,System.Object[])">
+            <summary>
+            Calls a method on an object dynamically. 
+            
+            This version doesn't require specific parameter signatures to be passed. 
+            Instead parameter types are inferred based on types passed. Note that if 
+            you pass a null parameter, type inferrance cannot occur and if overloads
+            exist the call may fail. if so use the more detailed overload of this method.
+            </summary> 
+            <param name="instance">Instance of object to call method on</param>
+            <param name="method">The method to call as a stringToTypedValue</param>
+            <param name="parameterTypes">Specify each of the types for each parameter passed. 
+            You can also pass null, but you may get errors for ambiguous methods signatures
+            when null parameters are passed</param>
+            <param name="parms">any variable number of parameters.</param>        
+            <returns>object</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallStaticMethod(System.String,System.String,System.Object[])">
+            <summary>
+            Invokes a static method
+            </summary>
+            <param name="typeName"></param>
+            <param name="method"></param>
+            <param name="parms"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethodEx(System.Object,System.String,System.Object[])">
+            <summary>
+            Calls a method on an object with extended . syntax (object: this Method: Entity.CalculateOrderTotal)
+            </summary>
+            <param name="parent"></param>
+            <param name="method"></param>
+            <param name="params"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CreateInstanceFromType(System.Type,System.Object[])">
+            <summary>
+            Creates an instance from a type by calling the parameterless constructor.
+            
+            Note this will not work with COM objects - continue to use the Activator.CreateInstance
+            for COM objects.
+            <seealso>Class wwUtils</seealso>
+            </summary>
+            <param name="typeToCreate">
+            The type from which to create an instance.
+            </param>
+            <returns>object</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CreateInstanceFromString(System.String,System.Object[])">
+            <summary>
+            Creates an instance of a type based on a string. Assumes that the type's
+            </summary>
+            <param name="typeName"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetTypeFromName(System.String)">
+            <summary>
+            Helper routine that looks up a type name and tries to retrieve the
+            full type reference in the actively executing assemblies.
+            </summary>
+            <param name="typeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CreateComInstance(System.String)">
+            <summary>
+            Creates a COM instance from a ProgID. Loads either
+            Exe or DLL servers.
+            </summary>
+            <param name="progId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.TypedValueToString(System.Object,System.Globalization.CultureInfo,System.String)">
+            <summary>
+            Converts a type to string if possible. This method supports an optional culture generically on any value.
+            It calls the ToString() method on common types and uses a type converter on all other objects
+            if available
+            </summary>
+            <param name="rawValue">The Value or Object to convert to a string</param>
+            <param name="culture">Culture for numeric and DateTime values</param>
+            <param name="unsupportedReturn">Return string for unsupported types</param>
+            <returns>string</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.StringToTypedValue(System.String,System.Type,System.Globalization.CultureInfo)">
+            <summary>
+            Turns a string into a typed value generically.
+            Explicitly assigns common types and falls back
+            on using type converters for unhandled types.         
+            
+            Common uses: 
+            * UI -&gt; to data conversions
+            * Parsers
+            <seealso>Class ReflectionUtils</seealso>
+            </summary>
+            <param name="sourceString">
+            The string to convert from
+            </param>
+            <param name="targetType">
+            The type to convert to
+            </param>
+            <param name="culture">
+            Culture used for numeric and datetime values.
+            </param>
+            <returns>object. Throws exception if it cannot be converted.</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.StringToTypedValue``1(System.String,System.Globalization.CultureInfo)">
+            <summary>
+            Generic version allow for automatic type conversion without the explicit type
+            parameter
+            </summary>
+            <typeparam name="T">Type to be converted to</typeparam>
+            <param name="sourceString">input string value to be converted</param>
+            <param name="culture">Culture applied to conversion</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetEnumList(System.Type,System.Boolean)">
+            <summary>
+            Returns a List of KeyValuePair object
+            </summary>
+            <param name="enumeration"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetStaticProperty(System.String,System.String)">
+            <summary>
+            Retrieves a value from  a static property by specifying a type full name and property
+            </summary>
+            <param name="typeName">Full type name (namespace.class)</param>
+            <param name="property">Property to get value from</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetStaticProperty(System.Type,System.String)">
+            <summary>
+            Returns a static property from a given type
+            </summary>
+            <param name="type">Type instance for the static property</param>
+            <param name="property">Property name as a string</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyCom(System.Object,System.String)">
+            <summary>
+            Retrieve a dynamic 'non-typelib' property
+            </summary>
+            <param name="instance">Object to make the call on</param>
+            <param name="property">Property to retrieve</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyExCom(System.Object,System.String)">
+            <summary>
+            Returns a property or field value using a base object and sub members including . syntax.
+            For example, you can access: oCustomer.oData.Company with (this,"oCustomer.oData.Company")
+            </summary>
+            <param name="parent">Parent object to 'start' parsing from.</param>
+            <param name="property">The property to retrieve. Example: 'oBus.oData.Company'</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetPropertyCom(System.Object,System.String,System.Object)">
+            <summary>
+            Sets the property on an object.
+            </summary>
+            <param name="Object">Object to set property on</param>
+            <param name="Property">Name of the property to set</param>
+            <param name="Value">value to set it to</param>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetPropertyExCom(System.Object,System.String,System.Object)">
+            <summary>
+            Sets the value of a field or property via Reflection. This method alws 
+            for using '.' syntax to specify objects multiple levels down.
+            
+            ReflectionUtils.SetPropertyEx(this,"Invoice.LineItemsCount",10)
+            
+            which would be equivalent of:
+            
+            Invoice.LineItemsCount = 10;
+            </summary>
+            <param name="Object ParentParent">
+            Object to set the property on.
+            </param>
+            <param name="String PropertyProperty">
+            Property to set. Can be an object hierarchy with . syntax.
+            </param>
+            <param name="Object ValueValue">
+            Value to set the property to
+            </param>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethodCom(System.Object,System.String,System.Object[])">
+            <summary>
+            Wrapper method to call a 'dynamic' (non-typelib) method
+            on a COM object
+            </summary>
+            <param name="params"></param>
+            1st - Method name, 2nd - 1st parameter, 3rd - 2nd parm etc.
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethodExCom(System.Object,System.String,System.Object[])">
+            <summary>
+            Calls a method on a COM object with '.' syntax (Customer instance and Address.DoSomeThing method)
+            </summary>
+            <param name="parent">the object instance on which to call method</param>
+            <param name="method">The method or . syntax path to the method (Address.Parse)</param>
+            <param name="parms">Any number of parameters</param>
+            <returns></returns>
+        </member>
+        <member name="T:Westwind.WebConnection.StringUtils">
+            <summary>
+            String utility class that provides a host of string related operations
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.TrimStart(System.String,System.String,System.Boolean)">
+            <summary>
+            Trims a sub string from a string
+            </summary>
+            <param name="text"></param>
+            <param name="textToTrim"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.Replicate(System.String,System.Int32)">
+            <summary>
+            Replicates an input string n number of times
+            </summary>
+            <param name="input"></param>
+            <param name="charCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.Replicate(System.Char,System.Int32)">
+            <summary>
+            Replicates a character n number of times and returns a string
+            </summary>
+            <param name="charCount"></param>
+            <param name="character"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.ProperCase(System.String)">
+            <summary>
+            Return a string in proper Case format
+            </summary>
+            <param name="Input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.ToCamelCase(System.String)">
+            <summary>
+            Takes a phrase and turns it into CamelCase text.
+            White Space, punctuation and separators are stripped
+            </summary>
+            <param name="phrase">Text to convert to CamelCase</param>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.FromCamelCase(System.String)">
+            <summary>
+            Tries to create a phrase string from CamelCase text.
+            Will place spaces before capitalized letters.
+            
+            Note that this method may not work for round tripping 
+            ToCamelCase calls, since ToCamelCase strips more characters
+            than just spaces.
+            </summary>
+            <param name="camelCase"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.TerminateString(System.String,System.String)">
+            <summary>
+            Terminates a string with the given end string/character, but only if the
+            value specified doesn't already exist and the string is not empty.
+            </summary>
+            <param name="value">String to terminate</param>
+            <param name="terminator">String to terminate the value string with</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.TrimTo(System.String,System.Int32)">
+            <summary>
+            Trims a string to a specific number of max characters
+            </summary>
+            <param name="value"></param>
+            <param name="charCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.ExtractString(System.String,System.String,System.String,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Extracts a string from between a pair of delimiters. Only the first 
+            instance is found.
+            </summary>
+            <param name="source">Input String to work on</param>
+            <param name="StartDelim">Beginning delimiter</param>
+            <param name="endDelim">ending delimiter</param>
+            <param name="CaseInsensitive">Determines whether the search for delimiters is case sensitive</param>
+            <returns>Extracted string or ""</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.ReplaceStringInstance(System.String,System.String,System.String,System.Int32,System.Boolean)">
+            <summary>
+            String replace function that supports replacing a specific instance with 
+            case insensitivity
+            </summary>
+            <param name="origString">Original input string</param>
+            <param name="findString">The string that is to be replaced</param>
+            <param name="replaceWith">The replacement string</param>
+            <param name="instance">Instance of the FindString that is to be found. 1 based. If Instance = -1 all are replaced</param>
+            <param name="caseInsensitive">Case insensitivity flag</param>
+            <returns>updated string or original string if no matches</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.ReplaceString(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Replaces a substring within a string with another substring with optional case sensitivity turned off.
+            </summary>
+            <param name="origString">String to do replacements on</param>
+            <param name="findString">The string to find</param>
+            <param name="replaceString">The string to replace found string wiht</param>
+            <param name="caseInsensitive">If true case insensitive search is performed</param>
+            <returns>updated string or original string if no matches</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.TextAbstract(System.String,System.Int32)">
+            <summary>
+            Returns an abstract of the provided text by returning up to Length characters
+            of a text string. If the text is truncated a ... is appended.
+            </summary>
+            <param name="text">Text to abstract</param>
+            <param name="length">Number of characters to abstract to</param>
+            <returns>string</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.Inlist(System.String,System.String[])">
+            <summary>
+            Determines if a string is contained in a list of other strings
+            </summary>
+            <param name="s"></param>
+            <param name="list"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.GetLines(System.String,System.Int32)">
+            <summary>
+            Parses a string into an array of lines broken
+            by \r\n or \n
+            </summary>
+            <param name="s">String to check for lines</param>
+            <param name="maxLines">Optional - max number of lines to return</param>
+            <returns>array of strings, or null if the string passed was a null</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.CountLines(System.String)">
+            <summary>
+            Returns a line count for a string
+            </summary>
+            <param name="s">string to count lines for</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.ParseInt(System.String,System.Int32,System.IFormatProvider)">
+            <summary>
+            Parses an string into an integer. If the value can't be parsed
+            a default value is returned instead
+            </summary>
+            <param name="input">Input numeric string to be parsed</param>
+            <param name="defaultValue">Optional default value if parsing fails</param>
+            <param name="formatProvider">Optional NumberFormat provider. Defaults to current culture's number format</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.ParseDecimal(System.String,System.Decimal,System.IFormatProvider)">
+            <summary>
+            Parses an string into an decimal. If the value can't be parsed
+            a default value is returned instead
+            </summary>
+            <param name="input"></param>
+            <param name="defaultValue"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.StripNonNumber(System.String)">
+            <summary>
+            Strips all non digit values from a string and only
+            returns the numeric string.
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.TokenizeString(System.String@,System.String,System.String,System.String)">
+            <summary>
+            Tokenizes a string based on a start and end string. Replaces the values with a token
+            value (#@#1#@# for example).
+            
+            You can use Detokenize to get the original values back
+            </summary>
+            <param name="text"></param>
+            <param name="start"></param>
+            <param name="end"></param>
+            <param name="replaceDelimiter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.DetokenizeString(System.String,System.Collections.Generic.List{System.String},System.String)">
+            <summary>
+            Detokenizes a string tokenized with TokenizeString. Requires the collection created
+            by detokenization
+            </summary>
+            <param name="text"></param>
+            <param name="tokens"></param>
+            <param name="replaceDelimiter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.NewStringId">
+            <summary>
+            Creates short string id based on a GUID hashcode.
+            Not guaranteed to be unique across machines, but unlikely
+            to duplicate in medium volume situations.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.RandomString(System.Int32,System.Boolean)">
+            <summary>
+            Creates a new random string of upper, lower case letters and digits.
+            Very useful for generating random data for storage in test data.
+            </summary>
+            <param name="size">The number of characters of the string to generate</param>
+            <param name="includeNumbers"></param>
+            <returns>randomized string</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.UrlEncode(System.String)">
+            <summary>
+            UrlEncodes a string without the requirement for System.Web
+            </summary>
+            <param name="String"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.UrlEncodePathSafe(System.String)">
+            <summary>
+            Encodes a few additional characters for use in paths
+            Encodes: . #
+            </summary>
+            <param name="text"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.UrlDecode(System.String)">
+            <summary>
+            UrlDecodes a string without requiring System.Web
+            </summary>
+            <param name="text">String to decode.</param>
+            <returns>decoded string</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.GetUrlEncodedKey(System.String,System.String)">
+            <summary>
+            Retrieves a value by key from a UrlEncoded string.
+            </summary>
+            <param name="urlEncoded">UrlEncoded String</param>
+            <param name="key">Key to retrieve value for</param>
+            <returns>returns the value or "" if the key is not found or the value is blank</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.SetUrlEncodedKey(System.String,System.String,System.String)">
+            <summary>
+            Allows setting of a value in a UrlEncoded string. If the key doesn't exist
+            a new one is set, if it exists it's replaced with the new value.
+            </summary>
+            <param name="urlEncoded">A UrlEncoded string of key value pairs</param>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.BinHexToBinary(System.String)">
+            <summary>
+            Turns a BinHex string that contains raw byte values
+            into a byte array
+            </summary>
+            <param name="hex">BinHex string (just two byte hex digits strung together)</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.BinaryToBinHex(System.Byte[])">
+            <summary>
+            Converts a byte array into a BinHex string.
+            BinHex is two digit hex byte values squished together
+            into a string.
+            </summary>
+            <param name="data">Raw data to send</param>
+            <returns>BinHex string or null if input is null</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.StringToBytes(System.String,System.Text.Encoding)">
+            <summary>
+            Converts a string into bytes for storage in any byte[] types
+            buffer or stream format (like MemoryStream).
+            </summary>
+            <param name="text"></param>
+            <param name="encoding">The character encoding to use. Defaults to Unicode</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.BytesToString(System.Byte[],System.Text.Encoding)">
+            <summary>
+            Converts a byte array to a stringUtils
+            </summary>
+            <param name="buffer">raw string byte data</param>
+            <param name="encoding">Character encoding to use. Defaults to Unicode</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.Base36Encode(System.Int64)">
+            <summary>
+            Encodes an integer into a string by mapping to alpha and digits (36 chars)
+            chars are embedded as lower case
+            
+            Example: 4zx12ss
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.Base36Decode(System.String)">
+            <summary>
+            Decodes a base36 encoded string to an integer
+            </summary>
+            <param name="input"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.NormalizeIndentation(System.String)">
+            <summary>
+            Strips any common white space from all lines of text that have the same
+            common white space text. Effectively removes common code indentation from
+            code blocks for example so you can get a left aligned code snippet.
+            </summary>
+            <param name="code"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.LogString(System.String,System.String,System.Text.Encoding)">
+            <summary>
+            Simple Logging method that allows quickly writing a string to a file
+            </summary>
+            <param name="output"></param>
+            <param name="filename"></param>
+            <param name="encoding">if not specified used UTF-8</param>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.StringToStream(System.String,System.Text.Encoding)">
+            <summary>
+            Creates a Stream from a string. Internally creates
+            a memory stream and returns that.
+            </summary>
+            <param name="text"></param>
+            <param name="encoding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.GetProperty(System.String,System.String)">
+            <summary>
+            Retrieves a value from an XML-like string
+            </summary>
+            <param name="propertyString"></param>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.SetProperty(System.String,System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="propertyString"></param>
+            <param name="key"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.Empty(System.String)">
+            <summary>
+            Determines whether a string is empty (null or zero length)
+            </summary>
+            <param name="text">Input string</param>
+            <returns>true or false</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.Empty(System.Object)">
+            <summary>
+            Determines wheter a string is empty (null or zero length)
+            </summary>
+            <param name="text">Input string (in object format)</param>
+            <returns>true or false</returns>        
         </member>
         <member name="T:Westwind.WebConnection.ComArray">
             <summary>
@@ -647,7 +1399,7 @@
         <member name="P:Westwind.WebConnection.ComValue.Value">
             <summary>
             Internally this value is set by the various
-            SetXXX methods. It's of type objcect but 
+            SetXXX methods. It's of type object but 
             set to the appropriate .NET subtype.
             </summary>
         </member>
@@ -846,597 +1598,6 @@
             <summary>
             Returns the string value of the embedded Value object
             </summary>
-            <returns></returns>
-        </member>
-        <member name="T:Westwind.Utilities.FileUtils">
-            <summary>
-            wwUtils class which contains a set of common utility classes for 
-            Formatting strings
-            Reflection Helpers
-            Object Serialization
-            </summary>
-        </member>
-        <member name="M:Westwind.Utilities.FileUtils.CopyStream(System.IO.Stream,System.IO.Stream,System.Int32)">
-            <summary>
-            Copies the content of the one stream to another.
-            Streams must be open and stay open.
-            </summary>
-        </member>
-        <member name="M:Westwind.Utilities.FileUtils.GetFileEncoding(System.String)">
-            <summary>
-            Detects the byte order mark of a file and returns
-            an appropriate encoding for the file.
-            </summary>
-            <param name="srcFile"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.FileUtils.OpenStreamReaderWithEncoding(System.String)">
-            <summary>
-            Opens a stream reader with the appropriate text encoding applied.
-            </summary>
-            <param name="srcFile"></param>
-        </member>
-        <member name="M:Westwind.Utilities.FileUtils.JustPath(System.String)">
-            <summary>
-            Returns the full path of a full physical filename
-            </summary>
-            <param name="path"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.FileUtils.GetFullPath(System.String)">
-            <summary>
-            Returns a fully qualified path from a partial or relative
-            path.
-            </summary>
-            <param name="Path"></param>
-        </member>
-        <member name="M:Westwind.Utilities.FileUtils.GetRelativePath(System.String,System.String)">
-            <summary>
-            Returns a relative path string from a full path.
-            </summary>
-            <param name="FullPath">The path to convert. Can be either a file or a directory</param>
-            <param name="BasePath">The base path to truncate to and replace</param>
-            <returns>
-            Lower case string of the relative path. If path is a directory it's returned without a backslash at the end.
-            
-            Examples of returned values:
-             .\test.txt, ..\test.txt, ..\..\..\test.txt, ., ..
-            </returns>
-        </member>
-        <member name="M:Westwind.Utilities.FileUtils.DeleteFiles(System.String,System.Int32)">
-            <summary>
-            Deletes files based on a file spec and a given timeout.
-            This routine is useful for cleaning up temp files in 
-            Web applications.
-            </summary>
-            <param name="filespec">A DOS filespec that includes path and/or wildcards to select files</param>
-            <param name="seconds">The timeout - if files are older than this timeout they are deleted</param>
-        </member>
-        <member name="T:Westwind.Utilities.ReflectionUtils">
-            <summary>
-            Collection of Reflection and type conversion related utility functions
-            </summary>
-        </member>
-        <member name="F:Westwind.Utilities.ReflectionUtils.MemberAccess">
-            <summary>
-            Binding Flags constant to be reused for all Reflection access methods.
-            </summary>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.GetProperty(System.Object,System.String)">
-            <summary>
-            Retrieve a property value from an object dynamically. This is a simple version
-            that uses Reflection calls directly. It doesn't support indexers.
-            </summary>
-            <param name="instance">Object to make the call on</param>
-            <param name="property">Property to retrieve</param>
-            <returns>Object - cast to proper type</returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.GetField(System.Object,System.String)">
-            <summary>
-            Retrieve a field dynamically from an object. This is a simple implementation that's
-            straight Reflection and doesn't support indexers.
-            </summary>
-            <param name="Object">Object to retreve Field from</param>
-            <param name="Property">name of the field to retrieve</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.GetPropertyInternal(System.Object,System.String)">
-            <summary>
-            Parses Properties and Fields including Array and Collection references.
-            Used internally for the 'Ex' Reflection methods.
-            </summary>
-            <param name="Parent"></param>
-            <param name="Property"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.SetPropertyInternal(System.Object,System.String,System.Object)">
-            <summary>
-            Parses Properties and Fields including Array and Collection references.
-            </summary>
-            <param name="Parent"></param>
-            <param name="Property"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.GetPropertyEx(System.Object,System.String)">
-            <summary>
-            Returns a property or field value using a base object and sub members including . syntax.
-            For example, you can access: this.oCustomer.oData.Company with (this,"oCustomer.oData.Company")
-            This method also supports indexers in the Property value such as:
-            Customer.DataSet.Tables["Customers"].Rows[0]
-            </summary>
-            <param name="Parent">Parent object to 'start' parsing from. Typically this will be the Page.</param>
-            <param name="Property">The property to retrieve. Example: 'Customer.Entity.Company'</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.SetProperty(System.Object,System.String,System.Object)">
-            <summary>
-            Sets the property on an object. This is a simple method that uses straight Reflection 
-            and doesn't support indexers.
-            </summary>
-            <param name="Object">Object to set property on</param>
-            <param name="Property">Name of the property to set</param>
-            <param name="Value">value to set it to</param>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.SetField(System.Object,System.String,System.Object)">
-            <summary>
-            Sets the field on an object. This is a simple method that uses straight Reflection 
-            and doesn't support indexers.
-            </summary>
-            <param name="Object">Object to set property on</param>
-            <param name="Property">Name of the field to set</param>
-            <param name="Value">value to set it to</param>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.SetPropertyEx(System.Object,System.String,System.Object)">
-            <summary>
-            Sets a value on an object. Supports . syntax for named properties
-            (ie. Customer.Entity.Company) as well as indexers.
-            </summary>
-            <param name="Object ParentParent">
-            Object to set the property on.
-            </param>
-            <param name="String PropertyProperty">
-            Property to set. Can be an object hierarchy with . syntax and can 
-            include indexers. Examples: Customer.Entity.Company, 
-            Customer.DataSet.Tables["Customers"].Rows[0]
-            </param>
-            <param name="Object ValueValue">
-            Value to set the property to
-            </param>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.CallMethod(System.Object,System.String,System.Object[])">
-            <summary>
-            Calls a method on an object dynamically.
-            </summary>
-            <param name="params"></param>
-            1st - Method name, 2nd - 1st parameter, 3rd - 2nd parm etc.
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.CallStaticMethod(System.String,System.String,System.Object[])">
-            <summary>
-            Invokes a static method
-            </summary>
-            <param name="typeName"></param>
-            <param name="method"></param>
-            <param name="parms"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.CallMethodEx(System.Object,System.String,System.Object[])">
-            <summary>
-            Calls a method on an object with extended . syntax (object: this Method: Entity.CalculateOrderTotal)
-            </summary>
-            <param name="parent"></param>
-            <param name="method"></param>
-            <param name="params"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.CreateInstanceFromType(System.Type,System.Object[])">
-            <summary>
-            Creates an instance from a type by calling the parameterless constructor.
-            
-            Note this will not work with COM objects - continue to use the Activator.CreateInstance
-            for COM objects.
-            <seealso>Class wwUtils</seealso>
-            </summary>
-            <param name="typeToCreate">
-            The type from which to create an instance.
-            </param>
-            <returns>object</returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.CreateInstanceFromString(System.String,System.Object[])">
-            <summary>
-            Creates an instance of a type based on a string. Assumes that the type's
-            </summary>
-            <param name="typeName"></param>
-            <param name="args"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.GetTypeFromName(System.String)">
-            <summary>
-            Helper routine that looks up a type name and tries to retrieve the
-            full type reference in the actively executing assemblies.
-            </summary>
-            <param name="typeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.CreateComInstance(System.String)">
-            <summary>
-            Creates a COM instance from a ProgID. Loads either
-            Exe or DLL servers.
-            </summary>
-            <param name="progId"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.TypedValueToString(System.Object,System.Globalization.CultureInfo)">
-            <summary>
-            Converts a type to string if possible. This method supports an optional culture generically on any value.
-            It calls the ToString() method on common types and uses a type converter on all other objects
-            if available
-            </summary>
-            <param name="rawValue">The Value or Object to convert to a string</param>
-            <param name="culture">Culture for numeric and DateTime values</param>
-            <returns>string</returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.TypedValueToString(System.Object)">
-            <summary>
-            Converts a type to string if possible. This method uses the current culture for numeric and DateTime values.
-            It calls the ToString() method on common types and uses a type converter on all other objects
-            if available.
-            </summary>
-            <param name="rawValue">The Value or Object to convert to a string</param>
-            <param name="Culture">Culture for numeric and DateTime values</param>
-            <returns>string</returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.StringToTypedValue(System.String,System.Type,System.Globalization.CultureInfo)">
-            <summary>
-            Turns a string into a typed value. Useful for auto-conversion routines
-            like form variable or XML parsers.
-            <seealso>Class wwUtils</seealso>
-            </summary>
-            <param name="sourceString">
-            The string to convert from
-            </param>
-            <param name="targetType">
-            The type to convert to
-            </param>
-            <param name="culture">
-            Culture used for numeric and datetime values.
-            </param>
-            <returns>object. Throws exception if it cannot be converted.</returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.StringToTypedValue(System.String,System.Type)">
-            <summary>
-            Turns a string into a typed value. Useful for auto-conversion routines
-            like form variable or XML parsers.
-            </summary>
-            <param name="sourceString">The input string to convert</param>
-            <param name="targetType">The Type to convert it to</param>
-            <returns>object reference. Throws Exception if type can not be converted</returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.GetPropertyCom(System.Object,System.String)">
-            <summary>
-            Retrieve a dynamic 'non-typelib' property
-            </summary>
-            <param name="instance">Object to make the call on</param>
-            <param name="property">Property to retrieve</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.GetPropertyExCom(System.Object,System.String)">
-            <summary>
-            Returns a property or field value using a base object and sub members including . syntax.
-            For example, you can access: this.oCustomer.oData.Company with (this,"oCustomer.oData.Company")
-            </summary>
-            <param name="parent">Parent object to 'start' parsing from.</param>
-            <param name="property">The property to retrieve. Example: 'oBus.oData.Company'</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.SetPropertyCom(System.Object,System.String,System.Object)">
-            <summary>
-            Sets the property on an object.
-            </summary>
-            <param name="Object">Object to set property on</param>
-            <param name="Property">Name of the property to set</param>
-            <param name="Value">value to set it to</param>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.SetPropertyExCom(System.Object,System.String,System.Object)">
-            <summary>
-            Sets the value of a field or property via Reflection. This method alws 
-            for using '.' syntax to specify objects multiple levels down.
-            
-            ReflectionUtils.SetPropertyEx(this,"Invoice.LineItemsCount",10)
-            
-            which would be equivalent of:
-            
-            this.Invoice.LineItemsCount = 10;
-            </summary>
-            <param name="Object ParentParent">
-            Object to set the property on.
-            </param>
-            <param name="String PropertyProperty">
-            Property to set. Can be an object hierarchy with . syntax.
-            </param>
-            <param name="Object ValueValue">
-            Value to set the property to
-            </param>
-        </member>
-        <member name="M:Westwind.Utilities.ReflectionUtils.CallMethodCom(System.Object,System.String,System.Object[])">
-            <summary>
-            Wrapper method to call a 'dynamic' (non-typelib) method
-            on a COM object
-            </summary>
-            <param name="params"></param>
-            1st - Method name, 2nd - 1st parameter, 3rd - 2nd parm etc.
-            <returns></returns>
-        </member>
-        <member name="T:Westwind.Utilities.StringUtils">
-            <summary>
-            String utility class that provides a host of string related operations
-            </summary>
-        </member>
-        <!-- Badly formed XML comment ignored for member "M:Westwind.Utilities.StringUtils.GenerateUniqueId(System.Int32)" -->
-        <member name="M:Westwind.Utilities.StringUtils.FixHTMLForDisplay(System.String)">
-            <summary>
-            Replaces and  and Quote characters to HTML safe equivalents.
-            </summary>
-            <param name="html">HTML to convert</param>
-            <returns>Returns an HTML string of the converted text</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.StripHtml(System.String)">
-            <summary>
-            Strips HTML tags out of an HTML string and returns just the text.
-            </summary>
-            <param name="html">Html String</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.DisplayMemo(System.String)">
-            <summary>
-            Fixes a plain text field for display as HTML by replacing carriage returns 
-            with the appropriate br and p tags for breaks.
-            </summary>
-            <param name="String TextText">Input string</param>
-            <returns>Fixed up string</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.DisplayMemoEncoded(System.String)">
-            <summary>
-            Method that handles handles display of text by breaking text.
-            Unlike the non-encoded version it encodes any embedded HTML text
-            </summary>
-            <param name="text"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ExpandUrls(System.String,System.String,System.Boolean)">
-            <summary>
-            Expands links into HTML hyperlinks inside of text or HTML.
-            </summary>
-            <param name="text">The text to expand</param>
-            <param name="target">Target frame where links are displayed</param>
-            <param name="parseFormattedLinks">Allows parsing of links in the following format [text|www.site.com]</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ExpandUrls(System.String,System.String)">
-            <summary>
-            Expands links into HTML hyperlinks inside of text or HTML.
-            </summary>
-            <param name="text">The text to expand</param>
-            <param name="target">Target frame where links are displayed</param>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ExpandUrls(System.String)">
-            <summary>
-            Expands links into HTML hyperlinks inside of text or HTML.
-            </summary>
-            <param name="text">The text to expand</param>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.Href(System.String,System.String,System.String,System.String)">
-            <summary>
-            Create an Href HTML link
-            </summary>
-            <param name="text"></param>
-            <param name="url"></param>
-            <param name="target"></param>
-            <param name="additionalMarkup"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.Href(System.String,System.String)">
-            <summary>
-            Created an Href HTML link
-            </summary>
-            <param name="text"></param>
-            <param name="url"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.Href(System.String)">
-            <summary>
-            Creates an HREF HTML Link
-            </summary>
-            <param name="url"></param>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ExtractString(System.String,System.String,System.String,System.Boolean,System.Boolean)">
-            <summary>
-            Extracts a string from between a pair of delimiters. Only the first 
-            instance is found.
-            </summary>
-            <param name="source">Input String to work on</param>
-            <param name="StartDelim">Beginning delimiter</param>
-            <param name="endDelim">ending delimiter</param>
-            <param name="CaseInsensitive">Determines whether the search for delimiters is case sensitive</param>
-            <returns>Extracted string or ""</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ExtractString(System.String,System.String,System.String,System.Boolean)">
-            <summary>
-            Extracts a string from between a pair of delimiters. Only the first
-            instance is found.
-            <seealso>Class wwUtils</seealso>
-            </summary>
-            <param name="source">
-            Input String to work on
-            </param>
-            <param name="beginDelim"></param>
-            <param name="endDelim">
-            ending delimiter
-            </param>
-            <param name="CaseInSensitive"></param>
-            <returns>String</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ExtractString(System.String,System.String,System.String)">
-            <summary>
-            Extracts a string from between a pair of delimiters. Only the first 
-            instance is found. Search is case insensitive.
-            </summary>
-            <param name="source">
-            Input String to work on
-            </param>
-            <param name="StartDelim">
-            Beginning delimiter
-            </param>
-            <param name="endDelim">
-            ending delimiter
-            </param>
-            <returns>Extracted string or string.Empty</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ReplaceStringInstance(System.String,System.String,System.String,System.Int32,System.Boolean)">
-            <summary>
-            String replace function that support
-            </summary>
-            <param name="origString">Original input string</param>
-            <param name="findString">The string that is to be replaced</param>
-            <param name="replaceWith">The replacement string</param>
-            <param name="instance">Instance of the FindString that is to be found. if Instance = -1 all are replaced</param>
-            <param name="caseInsensitive">Case insensitivity flag</param>
-            <returns>updated string or original string if no matches</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ReplaceString(System.String,System.String,System.String,System.Boolean)">
-            <summary>
-            Replaces a substring within a string with another substring with optional case sensitivity turned off.
-            </summary>
-            <param name="origString">String to do replacements on</param>
-            <param name="findString">The string to find</param>
-            <param name="replaceString">The string to replace found string wiht</param>
-            <param name="caseInsensitive">If true case insensitive search is performed</param>
-            <returns>updated string or original string if no matches</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.Empty(System.String)">
-            <summary>
-            Determines whether a string is empty (null or zero length)
-            </summary>
-            <param name="text">Input string</param>
-            <returns>true or false</returns>
-        </member>
-        <!-- Badly formed XML comment ignored for member "M:Westwind.Utilities.StringUtils.Empty(System.Object)" -->
-        <member name="M:Westwind.Utilities.StringUtils.ProperCase(System.String)">
-            <summary>
-            Return a string in proper Case format
-            </summary>
-            <param name="Input"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.TerminateString(System.String,System.String)">
-            <summary>
-            Terminates a string with the given end string/character, but only if the
-            value specified doesn't already exist and the string is not empty.
-            </summary>
-            <param name="??"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.TextAbstract(System.String,System.Int32)">
-            <summary>
-            Returns an abstract of the provided text by returning up to Length characters
-            of a text string. If the text is truncated a ... is appended.
-            </summary>
-            <param name="text">Text to abstract</param>
-            <param name="length">Number of characters to abstract to</param>
-            <returns>string</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.HtmlAbstract(System.String,System.Int32)">
-            <summary>
-            Creates an Abstract from an HTML document. Strips the 
-            HTML into plain text, then creates an abstract.
-            </summary>
-            <param name="html"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.LogString(System.String,System.String)">
-            <summary>
-            Simple Logging method that allows quickly writing a string to a file
-            </summary>
-            <param name="output"></param>
-            <param name="filename"></param>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.NewStringId">
-            <summary>
-            Creates short string id based on a GUID hashcode.
-            Not guaranteed to be unique across machines, but unlikely
-            to duplicate in medium volume situations.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ParseInt(System.String,System.Int32,System.IFormatProvider)">
-            <summary>
-            Parses an string into an integer. If the value can't be parsed
-            a default value is returned instead
-            </summary>
-            <param name="input"></param>
-            <param name="defaultValue"></param>
-            <param name="formatProvider"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ParseInt(System.String,System.Int32)">
-            <summary>
-            Parses an string into an integer. If the value can't be parsed
-            a default value is returned instead
-            </summary>
-            <param name="input"></param>
-            <param name="defaultValue"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.ParseDecimal(System.String,System.Decimal,System.IFormatProvider)">
-            <summary>
-            Parses an string into an decimal. If the value can't be parsed
-            a default value is returned instead
-            </summary>
-            <param name="input"></param>
-            <param name="defaultValue"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.UrlEncode(System.String)">
-            <summary>
-            UrlEncodes a string without the requirement for System.Web
-            </summary>
-            <param name="String"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.UrlDecode(System.String)">
-            <summary>
-            UrlDecodes a string without requiring System.Web
-            </summary>
-            <param name="text">String to decode.</param>
-            <returns>decoded string</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.GetUrlEncodedKey(System.String,System.String)">
-            <summary>
-            Retrieves a value by key from a UrlEncoded string.
-            </summary>
-            <param name="urlEncoded">UrlEncoded String</param>
-            <param name="key">Key to retrieve value for</param>
-            <returns>returns the value or "" if the key is not found or the value is blank</returns>
-        </member>
-        <member name="M:Westwind.Utilities.StringUtils.HtmlEncode(System.String)">
-            <summary>
-            HTML-encodes a string and returns the encoded string.
-            </summary>
-            <param name="text">The text string to encode. </param>
-            <returns>The HTML-encoded text.</returns>
-        </member>
-        <member name="M:Westwind.Utilities.ExpandUrlsParser.ExpandUrls(System.String)">
-            <summary>
-            Expands links into HTML hyperlinks inside of text or HTML.
-            </summary>
-            <param name="text">The text to expand</param>    
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.Utilities.ExpandUrlsParser.ExpandUrlsRegExEvaluator(System.Text.RegularExpressions.Match)">
-            <summary>
-            Internal RegExEvaluator callback
-            </summary>
-            <param name="M"></param>
             <returns></returns>
         </member>
     </members>
