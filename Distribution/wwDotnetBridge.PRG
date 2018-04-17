@@ -240,6 +240,10 @@ ENDIF
 ENDFUNC
 *   Unload
 
+FUNCTION EnableThrowOnError()
+this.oDotNetBridge.IsThrowOnErrorEnabled = .T.
+ENDFUNC
+
 ************************************************************************
 *  CreateInstance
 ****************************************
@@ -1545,9 +1549,9 @@ this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscrib
 this.HandleNextEvent()
 ENDFUNC
 
-PROCEDURE Destroy
+FUNCTION Unsubscribe()
 this.oSubscriber.Dispose()
-ENDPROC
+ENDFUNC
  
 FUNCTION HandleNextEvent()
 this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")

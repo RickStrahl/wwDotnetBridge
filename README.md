@@ -271,7 +271,7 @@ ENDPROC
 ENDDEFINE
 ```
 
-The event subscription ends when the subscription object (`loSmtpEventSubscription` in the example) goes out of scope.
+When no longer want to be notified of the events, call `Unsubscribe` on the subscription (`loSmtpEventSubscription` in this example).
 
 ## Project Sponsors
 The following people/organizations have provided sponsorship to this project by way of direct donations or for paid development as part of a development project using these tools:

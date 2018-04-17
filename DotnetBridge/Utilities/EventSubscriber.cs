@@ -66,10 +66,7 @@ namespace Westwind.WebConnection
             if (_raisedEvents.TryDequeue(out var interopEvent)) return interopEvent;
             _completion = new TaskCompletionSource<RaisedEvent>();
             var task = _completion.Task;
-
-            // TODO: This needs attention when Task is Cancelled - throws during shut down            
             task.Wait();
-            
             return task.IsCanceled ? null : task.Result;
         }
     }
