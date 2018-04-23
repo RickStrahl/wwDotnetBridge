@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,7 @@ namespace Westwind.WebConnection
 
         private void QueueInteropEvent(string name, object[] parameters)
         {
-            var interopEvent = new RaisedEvent { Name = name, Params = parameters };
+            var interopEvent = new RaisedEvent { Name = name, Params = new ArrayList(parameters) };
             if (!_completion.TrySetResult(interopEvent))
                 _raisedEvents.Enqueue(interopEvent);
         }
@@ -74,6 +75,6 @@ namespace Westwind.WebConnection
     public class RaisedEvent
     {
         public string Name { get; internal set; }
-        public object[] Params { get; internal set; }
+        public ArrayList Params { get; internal set; }
     }
 }
