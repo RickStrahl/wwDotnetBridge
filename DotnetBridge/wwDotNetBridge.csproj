@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
+		<!-- Change the TargetFramework to net472 to target .NET Framework. -->
+		<TargetFramework>net9.0-windows</TargetFramework>
 		<Version>8.1.4</Version>
 		<Authors>Rick Strahl</Authors>
 		
@@ -33,6 +34,7 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TargetFramework)' != 'net472'">
 		<DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+		<UseWindowsForms>true</UseWindowsForms>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net472'">
 		<DefineConstants>NETFULL</DefineConstants>

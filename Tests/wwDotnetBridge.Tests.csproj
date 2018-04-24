@@ -1,9 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>wwDotNetBridge.Tests</AssemblyName>
+	  <!-- Change the TargetFramework to net472 to target .NET Framework. -->
+	  <TargetFramework>net9.0-windows</TargetFramework>
+
+	  <AssemblyName>wwDotNetBridge.Tests</AssemblyName>
     <RootNamespace>Westwind.WebConnection.Tests</RootNamespace>
-    <TargetFramework>net472</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 

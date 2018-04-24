@@ -23,6 +23,7 @@
 #include <atlbase.h>
 #include <atlcomcli.h>
 #include <MSCorEE.h>
+#include <windows.h>
 
 #define WINDOWS TRUE;
 
@@ -120,10 +121,26 @@ void module_handle_function() noexcept
 {
 }
 
+static std::string ReplaceAll(std::string str, const std::string & from, const std::string & to) {
+	size_t start_pos = 0;
+	while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length(); // Move past the replacement
+	}
+	return str;
+}
+
+std::string GetHostDirectory(HMODULE hModule)
+{
+	char path[MAX_PATH];
+	GetModuleFileNameA(hModule, path, MAX_PATH);
+	std::string dir(path);
+	size_t pos = dir.rfind(FS_SEPARATOR);
+	return (std::string::npos == pos) ? "" : dir.substr(0, pos);
+}
 
 BOOL CoreClrLoad(char* runtimePath, char* errorMessage, DWORD* size)
  {
-
 	// The GET_MODULE_HANDLE_EX_FLAG_PIN flag seems to prevent VFP from unloading and clearing memory.	
 	HMODULE hm = NULL;
 	void* address = module_handle_function;
@@ -162,6 +179,8 @@ BOOL CoreClrLoad(char* runtimePath, char* errorMessage, DWORD* size)
 		coreclr_initialize_ptr initializeCoreClr = (coreclr_initialize_ptr)GetProcAddress(coreClr, "coreclr_initialize");
 
 		std::string tpaList;
+		std::string desktopPath = ReplaceAll(runtimePath, "Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
+		BuildTpaList(desktopPath.c_str(), ".dll", tpaList); // Desktop must come first so that its assemblies take precedence over .NET Core assemblies when the same assembly is present in different forms in both runtimes (e.g. WindowsBase.dll).
 		BuildTpaList(runtimePath, ".dll", tpaList);
 
 		// <Snippet3>
@@ -176,14 +195,16 @@ BOOL CoreClrLoad(char* runtimePath, char* errorMessage, DWORD* size)
 
 		char curDir[MAX_PATH];
 		GetCurrentDirectory(MAX_PATH, (LPSTR)curDir);
+		std::string hostDir = GetHostDirectory(hm);
 
 		std::string appPaths(curDir);
-
 		appPaths.append(PATH_DELIMITER);
-		appPaths.append((const char *)curDir);
-		appPaths.append(FS_SEPARATOR);
-		appPaths.append("bin");
-
+		appPaths.append((const char *)curDir).append(FS_SEPARATOR).append("bin");
+		if (hostDir != curDir)
+		{
+			appPaths.append(PATH_DELIMITER);
+			appPaths.append(hostDir.c_str());
+		}
 
 		const char* propertyValues[] = {
 			tpaList.c_str(),

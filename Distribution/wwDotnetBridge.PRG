@@ -1844,28 +1844,20 @@ ENDFUNC
 ***            named On{Event} with event's parameters.
 ************************************************************************
 FUNCTION OnCompleted(lvResult, lcMethod)
-LOCAL loParams,lParamText,lCount
+LOCAL lParamText,lCount
 
-IF ISNULL(lvResult) && If the call to WaitForEvent was canceled:
+IF ISNULL(lvResult) OR VARTYPE(THIS.oHandler) != "O" && If the call to WaitForEvent was canceled or the handler was unsubscribed:
 	RETURN
 ENDIF
 
-
-loParams=CREATEOBJECT("EMPTY") && Workaround to index into array of parameters. 
 lParamText = ""
-IF NOT ISNULL(lvResult.Params)
-	lCount = 0
-	FOR EACH lParam IN lvResult.Params
-		lCount = lCount + 1
-		AddProperty(loParams,"P" + ALLTRIM(STR(lCount)),lParam)
-		lParamText = lParamText + ",loParams.P" + ALLTRIM(STR(lCount))
-	ENDFOR
-ENDIF
+FOR nCount = 0 TO lvResult.Params.Count - 1
+	lParamText = lParamText + ",lvResult.Params.Item(" + ALLTRIM(STR(nCount)) + ")"
+ENDFOR
 
-IF VARTYPE(THIS.oHandler) = "O"
-	=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
-	this.HandleNextEvent()
-ENDIF
+
+=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
+this.HandleNextEvent()
 
 ENDFUNC
 
