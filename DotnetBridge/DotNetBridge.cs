@@ -47,7 +47,6 @@ using System.Data;
 using System.Net;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 
 
 namespace Westwind.WebConnection
@@ -66,7 +65,6 @@ namespace Westwind.WebConnection
     [ProgId("Westwind.wwDotNetBridge")]
     public class wwDotNetBridge
     {
-
         private static bool _firstLoad = true;
 
         /// <summary>
@@ -86,8 +84,9 @@ namespace Westwind.WebConnection
         }
         private bool _Error = false;
 
-
         public Exception LastException { get; set; }
+
+        public bool IsThrowOnErrorEnabled { get; set; }
 
         public wwDotNetBridge()
         {
@@ -435,7 +434,7 @@ namespace Westwind.WebConnection
                 if (args == null)
                     server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName);
                 else
-                    server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName, false, BindingFlags.Default, null, args, null, null, null);
+                    server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName, false, BindingFlags.Default, null, args, null, null);
             }
             catch (Exception ex)
             {
@@ -641,7 +640,6 @@ namespace Westwind.WebConnection
             value = FixupParameter(value);
             
             ErrorMessage = "";
-            object result = null;
             try
             {
                 type.InvokeMember(property, BindingFlags.Static | BindingFlags.Public | BindingFlags.SetField | BindingFlags.SetProperty, null, type, new object[1] { value });
@@ -676,8 +674,6 @@ namespace Westwind.WebConnection
                 SetError(ex.GetBaseException());
                 throw ex.GetBaseException();
             }
-
-            return null;
         }
 
         public Type GetType(object value)
@@ -1308,8 +1304,8 @@ namespace Westwind.WebConnection
         /// <summary>
         /// Returns an indexed property Value
         /// </summary>
-        /// <param name="baseList"></param>
-        /// <param name="index"></param>
+        /// <param name="baseList">List object</param>
+        /// <param name="index">Index into the list</param>
         /// <returns></returns>
         public object GetIndexedProperty(object baseList, int index)
         {
@@ -1656,6 +1652,9 @@ namespace Westwind.WebConnection
             }
             Error = true;
             ErrorMessage = message;
+
+            if (IsThrowOnErrorEnabled)
+                throw new InvalidOperationException(message);
         }
 
         protected void SetError(Exception ex, bool checkInner)
@@ -1674,6 +1673,9 @@ namespace Westwind.WebConnection
             Error = true;
             ErrorMessage = e.Message;
             LastException = e;
+
+            if (IsThrowOnErrorEnabled)
+                throw e;
         }
 
         protected void SetError(Exception ex)

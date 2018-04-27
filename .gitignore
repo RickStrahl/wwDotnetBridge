@@ -10,7 +10,7 @@ Debug
 *.vbr
 *.fxp
 *.opensdf
-*
+*.bak
 
 # mstest test results
 TestResults
