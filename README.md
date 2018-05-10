@@ -2,7 +2,8 @@
 ### 针对 Visual FoxPro 9 的更容易的 .NET 互操作
 
 翻译：xinjie 2018.05.10
-**鸣谢：[福建省龙岩市耐思科技信息有限公司](http://www.fjlynice.com/)**
+
+**鸣谢：[龙岩耐思](http://www.fjlynice.com/)**
 
 wwDotnetBridge 是一个小型库，旨在使**从 Visual FoxPro 调用 .NET 组件**变得容易。 通过提供一种简单的机制来加载 .NET 组件并在不需要 .NET 组件的明确 COM 注册的情况下调用它们，就可以轻松地将 .NET 功能添加到您的应用程序中。 与核心 .NET 框架组件交互，访问免费或商业第三方**库**，或者从 FoxPro 构建和访问您自己的 .NET 组件，而无需通过 COM 注册组件。
 
