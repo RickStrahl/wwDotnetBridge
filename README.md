@@ -1,12 +1,67 @@
 # wwDotnetBridge
+### .NET Interop made easy for Visual FoxPro 9
 
-#### .NET Interop made easy for Visual FoxPro 9
+wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party **libraries**, or build and access your own .NET components from FoxPro all without having to register components via COM.
 
-wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro.
+wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections, and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
 
-wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
+#### wwDotnetBridge and .NET Versions
+> The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
+>
+> * .NET 4.5 or later
+> * Windows 7 and newer
+> * Windows Server 2008 R2 and newer
+>
+> For support of Windows XP, Server 2003 and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008. Note that you can use the new version just fine for loading .NET 1.1, 2.0 and 4.0 compiled assemblies.
 
-### Features at a glance
+## Getting Started
+Somewhere in the startup of your application call `InitializeDotnetVersion()`:
+
+```foxpro
+*** Load dependencies and add to Procedure stack
+*** Make sure wwDotnetBridge.prg wwDotnetBridge.dll wwIPStuff.dll 
+*** are in your FoxPro path
+DO wwDotnetBridge
+InitializeDotnetVersion("V4") 
+```
+
+This ensures that wwDotnetBridge loads with the specified **single version of the .NET Runtime** that your FoxPro application can load.
+
+> #### @icon-warning  Unable to load CLR Instance Errors
+> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, you probably need to unblock the wwdotnetbridge.dll or need to ensure that the wwdotnetbridge.dll and wwipstuff.dll are in your FoxPro path. Please see [Unable to load CLR Instance](https://www.west-wind.com/webconnection/wwClient_docs/_3rf12jtma.htm) for more info.
+
+Then when you need to utilize wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
+
+```foxpro
+*** Create or get cached instance of wwdotnetbridge
+LOCAL loBridge as wwDotnetBridge, loHttp
+loBridge = GetwwDotnetBridge()
+
+*** Create a built-in .NET class and run a method
+loHttp = loBridge.CreateInstance("System.Net.WebClient")
+loHttp.DownloadFile("http://west-wind.com/files/MarkdownMonsterSetup.exe",
+                    "MarkdownMonsterSetup.exe")
+DO wwUtils
+GoUrl(FULLPATH("MarkdownMonsterSetup.exe"))  && run it
+
+*** Load a custom .NET assembly
+loBridge.LoadAssembly("CustomDotnet.dll")
+
+*** Access a .NET component from the new assembly
+loItem = loBridge.CreateInstance("Custom.Item")
+
+*** Access properties directly
+? loItem.Sku
+loItem.Sku = "NewSku"
+lnTotal = loItem.CalculateTotal()
+
+*** Access non-accessible properties and methods indirectly
+lnFlagValue = loBridge.GetProperty(loItem,"Flag")
+lnFlagValue = loBridge.SetProperty(loItem,"Flag",5) 
+loBridge.InvokeMethod(loItem,"PassFlagValue",lnFlagValue)
+```
+
+## Features at a glance
 wwDotnetBridge provides the following enhancements over plain COM Interop:
 
 * Access most .NET Components directly even those not marked [ComVisible]
@@ -25,14 +80,13 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * Multi-threading library built-in 
 * wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
 
+## Documentation
+* [Home Page](http://west-wind.com/wwDotnetBridge.aspx)
+* [API Documentation](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
+* [White Paper](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
+* [Change Log](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
 
-### Online Documentation:
-* [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
-* [.NET COM Interop with wwDotnetBridge White Paper](http://west-wind.com/presentations/wwDotnetBridge/wwDotnetBridge.pdf)
-* [Documentation](http://west-wind.com/webconnection/docs/?page=_24n1cfw3a.htm)
-* [ChangeLog](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
-
-### How it works
+## How it works
 This library consists of 3 components (all provided in source):
 
 * ClrHost.dll - Win32 Loader for the .NET Runtime
@@ -195,13 +249,6 @@ ENDFUNC
 ENDDEFINE
 ```
 
-### Resources
-There's much more functionality available. Please check out the documentation for more info.
-
-* [wwDotnetBridge Home Page](http://west-wind.com/wwDotnetBridge.aspx)
-* [Documentation](http://west-wind.com/webconnection/wwClient_docs?page=_24n1cfw3a.htm)
-
-
 ## Project Sponsors
 The following people/organizations have provided sponsorship to this project by way of direct donations or for paid development as part of a development project using these tools:
 
@@ -214,16 +261,16 @@ wwDotnetBridge updates are initially developed for both of the commercial produc
 * [West Wind Internet and Client Tools](http://west-wind.com/WestwindClientTools.aspx)
 
 
-#### Craig Tucker - Alabama Software
+### Craig Tucker - Alabama Software
 Craig offered early support and feedback for this project and billed project time for a number of additions to the library as part of a larger project.
 
-#### Bill Suthman - Monosynth
+### Bill Suthman - Monosynth
 Bill provided a sizable donation to the project and valuable feedback for a host of improvements and bug fixes.
 
-#### Sunil Rjamara  - WeatherTrend
+### Sunil Rjamara  - WeatherTrend
 Sunil required a number of custom integrations into their FoxPro product that resulted in discovery of a number of edge cases that ended up getting integrated into wwDotnetBridge. WeatherTrend kindly donated a chunk of billable time to adding a handful of these small features.
 
-#### Want to be a Sponsor?
+### Want to be a Sponsor?
 Want to sponsor this project, need customization or want make a donation to show your support? You can contact me directly at rstrahl@west-wind.com or you can also make a donation online via PayPal.
 
 * [Make a donation for wwDotnetBridge using PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
@@ -234,13 +281,13 @@ Want to sponsor this project, need customization or want make a donation to show
 ## License
 This library is licensed under **MIT license** terms:
 
-> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-<small>&copy; 2012-2017 Rick Strahl, West Wind Technologies</small>
+<small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-## NO WARRANTY
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
- 
+### NO WARRANTY
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+<small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>

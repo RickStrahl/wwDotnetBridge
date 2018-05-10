@@ -38,190 +38,191 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
 
-
-namespace Westwind.Utilities
-{   
+namespace Westwind.WebConnection
+{
     /// <summary>
     /// String utility class that provides a host of string related operations
     /// </summary>
-    public partial class StringUtils
+    public static class StringUtils
     {
+        #region Basic String Tasks
 
 
         /// <summary>
-        /// Generates a unique Id as a string of up to 16 characters.
-        /// Based on a GUID and the size takes that subset of a the
-        /// Guid's 16 bytes to create a string id.
-        /// 
-        /// String Id contains numbers and lower case alpha chars 36 total.
-        /// 
-        /// Sizes: 6 gives roughly 99.97% uniqueness. 
-        ///        8 gives less than 1 in a million doubles.
-        ///        16 will give full GUID strength uniqueness
-        /// </summary>
-        /// <returns></returns>
-        /// <summary>
-        public static string GenerateUniqueId(int stringSize = 8)
-        {
-            string chars = "abcdefghijkmnopqrstuvwxyz1234567890";
-            StringBuilder result = new StringBuilder(stringSize);
-            int count = 0;
-
-
-
-            foreach (byte b in Guid.NewGuid().ToByteArray())
-            {
-                result.Append(chars[b % (chars.Length)]);
-                count++;
-                if (count >= stringSize)
-                    return result.ToString();
-            }
-            return result.ToString();
-        }
-
-        /// <summary>
-        /// Replaces and  and Quote characters to HTML safe equivalents.
-        /// </summary>
-        /// <param name="html">HTML to convert</param>
-        /// <returns>Returns an HTML string of the converted text</returns>
-        public static string FixHTMLForDisplay(string html)
-        {
-            html = html.Replace("<", "&lt;");
-            html = html.Replace(">", "&gt;");
-            html = html.Replace("\"", "&quot;");
-            return html;
-        }
-
-        /// <summary>
-        /// Strips HTML tags out of an HTML string and returns just the text.
-        /// </summary>
-        /// <param name="html">Html String</param>
-        /// <returns></returns>
-        public static string StripHtml(string html)
-        {
-            html = Regex.Replace(html, @"<(.|\n)*?>", string.Empty);
-            html = html.Replace("\t", " ");
-            html = html.Replace("\r\n", string.Empty);
-            html = html.Replace("   ", " ");
-            return html.Replace("  ", " ");
-        }
-
-        /// <summary>
-        /// Fixes a plain text field for display as HTML by replacing carriage returns 
-        /// with the appropriate br and p tags for breaks.
-        /// </summary>
-        /// <param name="String Text">Input string</param>
-        /// <returns>Fixed up string</returns>
-        public static string DisplayMemo(string htmlText)
-        {
-            htmlText = htmlText.Replace("\r\n", "\r");
-            htmlText = htmlText.Replace("\n", "\r");
-            //HtmlText = HtmlText.Replace("\r\r","<p>");
-            htmlText = htmlText.Replace("\r", "<br />");
-            return htmlText;
-        }
-
-        /// <summary>
-        /// Method that handles handles display of text by breaking text.
-        /// Unlike the non-encoded version it encodes any embedded HTML text
+        /// Trims a sub string from a string
         /// </summary>
         /// <param name="text"></param>
+        /// <param name="textToTrim"></param>
         /// <returns></returns>
-        public static string DisplayMemoEncoded(string text)
+        public static string TrimStart(string text, string textToTrim, bool caseInsensitive)
         {
-            bool PreTag = false;
-            if (text.IndexOf("<pre>") > -1)
+            while (true)
             {
-                text = text.Replace("<pre>", "__pre__");
-                text = text.Replace("</pre>", "__/pre__");
-                PreTag = true;
+                string match = text.Substring(0, textToTrim.Length);
+
+                if (match == textToTrim ||
+                    (caseInsensitive && match.ToLower() == textToTrim.ToLower()))
+                {
+                    if (text.Length <= match.Length)
+                        text = "";
+                    else
+                        text = text.Substring(textToTrim.Length);
+                }
+                else
+                    break;
             }
-
-
-            // *** fix up line breaks into <br><p>
-            text = DisplayMemo(HtmlEncode(text)); //HttpUtility.HtmlEncode(Text));
-
-            if (PreTag)
-            {
-                text = text.Replace("__pre__", "<pre>");
-                text = text.Replace("__/pre__", "</pre>");
-            }
-
             return text;
         }
 
         /// <summary>
-        /// Expands links into HTML hyperlinks inside of text or HTML.
+        /// Replicates an input string n number of times
         /// </summary>
-        /// <param name="text">The text to expand</param>
-        /// <param name="target">Target frame where links are displayed</param>
-        /// <param name="parseFormattedLinks">Allows parsing of links in the following format [text|www.site.com]</param>
+        /// <param name="input"></param>
+        /// <param name="charCount"></param>
         /// <returns></returns>
-        public static string ExpandUrls(string text, string target, bool parseFormattedLinks)
+        public static string Replicate(string input, int charCount)
         {
-            if (target == null)
-                target = string.Empty;
-
-            ExpandUrlsParser Parser = new ExpandUrlsParser();
-            Parser.Target = target;
-            Parser.ParseFormattedLinks = parseFormattedLinks;
-            return Parser.ExpandUrls(text);
-        }
-        /// <summary>
-        /// Expands links into HTML hyperlinks inside of text or HTML.
-        /// </summary>
-        /// <param name="text">The text to expand</param>
-        /// <param name="target">Target frame where links are displayed</param>
-        public static string ExpandUrls(string text, string target)
-        {
-            return ExpandUrls(text, null, false);
-        }
-        /// <summary>
-        /// Expands links into HTML hyperlinks inside of text or HTML.
-        /// </summary>
-        /// <param name="text">The text to expand</param>
-        public static string ExpandUrls(string text)
-        {
-            return ExpandUrls(text, null, false);
+            return new StringBuilder().Insert(0, "input", charCount).ToString();
         }
 
         /// <summary>
-        /// Create an Href HTML link
+        /// Replicates a character n number of times and returns a string
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="url"></param>
-        /// <param name="target"></param>
-        /// <param name="additionalMarkup"></param>
+        /// <param name="charCount"></param>
+        /// <param name="character"></param>
         /// <returns></returns>
-        public static string Href(string text, string url, string target, string additionalMarkup)
+        public static string Replicate(char character, int charCount)
         {
-            return "<a href=\"" + url + "\" " +
-                (string.IsNullOrEmpty(target) ? string.Empty : "target=\"" + target + "\" ") +
-                (string.IsNullOrEmpty(additionalMarkup) ? string.Empty : additionalMarkup) +
-                ">" + text + "</a>";
+            return new string(character, charCount);
         }
 
         /// <summary>
-        /// Created an Href HTML link
+        /// Return a string in proper Case format
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="url"></param>
+        /// <param name="Input"></param>
         /// <returns></returns>
-        public static string Href(string text, string url)
+        public static string ProperCase(string Input)
         {
-            return Href(text, url, null, null);
+            if (Input == null)
+                return null;
+            return Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(Input);
         }
 
         /// <summary>
-        /// Creates an HREF HTML Link
+        /// Takes a phrase and turns it into CamelCase text.
+        /// White Space, punctuation and separators are stripped
         /// </summary>
-        /// <param name="url"></param>
-        public static string Href(string url)
+        /// <param name="phrase">Text to convert to CamelCase</param>
+        public static string ToCamelCase(string phrase)
         {
-            return Href(url, url, null, null);
+            if (phrase == null)
+                return string.Empty;
+
+            StringBuilder sb = new StringBuilder(phrase.Length);
+
+            // First letter is always upper case
+            bool nextUpper = true;
+
+            foreach (char ch in phrase)
+            {
+                if (char.IsWhiteSpace(ch) || char.IsPunctuation(ch) || char.IsSeparator(ch) || ch > 32 && ch < 48)
+                {
+                    nextUpper = true;
+                    continue;
+                }
+                if (char.IsDigit(ch))
+                {
+                    sb.Append(ch);
+                    nextUpper = true;
+                    continue;
+                }
+
+                if (nextUpper)
+                    sb.Append(char.ToUpper(ch));
+                else
+                    sb.Append(char.ToLower(ch));
+
+                nextUpper = false;
+            }
+
+            return sb.ToString();
         }
 
+        /// <summary>
+        /// Tries to create a phrase string from CamelCase text.
+        /// Will place spaces before capitalized letters.
+        /// 
+        /// Note that this method may not work for round tripping 
+        /// ToCamelCase calls, since ToCamelCase strips more characters
+        /// than just spaces.
+        /// </summary>
+        /// <param name="camelCase"></param>
+        /// <returns></returns>
+        public static string FromCamelCase(string camelCase)
+        {
+            if (camelCase == null)
+                throw new ArgumentException("Null is not allowed for StringUtils.FromCamelCase");
+
+            StringBuilder sb = new StringBuilder(camelCase.Length + 10);
+            bool first = true;
+            char lastChar = '\0';
+
+            foreach (char ch in camelCase)
+            {
+                if (!first &&
+                    (char.IsUpper(ch) ||
+                     char.IsDigit(ch) && !char.IsDigit(lastChar)))
+                    sb.Append(' ');
+
+                sb.Append(ch);
+                first = false;
+                lastChar = ch;
+            }
+
+            return sb.ToString(); ;
+        }
+
+        /// <summary>
+        /// Terminates a string with the given end string/character, but only if the
+        /// value specified doesn't already exist and the string is not empty.
+        /// </summary>
+        /// <param name="value">String to terminate</param>
+        /// <param name="terminator">String to terminate the value string with</param>
+        /// <returns></returns>
+        public static string TerminateString(string value, string terminator)
+        {
+            if (string.IsNullOrEmpty(value))
+                return terminator;
+
+            if (value.EndsWith(terminator))
+                return value;
+
+            return value + terminator;
+        }
+
+        /// <summary>
+        /// Trims a string to a specific number of max characters
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="charCount"></param>
+        /// <returns></returns>
+        public static string TrimTo(string value, int charCount)
+        {
+            if (value == null)
+                return string.Empty;
+
+            if (value.Length > charCount)
+                return value.Substring(0, charCount);
+
+            return value;
+        }
+
+        #endregion
+
+        #region String Manipulation
         /// <summary>
         /// Extracts a string from between a pair of delimiters. Only the first 
         /// instance is found.
@@ -231,9 +232,12 @@ namespace Westwind.Utilities
         /// <param name="endDelim">ending delimiter</param>
         /// <param name="CaseInsensitive">Determines whether the search for delimiters is case sensitive</param>
         /// <returns>Extracted string or ""</returns>
-        public static string ExtractString(string source, string beginDelim,
-                                           string endDelim, bool caseSensitive,
-                                           bool allowMissingEndDelimiter)
+        public static string ExtractString(string source,
+            string beginDelim,
+            string endDelim,
+            bool caseSensitive = false,
+            bool allowMissingEndDelimiter = false,
+            bool returnDelimiters = false)
         {
             int at1, at2;
 
@@ -258,76 +262,46 @@ namespace Westwind.Utilities
                 at2 = source.IndexOf(endDelim, at1 + beginDelim.Length, StringComparison.OrdinalIgnoreCase);
             }
 
-            if (allowMissingEndDelimiter && at2 == -1)
-                return source.Substring(at1 + beginDelim.Length);
+            if (allowMissingEndDelimiter && at2 < 0)
+            {
+                if (!returnDelimiters)
+                    return source.Substring(at1 + beginDelim.Length);
+                else
+                    return source.Substring(at1);
+            }
 
             if (at1 > -1 && at2 > 1)
-                return source.Substring(at1 + beginDelim.Length, at2 - at1 - beginDelim.Length);
+            {
+                if (!returnDelimiters)
+                    return source.Substring(at1 + beginDelim.Length, at2 - at1 - beginDelim.Length);
+
+                return source.Substring(at1, at2 - at1 + endDelim.Length);
+            }
 
             return string.Empty;
         }
 
-        /// <summary>
-        /// Extracts a string from between a pair of delimiters. Only the first
-        /// instance is found.
-        /// <seealso>Class wwUtils</seealso>
-        /// </summary>
-        /// <param name="source">
-        /// Input String to work on
-        /// </param>
-        /// <param name="beginDelim"></param>
-        /// <param name="endDelim">
-        /// ending delimiter
-        /// </param>
-        /// <param name="CaseInSensitive"></param>
-        /// <returns>String</returns>
-        public static string ExtractString(string source, string beginDelim, string endDelim, bool caseSensitive)
-        {
-            return ExtractString(source, beginDelim, endDelim, caseSensitive, false);
-        }
-
-        /// <summary>
-        /// Extracts a string from between a pair of delimiters. Only the first 
-        /// instance is found. Search is case insensitive.
-        /// </summary>
-        /// <param name="source">
-        /// Input String to work on
-        /// </param>
-        /// <param name="StartDelim">
-        /// Beginning delimiter
-        /// </param>
-        /// <param name="endDelim">
-        /// ending delimiter
-        /// </param>
-        /// <returns>Extracted string or string.Empty</returns>
-        public static string ExtractString(string source, string beginDelim, string endDelim)
-        {
-            return ExtractString(source, beginDelim, endDelim, false, false);
-        }
 
 
         /// <summary>
-        /// String replace function that support
+        /// String replace function that supports replacing a specific instance with 
+        /// case insensitivity
         /// </summary>
         /// <param name="origString">Original input string</param>
         /// <param name="findString">The string that is to be replaced</param>
         /// <param name="replaceWith">The replacement string</param>
-        /// <param name="instance">Instance of the FindString that is to be found. if Instance = -1 all are replaced</param>
+        /// <param name="instance">Instance of the FindString that is to be found. 1 based. If Instance = -1 all are replaced</param>
         /// <param name="caseInsensitive">Case insensitivity flag</param>
         /// <returns>updated string or original string if no matches</returns>
         public static string ReplaceStringInstance(string origString, string findString,
-                                                   string replaceWith, int instance,
-                                                   bool caseInsensitive)
+            string replaceWith, int instance, bool caseInsensitive)
         {
             if (instance == -1)
                 return ReplaceString(origString, findString, replaceWith, caseInsensitive);
-            if (instance == 0)
-                return origString;
 
             int at1 = 0;
             for (int x = 0; x < instance; x++)
             {
-
                 if (caseInsensitive)
                     at1 = origString.IndexOf(findString, at1, origString.Length - at1, StringComparison.OrdinalIgnoreCase);
                 else
@@ -352,7 +326,7 @@ namespace Westwind.Utilities
         /// <param name="caseInsensitive">If true case insensitive search is performed</param>
         /// <returns>updated string or original string if no matches</returns>
         public static string ReplaceString(string origString, string findString,
-                                           string replaceString, bool caseInsensitive)
+            string replaceString, bool caseInsensitive)
         {
             int at1 = 0;
             while (true)
@@ -373,54 +347,6 @@ namespace Westwind.Utilities
             return origString;
         }
 
-
-        /// <summary>
-        /// Determines whether a string is empty (null or zero length)
-        /// </summary>
-        /// <param name="text">Input string</param>
-        /// <returns>true or false</returns>
-        public static bool Empty(string text)
-        {
-            if (text == null || text.Trim().Length == 0)
-                return true;
-
-            return false;
-        }
-
-        /// <summary>
-        /// Determines wheter a string is empty (null or zero length)
-        /// </summary>
-        /// <param name="text">Input string (in object format)</param>
-        /// <returns>true or false/returns>
-        public static bool Empty(object text)
-        {
-            return Empty(text as string);
-        }
-
-        /// <summary>
-        /// Return a string in proper Case format
-        /// </summary>
-        /// <param name="Input"></param>
-        /// <returns></returns>
-        public static string ProperCase(string Input)
-        {
-            return Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(Input);
-        }
-
-        /// <summary>
-        /// Terminates a string with the given end string/character, but only if the
-        /// value specified doesn't already exist and the string is not empty.
-        /// </summary>
-        /// <param name="?"></param>
-        /// <returns></returns>
-        public static string TerminateString(string value, string terminator)
-        {
-            if (string.IsNullOrEmpty(value) || value.EndsWith(terminator))
-                return value;
-
-            return value + terminator;
-        }
-
         /// <summary>
         /// Returns an abstract of the provided text by returning up to Length characters
         /// of a text string. If the text is truncated a ... is appended.
@@ -430,6 +356,9 @@ namespace Westwind.Utilities
         /// <returns>string</returns>
         public static string TextAbstract(string text, int length)
         {
+            if (text == null)
+                return string.Empty;
+
             if (text.Length <= length)
                 return text;
 
@@ -439,29 +368,163 @@ namespace Westwind.Utilities
             return text + "...";
         }
 
+        #endregion
+
+        #region String Parsing
         /// <summary>
-        /// Creates an Abstract from an HTML document. Strips the 
-        /// HTML into plain text, then creates an abstract.
+        /// Determines if a string is contained in a list of other strings
         /// </summary>
-        /// <param name="html"></param>
+        /// <param name="s"></param>
+        /// <param name="list"></param>
         /// <returns></returns>
-        public static string HtmlAbstract(string html, int length)
+        public static bool Inlist(string s, params string[] list)
         {
-            return TextAbstract(StripHtml(html), length);
+            return list.Contains(s);
         }
 
         /// <summary>
-        /// Simple Logging method that allows quickly writing a string to a file
+        /// Parses a string into an array of lines broken
+        /// by \r\n or \n
         /// </summary>
-        /// <param name="output"></param>
-        /// <param name="filename"></param>
-        public static void LogString(string output, string filename)
+        /// <param name="s">String to check for lines</param>
+        /// <param name="maxLines">Optional - max number of lines to return</param>
+        /// <returns>array of strings, or null if the string passed was a null</returns>
+        public static string[] GetLines(string s, int maxLines = 0)
         {
-            StreamWriter Writer = new StreamWriter(filename, true);
-            Writer.WriteLine(DateTime.Now.ToString() + " - " + output);
-            Writer.Close();
+            if (s == null)
+                return null;
+
+            s = s.Replace("\r\n", "\n");
+
+            if (maxLines < 1)
+                return s.Split(new char[] { '\n' });
+
+            return s.Split(new char[] { '\n' }).Take(maxLines).ToArray();
         }
 
+        /// <summary>
+        /// Returns a line count for a string
+        /// </summary>
+        /// <param name="s">string to count lines for</param>
+        /// <returns></returns>
+        public static int CountLines(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                return 0;
+
+            return s.Split('\n').Length;
+        }
+
+        /// <summary>
+        /// Parses an string into an integer. If the value can't be parsed
+        /// a default value is returned instead
+        /// </summary>
+        /// <param name="input">Input numeric string to be parsed</param>
+        /// <param name="defaultValue">Optional default value if parsing fails</param>
+        /// <param name="formatProvider">Optional NumberFormat provider. Defaults to current culture's number format</param>
+        /// <returns></returns>
+        public static int ParseInt(string input, int defaultValue = 0, IFormatProvider numberFormat = null)
+        {
+            if (numberFormat == null)
+                numberFormat = CultureInfo.CurrentCulture.NumberFormat;
+
+            int val = defaultValue;
+            if (!int.TryParse(input, NumberStyles.Any, numberFormat, out val))
+                return defaultValue;
+            return val;
+        }
+
+
+
+        /// <summary>
+        /// Parses an string into an decimal. If the value can't be parsed
+        /// a default value is returned instead
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static decimal ParseDecimal(string input, decimal defaultValue = 0M, IFormatProvider numberFormat = null)
+        {
+            numberFormat = numberFormat ?? CultureInfo.CurrentCulture.NumberFormat;
+            decimal val = defaultValue;
+            if (!decimal.TryParse(input, NumberStyles.Any, numberFormat, out val))
+                return defaultValue;
+            return val;
+        }
+
+        /// <summary>
+        /// Strips all non digit values from a string and only
+        /// returns the numeric string.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string StripNonNumber(string input)
+        {
+            var chars = input.ToCharArray();
+            StringBuilder sb = new StringBuilder();
+            foreach (var chr in chars)
+            {
+                if (char.IsNumber(chr) || char.IsSeparator(chr))
+                    sb.Append(chr);
+            }
+
+            return sb.ToString();
+        }
+
+
+        static Regex tokenizeRegex = new Regex("{{.*?}}");
+
+        /// <summary>
+        /// Tokenizes a string based on a start and end string. Replaces the values with a token
+        /// value (#@#1#@# for example).
+        /// 
+        /// You can use Detokenize to get the original values back
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="replaceDelimiter"></param>
+        /// <returns></returns>
+        public static List<string> TokenizeString(ref string text, string start, string end, string replaceDelimiter = "#@#")
+        {
+            var strings = new List<string>();
+            var matches = tokenizeRegex.Matches(text);
+
+            int i = 0;
+            foreach (Match match in matches)
+            {
+                tokenizeRegex = new Regex(Regex.Escape(match.Value));
+                text = tokenizeRegex.Replace(text, $"{replaceDelimiter}{i}{replaceDelimiter}", 1);
+                strings.Add(match.Value);
+                i++;
+            }
+
+            return strings;
+        }
+
+
+        /// <summary>
+        /// Detokenizes a string tokenized with TokenizeString. Requires the collection created
+        /// by detokenization
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="tokens"></param>
+        /// <param name="replaceDelimiter"></param>
+        /// <returns></returns>
+        public static string DetokenizeString(string text, List<string> tokens, string replaceDelimiter = "#@#")
+        {
+            int i = 0;
+            foreach (string token in tokens)
+            {
+                text = text.Replace($"{replaceDelimiter}{i}{replaceDelimiter}", token);
+                i++;
+            }
+            return text;
+        }
+
+        #endregion
+
+        #region String Ids
         /// <summary>
         /// Creates short string id based on a GUID hashcode.
         /// Not guaranteed to be unique across machines, but unlikely
@@ -473,79 +536,70 @@ namespace Westwind.Utilities
             return Guid.NewGuid().ToString().GetHashCode().ToString("x");
         }
 
-
         /// <summary>
-        /// Parses an string into an integer. If the value can't be parsed
-        /// a default value is returned instead
+        /// Creates a new random string of upper, lower case letters and digits.
+        /// Very useful for generating random data for storage in test data.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="defaultValue"></param>
-        /// <param name="formatProvider"></param>
-        /// <returns></returns>
-        public static int ParseInt(string input, int defaultValue, IFormatProvider numberFormat)
+        /// <param name="size">The number of characters of the string to generate</param>
+        /// <param name="includeNumbers"></param>
+        /// <returns>randomized string</returns>
+        public static string RandomString(int size, bool includeNumbers = false)
         {
-            int val = defaultValue;
-            int.TryParse(input,NumberStyles.Any, numberFormat,out val);
-            return val;
-        }
+            StringBuilder builder = new StringBuilder(size);
+            char ch;
+            int num;
 
-        /// <summary>
-        /// Parses an string into an integer. If the value can't be parsed
-        /// a default value is returned instead
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public static int ParseInt(string input, int defaultValue)
-        {
-            return ParseInt(input, defaultValue,CultureInfo.CurrentCulture.NumberFormat);
-        }
+            for (int i = 0; i < size; i++)
+            {
+                if (includeNumbers)
+                    num = Convert.ToInt32(Math.Floor(62 * random.NextDouble()));
+                else
+                    num = Convert.ToInt32(Math.Floor(52 * random.NextDouble()));
 
-        /// <summary>
-        /// Parses an string into an decimal. If the value can't be parsed
-        /// a default value is returned instead
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public static decimal ParseDecimal(string input, decimal defaultValue, IFormatProvider numberFormat)
-        {
-            decimal val = defaultValue;
-            decimal.TryParse(input, NumberStyles.Any ,numberFormat, out val);
-            return val;
-        }
+                if (num < 26)
+                    ch = Convert.ToChar(num + 65);
+                // lower case
+                else if (num > 25 && num < 52)
+                    ch = Convert.ToChar(num - 26 + 97);
+                // numbers
+                else
+                    ch = Convert.ToChar(num - 52 + 48);
 
-        #region UrlEncoding and UrlDecoding without System.Web
+                builder.Append(ch);
+            }
+
+            return builder.ToString();
+        }
+        private static Random random = new Random((int)DateTime.Now.Ticks);
+
+        #endregion
+
+        #region Encodings
+
         /// <summary>
         /// UrlEncodes a string without the requirement for System.Web
         /// </summary>
         /// <param name="String"></param>
         /// <returns></returns>
+        // [Obsolete("Use System.Uri.EscapeDataString instead")]
         public static string UrlEncode(string text)
         {
-            
-            StringBuilder sb = new StringBuilder(text.Length);
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
 
-            int len = text.Length;
-            for (int i = 0; i < len; i++)
-            {
+            return Uri.EscapeDataString(text);
+        }
 
-                int value = text[i];
-                if (value == -1)
-                    break;
-                char charValue = (char)value;
-
-                if (charValue >= 'a' && charValue <= 'z' ||
-                    charValue >= 'A' && charValue <= 'Z' ||
-                    charValue >= '0' && charValue <= '9')
-                    sb.Append(charValue);
-                else if (charValue == ' ')
-                    sb.Append("+");
-                else
-                    sb.AppendFormat("%{0:X2}", value);
-            }
-
-            return sb.ToString();
+        /// <summary>
+        /// Encodes a few additional characters for use in paths
+        /// Encodes: . #
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string UrlEncodePathSafe(string text)
+        {
+            string escaped = UrlEncode(text);
+            return escaped.Replace(".", "%2E").Replace("#", "%23");
         }
 
         /// <summary>
@@ -555,32 +609,11 @@ namespace Westwind.Utilities
         /// <returns>decoded string</returns>
         public static string UrlDecode(string text)
         {
-            char temp = ' ';
-            StringReader sr = new StringReader(text);
-            StringBuilder sb = new StringBuilder(text.Length);
-
-            while (true)
-            {
-                int lnVal = sr.Read();
-                if (lnVal == -1)
-                    break;
-            
-                char tchar = (char)lnVal;
-                if (tchar == '+')
-                    sb.Append(' ');
-                else if (tchar == '%')
-                {
-                    // *** read the next 2 chars and parse into a char
-                    temp = (char)Int32.Parse(((char)sr.Read()).ToString() + ((char)sr.Read()).ToString(),
-                        NumberStyles.HexNumber);
-                    sb.Append(temp);
-                }
-                else
-                    sb.Append(tchar);
-            }
-            sr.Close();
-
-            return sb.ToString();
+            // pre-process for + sign space formatting since System.Uri doesn't handle it
+            // plus literals are encoded as %2b normally so this should be safe
+            text = text.Replace("+", " ");
+            string decoded = Uri.UnescapeDataString(text);
+            return decoded;
         }
 
         /// <summary>
@@ -593,169 +626,334 @@ namespace Westwind.Utilities
         {
             urlEncoded = "&" + urlEncoded + "&";
 
-            int Index = urlEncoded.ToLower().IndexOf("&" + key.ToLower() + "=");
+            int Index = urlEncoded.IndexOf("&" + key + "=", StringComparison.OrdinalIgnoreCase);
             if (Index < 0)
-                return "";
+                return string.Empty;
 
             int lnStart = Index + 2 + key.Length;
 
             int Index2 = urlEncoded.IndexOf("&", lnStart);
             if (Index2 < 0)
-                return "";
+                return string.Empty;
 
             return UrlDecode(urlEncoded.Substring(lnStart, Index2 - lnStart));
         }
 
+        /// <summary>
+        /// Allows setting of a value in a UrlEncoded string. If the key doesn't exist
+        /// a new one is set, if it exists it's replaced with the new value.
+        /// </summary>
+        /// <param name="urlEncoded">A UrlEncoded string of key value pairs</param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string SetUrlEncodedKey(string urlEncoded, string key, string value)
+        {
+            if (!urlEncoded.EndsWith("?") && !urlEncoded.EndsWith("&"))
+                urlEncoded += "&";
+
+            Match match = Regex.Match(urlEncoded, "[?|&]" + key + "=.*?&");
+
+            if (match == null || string.IsNullOrEmpty(match.Value))
+                urlEncoded = urlEncoded + key + "=" + UrlEncode(value) + "&";
+            else
+                urlEncoded = urlEncoded.Replace(match.Value, match.Value.Substring(0, 1) + key + "=" + UrlEncode(value) + "&");
+
+            return urlEncoded.TrimEnd('&');
+        }
+        #endregion
+
+        #region Binary Encoding
 
         /// <summary>
-        /// HTML-encodes a string and returns the encoded string.
+        /// Turns a BinHex string that contains raw byte values
+        /// into a byte array
         /// </summary>
-        /// <param name="text">The text string to encode. </param>
-        /// <returns>The HTML-encoded text.</returns>
-        public static string HtmlEncode(string text)
+        /// <param name="hex">BinHex string (just two byte hex digits strung together)</param>
+        /// <returns></returns>
+        public static byte[] BinHexToBinary(string hex)
         {
-            if (text == null)
+            int offset = hex.StartsWith("0x") ? 2 : 0;
+            if ((hex.Length % 2) != 0)
+                throw new ArgumentException("Invalid Hex String Length...");
+
+            byte[] ret = new byte[(hex.Length - offset) / 2];
+
+            for (int i = 0; i < ret.Length; i++)
+            {
+                ret[i] = (byte)((ParseHexChar(hex[offset]) << 4)
+                                | ParseHexChar(hex[offset + 1]));
+                offset += 2;
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Converts a byte array into a BinHex string.
+        /// BinHex is two digit hex byte values squished together
+        /// into a string.
+        /// </summary>
+        /// <param name="data">Raw data to send</param>
+        /// <returns>BinHex string or null if input is null</returns>
+        public static string BinaryToBinHex(byte[] data)
+        {
+            if (data == null)
                 return null;
 
-            StringBuilder sb = new StringBuilder(text.Length);
-
-            int len = text.Length;
-            for (int i = 0; i < len; i++)
+            StringBuilder sb = new StringBuilder(data.Length * 2);
+            foreach (byte val in data)
             {
-                switch (text[i])
-                {
-                    case '&':
-                        sb.Append("&amp;");
-                        break;
-                    case '>':
-                        sb.Append("&gt;");
-                        break;
-                    case '<':
-                        sb.Append("&lt;");
-                        break;
-                    case '"':
-                        sb.Append("&quot;");
-                        break;
-                    default:
-                        if (text[i] > 159)
-                        {
-                            sb.Append("&#");
-                            sb.Append(((int)text[i]).ToString(CultureInfo.InvariantCulture));
-                            sb.Append(";");
-                        }
-                        else
-                            sb.Append(text[i]);
-                        break;
-                }
+                sb.AppendFormat("{0:x2}", val);
             }
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Converts a string into bytes for storage in any byte[] types
+        /// buffer or stream format (like MemoryStream).
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="encoding">The character encoding to use. Defaults to Unicode</param>
+        /// <returns></returns>
+        public static byte[] StringToBytes(string text, Encoding encoding = null)
+        {
+            if (text == null)
+                return null;
+
+            if (encoding == null)
+                encoding = Encoding.Unicode;
+
+            return encoding.GetBytes(text);
+        }
+
+        /// <summary>
+        /// Converts a byte array to a stringUtils
+        /// </summary>
+        /// <param name="buffer">raw string byte data</param>
+        /// <param name="encoding">Character encoding to use. Defaults to Unicode</param>
+        /// <returns></returns>
+        public static string BytesToString(byte[] buffer, Encoding encoding = null)
+        {
+            if (buffer == null)
+                return null;
+
+            if (encoding == null)
+                encoding = Encoding.Unicode;
+
+            return encoding.GetString(buffer);
+        }
+
+        static int ParseHexChar(char c)
+        {
+            if (c >= '0' && c <= '9')
+                return c - '0';
+            if (c >= 'A' && c <= 'F')
+                return c - 'A' + 10;
+            if (c >= 'a' && c <= 'f')
+                return c - 'a' + 10;
+
+            throw new ArgumentException("Invalid Hex digit: " +  c);
+        }
+
+        static char[] base36CharArray = "0123456789abcdefghijklmnopqrstuvwxyz".ToCharArray();
+        static string base36Chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+        /// <summary>
+        /// Encodes an integer into a string by mapping to alpha and digits (36 chars)
+        /// chars are embedded as lower case
+        /// 
+        /// Example: 4zx12ss
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string Base36Encode(long value)
+        {
+            string returnValue = "";
+            bool isNegative = value < 0;
+            if (isNegative)
+                value = value * -1;
+
+            do
+            {
+                returnValue = base36CharArray[value % base36CharArray.Length] + returnValue;
+                value /= 36;
+            } while (value != 0);
+
+            return isNegative ? returnValue + "-" : returnValue;
+        }
+
+        /// <summary>
+        /// Decodes a base36 encoded string to an integer
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static long Base36Decode(string input)
+        {
+            bool isNegative = false;
+            if (input.EndsWith("-"))
+            {
+                isNegative = true;
+                input = input.Substring(0, input.Length - 1);
+            }
+
+            char[] arrInput = input.ToCharArray();
+            Array.Reverse(arrInput);
+            long returnValue = 0;
+            for (long i = 0; i < arrInput.Length; i++)
+            {
+                long valueindex = base36Chars.IndexOf(arrInput[i]);
+                returnValue += Convert.ToInt64(valueindex * Math.Pow(36, i));
+            }
+            return isNegative ? returnValue * -1 : returnValue;
+        }
         #endregion
-    }
 
+        #region Miscellaneous
+        /// <summary>
+        /// Strips any common white space from all lines of text that have the same
+        /// common white space text. Effectively removes common code indentation from
+        /// code blocks for example so you can get a left aligned code snippet.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns></returns>
+        public static string NormalizeIndentation(string code)
+        {
+            // normalize tabs to 3 spaces
+            string text = code.Replace("\t", "   ");
 
+            string[] lines = text.Split(new string[3] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
 
-    public class ExpandUrlsParser
-    {
-        public string Target = string.Empty;
-        public bool ParseFormattedLinks = false;
+            // keep track of the smallest indent
+            int minPadding = 1000;
+
+            foreach (var line in lines)
+            {
+                if (line.Length == 0)  // ignore blank lines
+                    continue;
+
+                int count = 0;
+                foreach (char chr in line)
+                {
+                    if (chr == ' ' && count < minPadding)
+                        count++;
+                    else
+                        break;
+                }
+                if (count == 0)
+                    return code;
+
+                minPadding = count;
+            }
+
+            string strip = new String(' ', minPadding);
+
+            StringBuilder sb = new StringBuilder();
+            foreach (var line in lines)
+            {
+                sb.AppendLine(StringUtils.ReplaceStringInstance(line, strip, "", 1, false));
+            }
+
+            return sb.ToString();
+        }
+
 
         /// <summary>
-        /// Expands links into HTML hyperlinks inside of text or HTML.
+        /// Simple Logging method that allows quickly writing a string to a file
         /// </summary>
-        /// <param name="text">The text to expand</param>    
-        /// <returns></returns>
-        public string ExpandUrls(string text)
+        /// <param name="output"></param>
+        /// <param name="filename"></param>
+        /// <param name="encoding">if not specified used UTF-8</param>
+        public static void LogString(string output, string filename, Encoding encoding = null)
         {
-            MatchEvaluator matchEval = null;
-            string pattern = null;
-            string updated = null;
+            if (encoding == null)
+                encoding = Encoding.UTF8;
 
-
-            // *** Expand embedded hyperlinks
-            RegexOptions options =
-                                                                  RegexOptions.Multiline |
-                                                                  RegexOptions.IgnoreCase;
-
-            if (ParseFormattedLinks)
-            {
-                pattern = @"\[(.*?)\|(.*?)]";
-
-                matchEval = new MatchEvaluator(ExpandFormattedLinks);
-                updated = Regex.Replace(text, pattern, matchEval, options);
-            }
-            else
-                updated = text;
-
-            pattern = @"([""'=]|&quot;)?(http://|ftp://|https://|www\.|ftp\.[\w]+)([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])";
-
-            matchEval = new MatchEvaluator(ExpandUrlsRegExEvaluator);
-            updated = Regex.Replace(updated, pattern, matchEval, options);
-
-
-
-            return updated;
+            StreamWriter Writer = new StreamWriter(filename, true, encoding);
+            Writer.WriteLine(DateTime.Now + " - " + output);
+            Writer.Close();
         }
 
         /// <summary>
-        /// Internal RegExEvaluator callback
+        /// Creates a Stream from a string. Internally creates
+        /// a memory stream and returns that.
         /// </summary>
-        /// <param name="M"></param>
+        /// <param name="text"></param>
+        /// <param name="encoding"></param>
         /// <returns></returns>
-        private string ExpandUrlsRegExEvaluator(Match M)
+        public static Stream StringToStream(string text, Encoding encoding = null)
         {
-            string Href = M.Value; // M.Groups[0].Value;
+            if (encoding == null)
+                encoding = Encoding.Default;
 
-            // *** if string starts within an HREF don't expand it
-            if (Href.StartsWith("=") ||
-                Href.StartsWith("'") ||
-                Href.StartsWith("\"") ||
-                Href.StartsWith("&quot;"))
-                return Href;
-
-            string Text = Href;
-
-            if (Href.IndexOf("://") < 0)
-            {
-                if (Href.StartsWith("www."))
-                    Href = "http://" + Href;
-                else if (Href.StartsWith("ftp"))
-                    Href = "ftp://" + Href;
-                else if (Href.IndexOf("@") > -1)
-                    Href = "mailto:" + Href;
-            }
-
-            string Targ = !string.IsNullOrEmpty(Target) ? " target='" + Target + "'" : "";
-
-            return "<a href='" + Href + "'" + Targ +
-                    ">" + Text + "</a>";
+            MemoryStream ms = new MemoryStream(text.Length * 2);
+            byte[] data = encoding.GetBytes(text);
+            ms.Write(data, 0, data.Length);
+            ms.Position = 0;
+            return ms;
         }
 
-        private string ExpandFormattedLinks(Match M)
+        /// <summary>
+        /// Retrieves a value from an XML-like string
+        /// </summary>
+        /// <param name="propertyString"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static string GetProperty(string propertyString, string key)
         {
-            //string Href = M.Value; // M.Groups[0].Value;
-
-            string Text = M.Groups[1].Value;
-            string Href = M.Groups[2].Value;
-
-            if (Href.IndexOf("://") < 0)
-            {
-                if (Href.StartsWith("www."))
-                    Href = "http://" + Href;
-                else if (Href.StartsWith("ftp"))
-                    Href = "ftp://" + Href;
-                else if (Href.IndexOf("@") > -1)
-                    Href = "mailto:" + Href;
-                else
-                    Href = "http://" + Href;
-            }
-
-            string Targ = !string.IsNullOrEmpty(Target) ? " target='" + Target + "'" : "";
-
-            return "<a href='" + Href + "'" + Targ +
-                    ">" + Text + "</a>";
+            return StringUtils.ExtractString(propertyString, "<" + key + ">", "</" + key + ">");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string SetProperty(string propertyString, string key, string value)
+        {
+            string extract = StringUtils.ExtractString(propertyString, "<" + key + ">", "</" + key + ">");
+
+            if (string.IsNullOrEmpty(value) && extract != string.Empty)
+            {
+                return propertyString.Replace(extract, "");
+            }
+
+            string xmlLine = "<" + key + ">" + value + "</" + key + ">";
+
+            // replace existing
+            if (extract != string.Empty)
+                return propertyString.Replace(extract, xmlLine);
+
+            // add new
+            return propertyString + xmlLine + "\r\n";
+        }
+
+        #endregion
+
+        #region Obsolete
+        /// <summary>
+        /// Determines whether a string is empty (null or zero length)
+        /// </summary>
+        /// <param name="text">Input string</param>
+        /// <returns>true or false</returns>
+        [Obsolete("Use string.IsNullOrEmpty() instead")]
+        public static bool Empty(string text)
+        {
+            return string.IsNullOrEmpty(text);
+        }
+
+        /// <summary>
+        /// Determines wheter a string is empty (null or zero length)
+        /// </summary>
+        /// <param name="text">Input string (in object format)</param>
+        /// <returns>true or false</returns>        
+        [Obsolete("Use string.IsNullOrEmpty() instead")]
+        public static bool Empty(object text)
+        {
+            return string.IsNullOrEmpty(text as string);
+        }
+
+        #endregion
     }
 }
