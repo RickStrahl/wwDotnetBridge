@@ -2,11 +2,11 @@
 ### 针对 Visual FoxPro 9 的更容易的 .NET 互操作
 
 翻译：xinjie 2018.05.10
-鸣谢：福建省龙岩市耐思科技信息有限公司(http://www.fjlynice.com/)
+**鸣谢：[福建省龙岩市耐思科技信息有限公司](http://www.fjlynice.com/)**
 
-wwDotnetBridge是一个小型库，旨在使**从Visual FoxPro 调用.NET组件**变得容易。 通过提供一种简单的机制来加载.NET组件并在不需要.NET组件的明确COM注册的情况下调用它们，就可以轻松地将.NET功能添加到您的应用程序中。 与核心.NET框架组件交互，访问免费或商业第三方**库**，或者从FoxPro构建和访问您自己的.NET组件，而无需通过COM注册组件。
+wwDotnetBridge 是一个小型库，旨在使**从 Visual FoxPro 调用 .NET 组件**变得容易。 通过提供一种简单的机制来加载 .NET 组件并在不需要 .NET 组件的明确 COM 注册的情况下调用它们，就可以轻松地将 .NET 功能添加到您的应用程序中。 与核心 .NET 框架组件交互，访问免费或商业第三方**库**，或者从 FoxPro 构建和访问您自己的 .NET 组件，而无需通过 COM 注册组件。
 
-wwDotnetBridge还提供了大量工具，以便访问FoxPro和COM本身不支持的.NET类型功能。 例如，原生COM互操作无法访问具有多个构造函数的组件，无法访问Value，Static或Generic成员和类型。 wwDotnetBridge可以自动转换一些问题类型，并提供允许访问大多数不受支持的要素类型的包装类型。 还有一个功能强大的ComArray类，可以轻松交互和操作.NET数组和集合，还有一个ComValue类，可以让您分配和传递.NET值，而无需触及FoxPro代码。
+wwDotnetBridge 还提供了大量工具，以便访问 FoxPro 和 COM 本身不支持的 .NET 类型功能。 例如，原生 COM 互操作无法访问具有多个构造函数的组件，无法访问Value，Static或Generic成员和类型。 wwDotnetBridge 可以自动转换一些问题类型，并提供允许访问大多数不受支持的要素类型的包装类型。 还有一个功能强大的ComArray 类，可以轻松交互和操作 .NET 数组和集合，还有一个 ComValue 类，可以让您分配和传递 .NET 值，而无需触及 FoxPro 代码。
 
 #### wwDotnetBridge 和 .NET 版本
 > 当前版本的wwDotnetBridge是为.NET 4.5编译的，适用于：
