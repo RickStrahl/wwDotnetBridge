@@ -6,13 +6,13 @@ wwDotnetBridge是一个小型库，旨在使**从Visual FoxPro 调用.NET组件*
 wwDotnetBridge还提供了大量工具，以便访问FoxPro和COM本身不支持的.NET类型功能。 例如，原生COM互操作无法访问具有多个构造函数的组件，无法访问Value，Static或Generic成员和类型。 wwDotnetBridge可以自动转换一些问题类型，并提供允许访问大多数不受支持的要素类型的包装类型。 还有一个功能强大的ComArray类，可以轻松交互和操作.NET数组和集合，还有一个ComValue类，可以让您分配和传递.NET值，而无需触及FoxPro代码。
 
 #### wwDotnetBridge 和 .NET 版本
-> The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
+> 当前版本的wwDotnetBridge是为.NET 4.5编译的，适用于：
 >
-> * .NET 4.5 or later
-> * Windows 7 and newer
-> * Windows Server 2008 R2 and newer
+> * .NET 4.5 或更高
+> * Windows 7 或更高
+> * Windows Server 2008 R2 或更高
 >
-> For support of Windows XP, Server 2003 and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008. Note that you can use the new version just fine for loading .NET 1.1, 2.0 and 4.0 compiled assemblies.
+> 要获得Windows XP，Server 2003和2008 的支持，**您必须使用[版本6.0的wwDotnetBridge]（https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0）**，该版本的最新版本 用**.NET 4.0**编译，可以运行XP，Vista，Server2003 / 2008。 请注意，您可以使用新版本来加载.NET 1.1,2.0和4.0编译程序集。
 
 ## Getting Started
 Somewhere in the startup of your application call `InitializeDotnetVersion()`:
