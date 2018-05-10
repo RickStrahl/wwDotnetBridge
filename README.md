@@ -1,11 +1,11 @@
 # wwDotnetBridge
-### .NET Interop made easy for Visual FoxPro 9
+### 针对 Visual FoxPro 9 的更容易的 .NET 互操作
 
-wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party **libraries**, or build and access your own .NET components from FoxPro all without having to register components via COM.
+wwDotnetBridge是一个小型库，旨在使**从Visual FoxPro 调用.NET组件**变得容易。 通过提供一种简单的机制来加载.NET组件并在不需要.NET组件的明确COM注册的情况下调用它们，就可以轻松地将.NET功能添加到您的应用程序中。 与核心.NET框架组件交互，访问免费或商业第三方**库**，或者从FoxPro构建和访问您自己的.NET组件，而无需通过COM注册组件。
 
-wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections, and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
+wwDotnetBridge还提供了大量工具，以便访问FoxPro和COM本身不支持的.NET类型功能。 例如，原生COM互操作无法访问具有多个构造函数的组件，无法访问Value，Static或Generic成员和类型。 wwDotnetBridge可以自动转换一些问题类型，并提供允许访问大多数不受支持的要素类型的包装类型。 还有一个功能强大的ComArray类，可以轻松交互和操作.NET数组和集合，还有一个ComValue类，可以让您分配和传递.NET值，而无需触及FoxPro代码。
 
-#### wwDotnetBridge and .NET Versions
+#### wwDotnetBridge 和 .NET 版本
 > The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
 >
 > * .NET 4.5 or later
