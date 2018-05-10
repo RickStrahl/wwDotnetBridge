@@ -90,19 +90,19 @@ wwDotnetBridge 通过简单的 COM 互操作提供了以下增强功能：
 * [白皮书](https://github.com/vfp9/wwDotnetBridge/blob/master/%E5%9C%A8%20Visual%20FoxPro%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20%20wwDotnetBridge%20%20%E8%B0%83%E7%94%A8%20NET%20%E7%BB%84%E4%BB%B6.pdf)
 * [更新历史](https://github.com/vfp9/wwDotnetBridge/blob/master/Changelog.md)
 
-## How it works
-This library consists of 3 components (all provided in source):
+## 它是如何工作的
+该库由3个组件组成（均在源代码中提供）：
 
-* ClrHost.dll - Win32 Loader for the .NET Runtime
-* wwDotnetBridge.dll  - .NET assembly Proxy and Helper
-* wwDotnetBridge.prg - FoxPro front end to .NET Proxy
+* ClrHost.dll - .NET Runtime 的 Win32 载入器
+* wwDotnetBridge.dll  - .NET 程序集的代理和增强
+* wwDotnetBridge.prg - FoxPro 前端到 .NET 代理
 
-> #### Make sure DLLs can be found!
-> Make sure CrlHost.dll (or wwIpstuff.dll for [commercial West Wind tools](https://west-wind.com/WestwindClientTools.aspx)) and wwDotnetBridge are accessible via the FoxPro path. Ideally you'll want to have these DLLs in your current executing path of the application - typically the root folder of the application.
+> #### 确保可以找到DLL！
+> 确保CrlHost.dll（或 wwIpstuff.dll 用于[商业West Wind工具](https://west-wind.com/WestwindClientTools.aspx)）和 wwDotnetBridge 可通过FoxPro路径访问。 理想情况下，您需要将这些DLL放在应用程序的当前执行路径中 - 通常是应用程序的根文件夹。
 
-If you're using FoxPro you can simply use the wwDotnetBridge.prg class to load an assembly and fire away at it or access existing .NET components directly.
+如果你使用的是FoxPro，你可以简单地使用wwDotnetBridge.prg类来加载一个程序集并且直接启动它或者访问现有的.NET组件。
 
-This example loads the OpenPop .NET library and accesses a POP3 mailbox to display messages waiting:
+此示例加载 OpenPop .NET 库并访问 POP3 邮箱以显示等待的消息：
 
 ```foxpro
 *** Load library and initialize wwDotnetBridge
