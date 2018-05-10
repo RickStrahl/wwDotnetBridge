@@ -19,17 +19,17 @@ wwDotnetBridge 还提供了大量工具，以便访问 FoxPro 和 COM 本身不�
 > 要获得Windows XP，Server 2003和2008 的支持，**您必须使用[版本6.0的wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** ，该版本的最新版本 用 **.NET 4.0** 编译，可以运行XP，Vista，Server2003 / 2008。 请注意，您可以使用新版本来加载.NET 1.1,2.0和4.0编译程序集。
 
 ## 从这里开始
-Somewhere in the startup of your application call `InitializeDotnetVersion()`:
+在你的应用程序启动的某个地方调用`InitializeDotnetVersion()`
 
 ```foxpro
-*** Load dependencies and add to Procedure stack
-*** Make sure wwDotnetBridge.prg wwDotnetBridge.dll wwIPStuff.dll 
-*** are in your FoxPro path
+*** 加载依赖关系并添加到过程堆栈
+*** 确保 wwDotnetBridge.prg wwDotnetBridge.dll wwIPStuff.dll
+*** 在您的 FoxPro 路径中
 DO wwDotnetBridge
 InitializeDotnetVersion("V4") 
 ```
 
-This ensures that wwDotnetBridge loads with the specified **single version of the .NET Runtime** that your FoxPro application can load.
+这可以确保 wwDotnetBridge 加载您的 FoxPro 应用程序可以加载的指定**单一版本的.NET运行时**。
 
 > #### @icon-warning  Unable to load CLR Instance Errors
 > If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, you probably need to unblock the wwdotnetbridge.dll or need to ensure that the wwdotnetbridge.dll and wwipstuff.dll are in your FoxPro path. Please see [Unable to load CLR Instance](https://www.west-wind.com/webconnection/wwClient_docs/_3rf12jtma.htm) for more info.
