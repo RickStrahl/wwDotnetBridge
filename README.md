@@ -31,64 +31,64 @@ InitializeDotnetVersion("V4")
 
 这可以确保 wwDotnetBridge 加载您的 FoxPro 应用程序可以加载的指定**单一版本的.NET运行时**。
 
-> #### @icon-warning  Unable to load CLR Instance Errors
-> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, you probably need to unblock the wwdotnetbridge.dll or need to ensure that the wwdotnetbridge.dll and wwipstuff.dll are in your FoxPro path. Please see [Unable to load CLR Instance](https://www.west-wind.com/webconnection/wwClient_docs/_3rf12jtma.htm) for more info.
+> #### @icon-warning  无法加载CLR实例错误
+> 如果在创建wwDotnetBridge实例时收到<b>无法CLR实例</b>错误，则可能需要解除对 wwdotnetbridge.dll 的阻止或需要确保 wwdotnetbridge.dll 和wwipstuff.dll 位于您的 FoxPro 路径中。 请参阅[无法加载CLR实例](https://www.west-wind.com/webconnection/wwClient_docs/_3rf12jtma.htm)了解更多信息。
 
-Then when you need to utilize wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
+然后，当您需要利用 wwDotnetBridge 调用 `GetwwDotnetBridge()` 来获取缓存实例并使用它来访问 .NET 组件时：
 
 ```foxpro
-*** Create or get cached instance of wwdotnetbridge
+*** 创建或获取wwdotnetbridge的缓存实例
 LOCAL loBridge as wwDotnetBridge, loHttp
 loBridge = GetwwDotnetBridge()
 
-*** Create a built-in .NET class and run a method
+*** 创建一个内置的.NET类并运行一个方法
 loHttp = loBridge.CreateInstance("System.Net.WebClient")
 loHttp.DownloadFile("http://west-wind.com/files/MarkdownMonsterSetup.exe",
                     "MarkdownMonsterSetup.exe")
 DO wwUtils
-GoUrl(FULLPATH("MarkdownMonsterSetup.exe"))  && run it
+GoUrl(FULLPATH("MarkdownMonsterSetup.exe"))  && 运行它
 
-*** Load a custom .NET assembly
+*** 加载一个自定义 .NET 程序集
 loBridge.LoadAssembly("CustomDotnet.dll")
 
-*** Access a .NET component from the new assembly
+*** 从新程序集中访问.NET组件
 loItem = loBridge.CreateInstance("Custom.Item")
 
-*** Access properties directly
+*** 直接访问属性
 ? loItem.Sku
 loItem.Sku = "NewSku"
 lnTotal = loItem.CalculateTotal()
 
-*** Access non-accessible properties and methods indirectly
+*** 间接访问不可访问的属性和方法
 lnFlagValue = loBridge.GetProperty(loItem,"Flag")
 lnFlagValue = loBridge.SetProperty(loItem,"Flag",5) 
 loBridge.InvokeMethod(loItem,"PassFlagValue",lnFlagValue)
 ```
 
-## Features at a glance
-wwDotnetBridge provides the following enhancements over plain COM Interop:
+## 功能一览
+wwDotnetBridge 通过简单的 COM 互操作提供了以下增强功能：
 
-* Access most .NET Components directly even those not marked [ComVisible]
-* Requires no COM Registration
-* Call any .NET method and set and get properties
-* Call any .NET method asynchronously and get called back on completion
-* Instantiate types with parameterized constructors
-* Call overloaded methods using standard method names
-* Support for many natively unsupported .NET types and values
-* Access Static members, Value/Struct types, Generics, Binary, Guids, DbNulls
-* Automatically fix up problematic .NET Types on method returns
-* Provides easy Array access with ComArray helper class
-* ComValue class to store results and parameters in .NET
-* ComValue helps with problem .NET type conversions
-* ComArray allows easy creation, updating and managing of Enumerable types
-* Multi-threading library built-in 
-* wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
+* 直接访问大多数 .NET 组件，即使那些未标记[ComVisible]
+* 不需要 COM 注册
+* 调用任何 .NET 方法并设置和获取属性
+* 以异步方式调用任何 .NET 方法，并在完成时回调
+* 使用参数化构造函数实例化类型
+* 使用标准方法名称调用重载方法
+* 支持许多原生不支持的 .NET 类型和值
+* 访问静态成员，值/结构类型，泛型，二进制，Guids，DbNulls
+* 在方法返回时自动修复有问题的 .NET 类型
+* 使用 ComArray 辅助类提供简单的数组访问
+* ComValue 类在 .NET 中存储结果和参数
+* ComValue 可帮助解决 .NET 类型转换问题
+* ComArray 可以轻松创建，更新和管理 Enumerable 类型
+* 内置多线程库
+* wwDotnetBridge 还可以使用常规的 COM 互操作（不带运行时托管）
 
-## Documentation
-* [Home Page](http://west-wind.com/wwDotnetBridge.aspx)
-* [API Documentation](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
-* [White Paper](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
-* [Change Log](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
+## 文档
+* [主页](http://west-wind.com/wwDotnetBridge.aspx)
+* [API 文档](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
+* [白皮书](https://github.com/vfp9/wwDotnetBridge/blob/master/%E5%9C%A8%20Visual%20FoxPro%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20%20wwDotnetBridge%20%20%E8%B0%83%E7%94%A8%20NET%20%E7%BB%84%E4%BB%B6.pdf)
+* [更新历史](https://github.com/vfp9/wwDotnetBridge/blob/master/Changelog.md)
 
 ## How it works
 This library consists of 3 components (all provided in source):
