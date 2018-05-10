@@ -12,9 +12,9 @@ wwDotnetBridge还提供了大量工具，以便访问FoxPro和COM本身不支持
 > * Windows 7 或更高
 > * Windows Server 2008 R2 或更高
 >
-> 要获得Windows XP，Server 2003和2008 的支持，**您必须使用[版本6.0的wwDotnetBridge]（https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0）**，该版本的最新版本 用**.NET 4.0**编译，可以运行XP，Vista，Server2003 / 2008。 请注意，您可以使用新版本来加载.NET 1.1,2.0和4.0编译程序集。
+> 要获得Windows XP，Server 2003和2008 的支持，**您必须使用[版本6.0的wwDotnetBridge]（https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0）**，该版本的最新版本 用 **.NET 4.0** 编译，可以运行XP，Vista，Server2003 / 2008。 请注意，您可以使用新版本来加载.NET 1.1,2.0和4.0编译程序集。
 
-## Getting Started
+## 从这里开始
 Somewhere in the startup of your application call `InitializeDotnetVersion()`:
 
 ```foxpro
