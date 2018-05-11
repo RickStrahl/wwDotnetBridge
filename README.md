@@ -105,15 +105,15 @@ wwDotnetBridge 通过简单的 COM 互操作提供了以下增强功能：
 此示例加载 OpenPop .NET 库并访问 POP3 邮箱以显示等待的消息：
 
 ```foxpro
-*** Load library and initialize wwDotnetBridge
+*** 载入并初始化 wwDotnetBridge
 do wwDotNetBridge
 LOCAL loBridge as wwDotNetBridge
 loBridge = CreateObject("wwDotNetBridge")
 
-*** Load an assembly from disk
+*** 从磁盘载入一个程序集
 loBridge.LoadAssembly("bin\OpenPop.dll")
 
-*** Create an instance of a class - note: No COM registration
+*** 创建类实例 - 注意：没有 COM 注册
 loPop = loBridge.CreateInstance("OpenPop.Pop3.Pop3Client")
 
 *** This won't work due to overloads
