@@ -240,6 +240,10 @@ ENDIF
 ENDFUNC
 *   Unload
 
+FUNCTION EnableThrowOnError()
+this.oDotNetBridge.IsThrowOnErrorEnabled = .T.
+ENDFUNC
+
 ************************************************************************
 *  CreateInstance
 ****************************************
@@ -921,13 +925,17 @@ ENDFUNC
 ****************************************
 ***  Function: Handles all events of a source object for subsequent retrieval by calling WaitForEvent.
 ***  loSource: The object for which to subscribe to events.
-*** loHandler: An object with a method OnEvent(loEventName, loParams).
+***  loHandler: An object with a method OnEvent(loEventName, loParams).
+***  lcPrefix: The initial part of the event handler function for each event. Defaults to "On".
 ***    Return: A subscription object. The subscription ends when this object goes out of scope.
 ************************************************************************
-FUNCTION SubscribeToEvents(loSource, loHandler)
+FUNCTION SubscribeToEvents(loSource, loHandler, lcPrefix)
+IF EMPTY(lcPrefix)
+	lcPrefix = "On"
+ENDIF
 LOCAL loSubscription
 loSubscription = CREATEOBJECT("EventSubscription")
-loSubscription.Setup(this, loSource, loHandler)
+loSubscription.Setup(this, loSource, loHandler, lcPrefix)
 RETURN loSubscription
 ENDFUNC
 *   SubscribeToEvents
@@ -1536,18 +1544,19 @@ DEFINE CLASS EventSubscription as AsyncCallbackEvents
 *:  Usage: Used internally by SubscribeToEvents
 *************************************************************
 
-HIDDEN oBridge, oHandler, oSubscriber
+HIDDEN oBridge, oHandler, oSubscriber, oPrefix
 
-FUNCTION Setup(loBridge, loSource, loHandler)
+FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)
 this.oBridge = loBridge
 this.oHandler = loHandler
+this.oPrefix = lcPrefix
 this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource)
 this.HandleNextEvent()
 ENDFUNC
 
-PROCEDURE Destroy
+FUNCTION Unsubscribe()
 this.oSubscriber.Dispose()
-ENDPROC
+ENDFUNC
  
 FUNCTION HandleNextEvent()
 this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")
@@ -1569,7 +1578,7 @@ IF NOT ISNULL(lvResult.Params)
 		lParamText = lParamText + ",loParams.P" + ALLTRIM(STR(lCount))
 	ENDFOR
 ENDIF
-=EVALUATE("this.oHandler.On" + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
+=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
 this.HandleNextEvent()
 ENDFUNC
 

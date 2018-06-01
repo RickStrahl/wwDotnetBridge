@@ -12,6 +12,7 @@ namespace Westwind.WebConnection
     /// <summary>
     /// FoxPro interop access to .NET events. Handles all events of a source object for subsequent retrieval by a FoxPro client.
     /// </summary>
+    /// <remarks>For a FoxPro program to be notified of events, it should use `wwDotNetBridge.InvokeMethodAsync` to call <see cref="WaitForEvent"/>. When <see cref="WaitForEvent"/> asynchronously completes, the FoxPro program should handle the event it returns and then call <see cref="WaitForEvent"/> again to wait for the next event. The FoxPro class `EventSubscription`, which is returned by `SubscribeToEvents`, encapsulates this async wait loop.</remarks>
     public sealed class EventSubscriber : IDisposable
     {
         private readonly object _source;
@@ -65,7 +66,7 @@ namespace Westwind.WebConnection
             if (_raisedEvents.TryDequeue(out var interopEvent)) return interopEvent;
             _completion = new TaskCompletionSource<RaisedEvent>();
             var task = _completion.Task;
-
+            
             task.Wait();
 
             return task.IsCanceled ? null : task.Result;

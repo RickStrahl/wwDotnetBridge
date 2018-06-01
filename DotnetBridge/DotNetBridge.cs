@@ -87,8 +87,9 @@ namespace Westwind.WebConnection
         }
         private bool _Error = false;
 
-
         public Exception LastException { get; set; }
+
+        public bool IsThrowOnErrorEnabled { get; set; }
 
         public wwDotNetBridge()
         {
@@ -1658,6 +1659,9 @@ namespace Westwind.WebConnection
             }
             Error = true;
             ErrorMessage = message;
+
+            if (IsThrowOnErrorEnabled)
+                throw new InvalidOperationException(message);
         }
 
         protected void SetError(Exception ex, bool checkInner)
@@ -1676,6 +1680,9 @@ namespace Westwind.WebConnection
             Error = true;
             ErrorMessage = e.Message;
             LastException = e;
+
+            if (IsThrowOnErrorEnabled)
+                throw e;
         }
 
         protected void SetError(Exception ex)
