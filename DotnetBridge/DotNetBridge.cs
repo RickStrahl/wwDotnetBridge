@@ -47,6 +47,7 @@ using System.Data;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -892,19 +893,21 @@ namespace Westwind.WebConnection
             if (callBack == null || string.IsNullOrEmpty(method))
                 throw new ApplicationException("You have to pass a callback object and method name.");
 
-            var t = new Thread(_InvokeMethodAsync);
-
             var parms = new object[5];
             parms[0] = callBack;
             parms[1] = instance;
             parms[2] = method;
             parms[3] = parameters;
             parms[4] = false; // isStatic
-            t.Start(parms);
+
+            //var t = new Thread(_InvokeMethodAsync);
+            //t.Start(parms);
+
+            Task.Run(() => _InvokeMethodAsync(parms));
         }
 
         /// <summary>
-        /// Invokes a method on a new thread and fires OnCompleted and OnError
+        /// Invokes a method on asynchronously and fires OnCompleted and OnError
         /// events on a passed in callback object.
         /// </summary>
         /// <param name="callBack">
@@ -920,15 +923,17 @@ namespace Westwind.WebConnection
             if (callBack == null || string.IsNullOrEmpty(method))
                 throw new ApplicationException("You have to pass a callback object and method name.");
 
-            var t = new Thread(_InvokeMethodAsync);
-
             var parms = new object[5];
             parms[0] = callBack;
             parms[1] = typeName;
             parms[2] = method;
             parms[3] = parameters;
             parms[4] = true; // isStatic
-            t.Start(parms);
+
+            //var t = new Thread(_InvokeMethodAsync);
+            //t.Start(parms);
+
+            Task.Run(() => _InvokeMethodAsync(parms));
         }
 
         /// <summary>
