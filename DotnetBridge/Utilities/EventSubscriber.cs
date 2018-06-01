@@ -66,17 +66,7 @@ namespace Westwind.WebConnection
             _completion = new TaskCompletionSource<RaisedEvent>();
             var task = _completion.Task;
 
-
-            try
-            {
-                // TODO: This needs attention when Task is Cancelled - throws during shut down            
-                task.Wait();
-            }
-            catch
-            {
-                // for now just exit with null since we didn't wait for the result.
-                return null;
-            }
+            task.Wait();
 
             return task.IsCanceled ? null : task.Result;
         }
