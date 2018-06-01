@@ -2,6 +2,15 @@
 
 <small>[Latest Online Documentation](http://west-wind.com/webconnection/docs/_24n1cfw3a.htm)</small>
 
+
+### Version 6.21
+
+* **Added Event Subscription Support**  
+You can now use `.SubscribeToEvents()` to subscribe to events of an object and pass a FoxPro object that implements the event methods using an specified (`On` by default) prefix. Thanks to Edward Brey for his work on this!
+
+* **Add CLR 4.0 Hosting and better Loader Error Handling**  
+Added new CLR hosting logic to the C++ connector which provides better support for .NET 4 hosting. Also added additional error handling for the CLR loader process so more error information may be available. Thanks to Edward Brey for his work on this!
+
 ### Version 6.19
 * **wwDotnetBridge.dll is now compiled with .NET 4.5**  
 This version of wwDotnetBridge is compiled for and requires .NET 4.5 or later. 4.5 offers a number of performance and feature enhancements that are required to load .NET 4.5 and later components. The vast majority of Windows machines come pre-installed with a version of .NET 4.5 or later so this version is the now the default.
