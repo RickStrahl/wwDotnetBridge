@@ -27,7 +27,7 @@ namespace Westwind.WebConnection
             _completion.SetResult(null);
 
             // For each event, adds a handler that calls QueueInteropEvent.
-            this._source = source;
+            _source = source;
             foreach (var ev in source.GetType().GetEvents()) {
                 var eventParams = ev.EventHandlerType.GetMethod("Invoke").GetParameters().Select(p => Expression.Parameter(p.ParameterType)).ToArray();
                 var eventHandlerLambda = Expression.Lambda(ev.EventHandlerType,
@@ -67,7 +67,9 @@ namespace Westwind.WebConnection
             if (_raisedEvents.TryDequeue(out var interopEvent)) return interopEvent;
             _completion = new TaskCompletionSource<RaisedEvent>();
             var task = _completion.Task;
+            
             task.Wait();
+
             return task.IsCanceled ? null : task.Result;
         }
     }
