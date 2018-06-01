@@ -47,7 +47,7 @@ using System.Data;
 using System.Net;
 using System.Text;
 using System.Threading;
-
+using System.Threading.Tasks;
 
 namespace Westwind.WebConnection
 {
@@ -875,13 +875,13 @@ namespace Westwind.WebConnection
 
 
         /// <summary>
-        /// Invokes a method on a new thread and fires OnCompleted and OnError
-        /// events on a passed in callback object.
+        /// Invokes a method on a thread pool thread and calls OnCompleted or OnError
+        /// on a passed-in callback object.
         /// </summary>
         /// <param name="callBack">
         /// A callback object that has to have two methods:
         /// OnCompleted(lvResult, lcMethod)
-        /// OnError(lcErrorMsg,loException, lcMethod)        
+        /// OnError(lcErrorMsg,loException, lcMethod)
         /// </param>
         /// <param name="instance"></param>
         /// <param name="method"></param>
@@ -898,20 +898,17 @@ namespace Westwind.WebConnection
             parms[3] = parameters;
             parms[4] = false; // isStatic
 
-            //var t = new Thread(_InvokeMethodAsync);
-            //t.Start(parms);
-
             Task.Run(() => _InvokeMethodAsync(parms));
         }
 
         /// <summary>
-        /// Invokes a method on asynchronously and fires OnCompleted and OnError
-        /// events on a passed in callback object.
+        /// Invokes a static method on a thread pool thread and calls OnCompleted and OnError
+        /// on a passed-in callback object.
         /// </summary>
         /// <param name="callBack">
         /// A callback object that has to have two methods:
         /// OnCompleted(lvResult, lcMethod)
-        /// OnError(lcErrorMsg,loException, lcMethod)        
+        /// OnError(lcErrorMsg,loException, lcMethod)
         /// </param>
         /// <param name="instance"></param>
         /// <param name="method"></param>
@@ -927,9 +924,6 @@ namespace Westwind.WebConnection
             parms[2] = method;
             parms[3] = parameters;
             parms[4] = true; // isStatic
-
-            //var t = new Thread(_InvokeMethodAsync);
-            //t.Start(parms);
 
             Task.Run(() => _InvokeMethodAsync(parms));
         }

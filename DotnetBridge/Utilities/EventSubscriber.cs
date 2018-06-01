@@ -77,6 +77,6 @@ namespace Westwind.WebConnection
     public class RaisedEvent
     {
         public string Name { get; internal set; }
-        public ArrayList Params { get; internal set; }
+        public ArrayList Params { get; internal set; } // An ArrayList is used here instead of object[] to work around difficulties with indexing into arrays from FoxPro.
     }
 }
