@@ -34,9 +34,9 @@ namespace Westwind.WebConnection.Tests
         static void VerifyResults(EventSubscriber subscriber)
         {
             var result = subscriber.WaitForEvent();
-            Assert.IsTrue(result.Name == nameof(Loopback.NoParams) && result.Params.Length == 0);
+            Assert.IsTrue(result.Name == nameof(Loopback.NoParams) && result.Params.Count == 0);
             result = subscriber.WaitForEvent();
-            Assert.IsTrue(result.Name == nameof(Loopback.TwoParams) && result.Params.Length == 2 && (string)result.Params[0] == "A" && (int)result.Params[1] == 1);
+            Assert.IsTrue(result.Name == nameof(Loopback.TwoParams) && result.Params.Count == 2 && (string)result.Params[0] == "A" && (int)result.Params[1] == 1);
         }
     }
 

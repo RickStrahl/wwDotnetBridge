@@ -26,18 +26,18 @@ loFw.EnableRaisingEvents = .T.
 lcFile = lcDir + "\wwDotNetBridge.EventTest.txt"
 STRTOFILE("DDD",lcFile)
 STRTOFILE("FFF",lcFile)
-loLoopbackEventSubscription.Unsubscribe()
+loFwSubscription.Unsubscribe()
 RETURN
 
 
 DEFINE CLASS LoopbackEventHandler as Custom
 
 PROCEDURE OnNoParams()
- ? "NoParams"
+ ? "Loopback test event raised: NoParams"
 ENDPROC
 
 PROCEDURE OnTwoParams(a,b)
- ? "TwoParams: "  + a + STR(b)
+ ? "Loopback test event raised: TwoParams: "  + a + STR(b)
 ENDPROC
 
 ENDDEFINE
