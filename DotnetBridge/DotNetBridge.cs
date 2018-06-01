@@ -48,7 +48,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 
 namespace Westwind.WebConnection
@@ -67,7 +66,6 @@ namespace Westwind.WebConnection
     [ProgId("Westwind.wwDotNetBridge")]
     public class wwDotNetBridge
     {
-
         private static bool _firstLoad = true;
 
         /// <summary>
@@ -642,7 +640,7 @@ namespace Westwind.WebConnection
 
             value = FixupParameter(value);
             
-            ErrorMessage = "";            
+            ErrorMessage = "";
             try
             {
                 type.InvokeMember(property, BindingFlags.Static | BindingFlags.Public | BindingFlags.SetField | BindingFlags.SetProperty, null, type, new object[1] { value });
@@ -676,7 +674,7 @@ namespace Westwind.WebConnection
             {
                 SetError(ex.GetBaseException());
                 throw ex.GetBaseException();
-            }            
+            }
         }
 
         public Type GetType(object value)
