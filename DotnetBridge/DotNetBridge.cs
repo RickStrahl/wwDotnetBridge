@@ -435,7 +435,7 @@ namespace Westwind.WebConnection
                 if (args == null)
                     server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName);
                 else
-                    server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName, false, BindingFlags.Default, null, args, null, null, null);
+                    server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName, false, BindingFlags.Default, null, args, null, null);
             }
             catch (Exception ex)
             {
@@ -640,8 +640,7 @@ namespace Westwind.WebConnection
 
             value = FixupParameter(value);
             
-            ErrorMessage = "";
-            object result = null;
+            ErrorMessage = "";            
             try
             {
                 type.InvokeMember(property, BindingFlags.Static | BindingFlags.Public | BindingFlags.SetField | BindingFlags.SetProperty, null, type, new object[1] { value });
@@ -675,9 +674,7 @@ namespace Westwind.WebConnection
             {
                 SetError(ex.GetBaseException());
                 throw ex.GetBaseException();
-            }
-
-            return null;
+            }            
         }
 
         public Type GetType(object value)

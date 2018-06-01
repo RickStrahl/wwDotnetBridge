@@ -78,8 +78,6 @@ namespace Westwind.WebConnection
                 return null;
             }
 
-            
-
             return task.IsCanceled ? null : task.Result;
         }
     }
