@@ -240,7 +240,7 @@
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethodAsync(System.Object,System.String,System.String,System.Object[])">
             <summary>
-            Invokes a method on a new thread and fires OnCompleted and OnError
+            Invokes a method on asynchronously and fires OnCompleted and OnError
             events on a passed in callback object.
             </summary>
             <param name="callBack">
@@ -348,8 +348,8 @@
             <summary>
             Returns an indexed property Value
             </summary>
-            <param name="baseList"></param>
-            <param name="index"></param>
+            <param name="baseList">List object</param>
+            <param name="index">Index into the list</param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetArrayItem(System.Object,System.String,System.Int32)">
@@ -429,6 +429,7 @@
             <summary>
             FoxPro interop access to .NET events. Handles all events of a source object for subsequent retrieval by a FoxPro client.
             </summary>
+            <remarks>For a FoxPro program to be notified of events, it should use `wwDotNetBridge.InvokeMethodAsync` to call <see cref="M:Westwind.WebConnection.EventSubscriber.WaitForEvent"/>. When <see cref="M:Westwind.WebConnection.EventSubscriber.WaitForEvent"/> asynchronously completes, the FoxPro program should handle the event it returns and then call <see cref="M:Westwind.WebConnection.EventSubscriber.WaitForEvent"/> again to wait for the next event. The FoxPro class `EventSubscription`, which is returned by `SubscribeToEvents`, encapsulates this async wait loop.</remarks>
         </member>
         <member name="M:Westwind.WebConnection.EventSubscriber.WaitForEvent">
             <summary>

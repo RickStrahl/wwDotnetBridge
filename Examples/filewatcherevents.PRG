@@ -19,7 +19,7 @@ STRTOFILE("FFF",lcFile)
 
 WAIT WINDOW
 
-loSubscription.Dispose()
+loSubscription.Unsubscribe()
 
 RETURN
 

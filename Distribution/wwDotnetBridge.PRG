@@ -1541,9 +1541,9 @@ ENDFUNC
 *************************************************************
 DEFINE CLASS EventSubscription as AsyncCallbackEvents
 *************************************************************
+*:  Author: Edward Brey  - https://github.com/breyed
 *:  Usage: Used internally by SubscribeToEvents
-*************************************************************
-
+************************************************************
 HIDDEN oBridge, oHandler, oSubscriber, oPrefix
 
 FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)

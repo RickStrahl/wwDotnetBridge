@@ -1538,7 +1538,6 @@ ENDFUNC
 *  GetHighestDotnetVersion
 
 
-
 *************************************************************
 DEFINE CLASS EventSubscription as AsyncCallbackEvents
 *************************************************************
