@@ -116,20 +116,20 @@ loBridge.LoadAssembly("bin\OpenPop.dll")
 *** 创建类实例 - 注意：没有 COM 注册
 loPop = loBridge.CreateInstance("OpenPop.Pop3.Pop3Client")
 
-*** This won't work due to overloads
+*** 由于重载, 这不会起作用
 * loPop.Connect("mail.server.net",587,.f.)
 
-*** So, call indirectly instead
+*** 因此，间接调用
 ? loBridge.InvokeMethod(loPop,"Connect","mail.server.net",110,.f.)
 
-*** Most methods/members do work directly
+*** 大多数 方法/成员 都不会直接工作
 ? loPop.Authenticate("jb007","seekrit")
 
 lnCount =  loPop.GetMessageCount()
 ? StringFormat("{0} Messages",lnCount)
 
-*** NOTE: OpenPop is 1 based because pop3 is 1 based!
-** show last messages
+*** 注意：OpenPop 从 1 开始，因为 pop3 是从 1 开始！
+** 显示最后一条消息
 FOR lnX = lnCount TO 1 STEP -1
    loHeader = loPop.GetMessageHeaders(lnx)
    ? loHeader.From.DisplayName
