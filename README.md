@@ -140,14 +140,14 @@ FOR lnX = lnCount TO 1 STEP -1
    ENDIF
 ENDFOR
 ```
-The example demonstrates a few simple features: Loading an assembly, creating a .NET type instance and then calling methods and accessing properties either directly or indirectly. For many methods and properties on .NET object references you can directly access the members, but some members are not directly callable via COM if there are overloads on a method, if there are Generics, enums or Value Types involved in the method or member access. It's best to always try direct access first and if that fails attempt to use indirect access to the wwDotnetBridge instance.
+该示例演示了一些简单的功能: 加载程序集, 创建. NET 类型实例, 然后直接或间接调用方法和访问属性。对于. NET 对象引用的许多方法和属性, 您可以直接访问成员, 但如果方法有重载, 如果方法或成员访问中涉及了泛型、枚举或值类型, 则某些成员不能直接通过 COM 调用。最好始终先尝试直接访问, 如果失败, 尝试使用对 wwDotnetBridge 实例的间接访问。
 
-In that case you can use indirect referencing to access members with:
+在这种情况下, 您可以使用间接引用来访问成员:
 
 * loBridge.InvokeMethod(instance,"Method",parm1,parm2..,parm15)
 * loBridge.GetProperty(instance,"Property")  
 * loBridge.SetProperty(instance,"Property",valueToSet)
-* GetPropertyEx(),SetPropertyEx,InvokeMethodEx() which supported nested names for the member
+* GetPropertyEx(),SetPropertyEx,InvokeMethodEx() 支持成员的嵌套名称
 
 These methods internally use Reflection to call .NET code, but because they run inside of .NET they can do many things that native COM interop cannot due to the limitations for type marshalling over COM and the incompatibilities of the FoxPro type system.
 
