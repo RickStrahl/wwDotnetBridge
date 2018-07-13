@@ -149,15 +149,15 @@ ENDFOR
 * loBridge.SetProperty(instance,"Property",valueToSet)
 * GetPropertyEx(),SetPropertyEx,InvokeMethodEx() 支持成员的嵌套名称
 
-These methods internally use Reflection to call .NET code, but because they run inside of .NET they can do many things that native COM interop cannot due to the limitations for type marshalling over COM and the incompatibilities of the FoxPro type system.
+这些方法在内部使用Reflection来调用.NET代码，但是因为它们在.NET内部运行，所以它们可以执行本机COM互操作所不能做的许多事情，因为COM上的类型编组的限制以及FoxPro类型系统的不兼容性。
 
-Here's another example that demonstrates a few more features including calling static methods and setting enum values and accessing collections using enumerators.
+这是另一个演示更多功能的示例，包括调用静态方法和设置枚举值以及使用枚举器访问集合。
 
 ```foxpro
-*** Load library
+*** 载入库
 DO wwDotNetBridge
 
-*** Create instance of wwDotnetBridge
+*** 创建 wwDotnetBridge 的实例
 LOCAL loBridge as wwDotNetBridge
 loBridge = CreateObject("wwDotNetBridge","V4")
 
@@ -165,23 +165,23 @@ loStore = loBridge.CreateInstance("System.Security.Cryptography.X509Certificates
 
 ? loBridge.cErrorMsg
 
-*** Grab a static Enum value
+*** 获取静态枚举值
 leReadOnly = loBridge.GetEnumvalue("System.Security.Cryptography.X509Certificates.OpenFlags.ReadOnly")
 
-*** Use the enum value
-loStore.Open(leReadOnly)   && 0 - if value is known
+*** 使用枚举值
+loStore.Open(leReadOnly)   && 0 - 如果值是已知的
 
-*** Returns a .NET Collection of store items
+*** 返回存储项的. NET 集合
 laCertificates = loStore.Certificates
 
-*** Collections don't work over regular COM Interop
-*** so use indirect access
+*** 集合不适用于常规COM Interop
+*** 所以使用间接访问
 lnCount = loBridge.GetProperty(laCertificates,"Count")
 
-*** Loop through Certificates
+*** 遍历 Certificates
 FOR lnX = 0 TO lnCount -1
-	*** Access collection item indirectly using extended syntax
-	*** that supports nested objects and array/collection [] brackets
+	*** 使用扩展语法间接访问集合项
+	*** 支持嵌套对象和数组/集合 [] 括号
 	LOCAL loCertificate as System.Security.Cryptography.X509Certificates.X509Certificate2	
 	loCertificate = loBridge.GetPropertyEx(loStore,"Certificates[" + TRANSFORM(lnX) + "]")
 			
@@ -194,7 +194,7 @@ FOR lnX = 0 TO lnCount -1
 ENDFOR
 ```
 
-You can also call any .NET method asynchronously and get called back when the method has completed executing:
+还可以异步调用任何. NET 方法, 并在方法完成执行后得到回调:
 
 ```foxpro
 DO wwDotnetBridge
@@ -205,40 +205,40 @@ loBridge = GetwwDotnetBridge("V4")
 loHttp = loBridge.CreateInstance("System.Net.WebClient")
 
 
-*** Create a callback object - object has to be 'global'
-*** so it's still around when the callback returns
-*** Use Public or attach to long lived object like form or _Screen
+*** 创建回调对象-对象必须是 "全局"
+*** 所以当回调返回时, 它仍然存在
+*** 使用Public或附加到长期存在的对象，如表单或_Screen
 PUBLIC loCallback
 loCallBack = CREATEOBJECT("HttpCallback")
 
 
-*** Make the async call - returns immediately
+*** 进行异步调用 - 立即返回
 loBridge.InvokeMethodAsync(loCallback, loHttp, ;
                         "DownloadData",;
                         "http://west-wind.com/files/HelpBuilderSetup.exe")
 
-? "Download has started... running in background."
+? "下载已启动... 在后台运行。"
 
 RETURN
 
 
-*** Callback class 
+*** 回调类 
 DEFINE CLASS HttpCallback as Custom
 
 
 FUNCTION OnCompleted(lvResult, lcMethod)
 
-? "Http Call completed"
-? "Received: " + TRANS(LEN(lvResult),"999,999,999")
+? "已完成 Http 调用"
+? "收到： " + TRANS(LEN(lvResult),"999,999,999")
 
 lcFile = ADDBS(SYS(2023)) + "HelpBuilderSetup.exe"
 
-*** Write to file to temp folder
+*** 写入到临时文件夹的文件
 STRTOFILE(lvResult,lcFile)
 
-*** Launch the downloaded installer
+*** 启动下载的安装程序
 TRY
-	*** Open the Zip file
+	*** 打开压缩文件
 	DO wwutils
 	GoUrl(lcFile)
 CATCH
@@ -253,13 +253,13 @@ ENDFUNC
 ENDDEFINE
 ```
 
-## Project Sponsors
-The following people/organizations have provided sponsorship to this project by way of direct donations or for paid development as part of a development project using these tools:
+## 项目赞助商
+以下人员/组织通过直接捐赠或付费开发为此项目提供赞助，作为使用这些工具的开发项目的一部分：
 
 ### West Wind Technologies
-wwDotnetBridge was originally developed for [West Wind Client Tools](http://west-wind.com/webconnection) and [West Wind Web Connection](http://west-wind.com/wconnect), which continue to include a slightly modified version of wwDotnetBridge. West Wind Technologies has kindly open sourced wwDotnetBridge to extend the reach of FoxPro just a bit longer by allowing easy integration with .NET and allowing more people to access this useful functionality.
+wwDotnetBridge最初是为[West Wind Client Tools](http://west-wind.com/webconnection)和[West Wind Web Connection](http://west-wind.com/wconnect)开发的，它们继续包括 略微修改了wwDotnetBridge版本。 West Wind Technologies通过允许与.NET轻松集成并允许更多人访问这一有用功能，友好地开源wwDotnetBridge以扩展FoxPro的范围。
 
-wwDotnetBridge updates are initially developed for both of the commercial products with any changes merged into this project when changes are made. The commercial versions also include a few add-on features used by the products such as an SMTP client, SFTP support, Encryption and Image management utilities through .NET wrappers. If you want a fully supported version of wwDotnetBridge or would like to sponsor further development efforts on wwDotnetBridge, you can show your support by purchasing a license for either of these products.
+wwDotnetBridge更新最初是为两种商业产品开发的，在进行更改时，任何更改都会合并到此项目中。 商业版本还包括产品使用的一些附加功能，例如SMTP客户端，SFTP支持，加密和图像管理实用程序，通过.NET包装器。 如果您想要一个完全支持的wwDotnetBridge版本，或者想赞助wwDotnetBridge的进一步开发工作，您可以通过购买这些产品的许可证来证明您的支持。
 
 * [West Wind Web Connection](http://west-wind.com/webconnection)
 * [West Wind Internet and Client Tools](http://west-wind.com/WestwindClientTools.aspx)
@@ -269,29 +269,29 @@ wwDotnetBridge updates are initially developed for both of the commercial produc
 Craig offered early support and feedback for this project and billed project time for a number of additions to the library as part of a larger project.
 
 ### Bill Suthman - Monosynth
-Bill provided a sizable donation to the project and valuable feedback for a host of improvements and bug fixes.
+Bill为该项目提供了相当大的捐赠，并为一系列改进和错误修复提供了宝贵的反馈。
 
 ### Sunil Rjamara  - WeatherTrend
-Sunil required a number of custom integrations into their FoxPro product that resulted in discovery of a number of edge cases that ended up getting integrated into wwDotnetBridge. WeatherTrend kindly donated a chunk of billable time to adding a handful of these small features.
+Sunil需要在他们的FoxPro产品中进行一些自定义集成，这导致发现了许多边缘案例，最终被集成到wwDotnetBridge中。 WeatherTrend捐赠了大量的工作时间来添加这些小功能。
 
-### Want to be a Sponsor?
-Want to sponsor this project, need customization or want make a donation to show your support? You can contact me directly at rstrahl@west-wind.com or you can also make a donation online via PayPal.
+### 想成为赞助商吗？
+想赞助这个项目，需要定制还是想捐款来展示你的支持？ 您可以直接通过strahl@west-wind.com与我联系，或者您也可以通过PayPal在线捐款。
 
-* [Make a donation for wwDotnetBridge using PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
-* [Make a donation for wwDotnetBridge using our Web Store](http://store.west-wind.com/product/donation)
-* [Purchase a license for West Wind Internet and Client Tools](http://store.west-wind.com/product/wwclient50/)
+* [使用PayPal为wwDotnetBridge捐款](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
+* [使用我们的网上商店为wwDotnetBridge捐款](http://store.west-wind.com/product/donation)
+* [购买West Wind Internet和Client Tools的许可证](http://store.west-wind.com/product/wwclient50/)
 
 
-## License
-This library is licensed under **MIT license** terms:
+## 许可证
+该库根据**MIT许可**条款获得许可：
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+特此授予任何人获得本软件和相关文档文件 ( "软件 ") 副本的权限, 不受限制地处理软件, 包括不受限制地使用、复制、修改、合并的权利,发布、分发、再许可和/或销售软件的副本, 并允许软件所提供的人员这样做, 但须符合以下条件:
 
 <small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+上述版权声明和本许可声明应包含在本软件的所有副本或实质部分中。
 
-### NO WARRANTY
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+### 免责声明
+该软件是 "按原样" 提供的, 没有任何明示或隐含的保证, 包括但不限于适销性、特定用途的适用性和适用性的保证。在任何情况下, 作者或版权持有人不得对任何索赔、损害赔偿或其他责任承担责任, 无论是在合同、侵权行为或其他方面, 因软件或软件的使用或其他交易而产生的或与之相关的。
 
 <small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>
