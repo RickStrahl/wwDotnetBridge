@@ -1,7 +1,7 @@
 # wwDotnetBridge
 ### 针对 Visual FoxPro 9 的更容易的 .NET 互操作
 
-翻译：xinjie 2018.05.10
+翻译：xinjie 2018.05.10 - 2018.07.17
 
 **鸣谢：[龙岩耐思](http://www.fjlynice.com/)**
 
@@ -266,7 +266,7 @@ wwDotnetBridge更新最初是为两种商业产品开发的，在进行更改时
 
 
 ### Craig Tucker - Alabama Software
-Craig offered early support and feedback for this project and billed project time for a number of additions to the library as part of a larger project.
+Craig offered 为这个项目提供了早期的支持和反馈,并且将其作为一个大项目的一部分投入了很多的时间。
 
 ### Bill Suthman - Monosynth
 Bill为该项目提供了相当大的捐赠，并为一系列改进和错误修复提供了宝贵的反馈。
