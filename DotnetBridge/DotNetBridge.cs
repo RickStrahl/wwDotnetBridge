@@ -73,19 +73,9 @@ namespace Westwind.WebConnection
         /// <summary>
         /// Returns error information if the call fails
         /// </summary>
-        public string ErrorMessage
-        {
-            get { return _ErrorMessage; }
-            set { _ErrorMessage = value; }
-        }
-        private string _ErrorMessage = "";
+        public string ErrorMessage { get; set; } = "";
 
-        public bool Error
-        {
-            get { return _Error; }
-            set { _Error = value; }
-        }
-        private bool _Error = false;
+        public bool Error { get; set; }
 
         public Exception LastException { get; set; }
 

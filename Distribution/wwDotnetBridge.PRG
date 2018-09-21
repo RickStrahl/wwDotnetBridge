@@ -36,14 +36,14 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 ***      Pass:
 ***    Return: 
 ************************************************************************
-FUNCTION GetwwDotNetBridge(lcVersion)
+FUNCTION GetwwDotNetBridge(lcVersion, llUseCom)
 IF VARTYPE(__DOTNETBRIDGE) != "O"
    IF EMPTY(lcVersion)       
 		lcVersion = "V4"
    ENDIF
 
    PUBLIC __DOTNETBRIDGE
-   __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
+   __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion, llUseCom)
    IF VARTYPE(__DOTNETBRIDGE) # "O"
       RETURN NULL
    ENDIF
@@ -63,8 +63,8 @@ ENDFUNC
 ***    Return: wwDotnetBridge instance 
 ***            (you don't have to do anything with it)
 ************************************************************************
-FUNCTION InitializeDotnetVersion(lcVersion)
-RETURN GetwwDotnetBridge(lcVersion)
+FUNCTION InitializeDotnetVersion(lcVersion,llUseCom)
+RETURN GetwwDotnetBridge(lcVersion,llUseCom)
 ENDFUNC
 
 
@@ -169,7 +169,7 @@ FUNCTION Load()
 
 IF VARTYPE(this.oDotNetBridge) != "O"
 	this.SetClrVersion(this.cClrVersion)
-
+	
 	IF this.lUseCom
 		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
 	ELSE
@@ -259,13 +259,15 @@ LOCAL lnDispHandle, lnSize, loBridge, loObject, lnParmCount
 
 this.SetError()
 
-loBridge = this.Load()
+loBridge = this.oDotnetBridge
 IF ISNULL(loBridge)
    RETURN NULL
 ENDIF
 
 lnParmCount = PCOUNT()
 DO CASE 
+    CASE lnParmCount = 1 
+    	loObject = loBridge.CreateInstance(lcClass)
 	CASE lnParmCount = 2
 		loObject = loBridge.CreateInstance_OneParm(lcClass,lvParm1)
     CASE lnParmCount = 3
@@ -303,7 +305,7 @@ LOCAL lnDispHandle, lnSize, loBridge, loObject, lnParmCount
 
 this.SetError()
 
-loBridge = this.Load()
+loBridge = this.oDotnetBridge
 IF ISNULL(loBridge)
    RETURN NULL
 ENDIF
@@ -379,7 +381,7 @@ DO CASE
 	  loResult = loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	  
 
 	OTHERWISE
-      	LOCAL loArray as Westwind.WebConnection.ComArray
+      	    LOCAL loArray as Westwind.WebConnection.ComArray
 	    loArray = this.CreateArray("System.Object")
 
 	    LOCAL lvParm
@@ -764,7 +766,7 @@ DO CASE
   CASE lcType = "O"
 	  loComArray = this.oDotnetBridge.CreateArrayFromInstance(lvArrayInstanceOrElementTypeString)
   OTHERWISE
-      THROW "Invalid parameter passed to CreateArray"
+      ERROR "Invalid parameter passed to CreateArray"   
 ENDCASE
 
 IF ISNULL(loComArray)
@@ -1030,7 +1032,12 @@ LOCAL loAdapter as XMLAdapter
 loAdapter = CREATEOBJECT("XmlAdapter")
 
 LOCAL ARRAY laCursors[1]   
-lnCount = ALINES(laCursors,lcAliasList,1 + 4,",")
+#IF VERSION(5) > 800
+	lnCount = ALINES(laCursors,lcAliasList,1 + 4,",")
+#ELSE
+	lnCount = ALINES(laCursors,lcAliasList,",")
+#ENDIF	
+
 FOR lnX = 1 TO lnCount
 	loAdapter.AddTableSchema(laCursors[lnX],.T.)
 ENDFOR
