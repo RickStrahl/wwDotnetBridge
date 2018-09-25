@@ -12,8 +12,8 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 	* .NET Runtime 2.0 or later
 
 	*** DLLs
-	* wwDotnetBridge.dll
 	* wwIpStuff.dll
+	* wwDotnetBridge.dll
 	* NewtonSoft.Json.dll - ToJson()/FromJson() only
 #ELSE
 	#DEFINE WWC_CLR_HOSTDLL clrhost.dll
@@ -22,8 +22,8 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 	* .NET Runtime 2.0 or later
 
 	*** DLLs
-	* wwDotnetBridge.dll
 	* clrhost.dll
+	* wwDotnetBridge.dll
 #ENDIF
 
 
@@ -147,7 +147,7 @@ this.lUseCom = llUseCom
 
 *** Fail creation if the object couldn't be created
 IF ISNULL(this.Load())
-   ERROR "Unable to load wwDotNetBridge: " + this.cErrorMsg
+   ERROR this.cErrorMsg
    RETURN .F.
 ENDIF
 
@@ -162,27 +162,42 @@ ENDFUNC
 ***  Function: Creates an instance of the .NET Bridge component
 ***            that allows loading of content.
 ***    Assume: Define as LOCAL obridge as Westwind.WebConnection.wwDotNetBridge
-***      Pass:
-***    Return:
+***      Pass: llNoUnblockOnError - if true doesn't try to run external unblock
+***                                 command. Used internally to prevent recursion.
+***    Return: nothing
 ************************************************************************
-FUNCTION Load()
+FUNCTION Load(llNoUnblockOnError)
+LOCAL lcError, lnSize, lnDispHandle, lcPath, lcCmd
 
 IF VARTYPE(this.oDotNetBridge) != "O"
 	this.SetClrVersion(this.cClrVersion)
 	
 	IF this.lUseCom
 		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
-	ELSE
+	ELSE	
 		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
 	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
 
+		*** Remove the Zone Identifier to 'Unblock'
+	     	DECLARE INTEGER DeleteFile IN WIN32API STRING		  			  			
+   	        DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
+		
+		#IF IS_WESTWIND
+			DeleteFile(FULLPATH("Newtosoft.Json.dll") + ":Zone.Identifier")
+			DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
+		#ENDIF
+			
 		lcError = SPACE(2048)
 		lnSize = 0
 		lnDispHandle = ClrCreateInstanceFrom(FULLPATH("wwDotNetBridge.dll"),;
 				"Westwind.WebConnection.wwDotNetBridge",@lcError,@lnSize)
 
 		IF lnDispHandle < 1
-		   this.SetError( "Unable to load Clr Instance. " + LEFT(lcError,lnSize) )
+		   lcError =  LEFT(lcError,lnSize)
+		
+		   this.SetError( "Unable to load Clr Instance. "  + lcError  + CHR(13) +;
+			   "Most likely wwDotnetBridge.dll is blocked or you don't have network permissions to load the assembly." + CHR(13)+;
+			   "Search for: 'Unable to load CLR Instance' at: https://webconnection.west-wind.com/docs" )
 		   RETURN NULL 
 		ENDIF
 
@@ -193,7 +208,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 		SYS(3097, this.oDotNetBridge)
 
 		IF ISNULL(this.oDotNetBridge)
-			this.SetError("Can't access CLR COM reference.")
+			this.SetError("COM Load Error: Can't access CLR COM reference.")
 			RETURN null
 		ENDIF
 	ENDIF
@@ -909,6 +924,19 @@ ENDFUNC
 
 
 ************************************************************************
+*  GetTypeName
+****************************************
+***  Function: Returns a typename for an instance
+***    Assume: Shortcut for InvokeMethod(instance,"ToString")
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetTypeName(lvValue)
+RETURN this.InvokeMethod(lvValue,"ToString")
+ENDFUNC
+*   GetTypeName
+
+************************************************************************
 *  GetTypeFromName
 ****************************************
 ***  Function:
@@ -1553,6 +1581,22 @@ DEFINE CLASS EventSubscription as AsyncCallbackEvents
 ************************************************************
 HIDDEN oBridge, oHandler, oSubscriber, oPrefix
 
+oBridge = null
+oHandler = null
+oPrefix = null
+oSubscriber = null
+
+************************************************************************
+*  Setup
+****************************************
+***  Function: Sets up an event subscription. 
+***    Assume:
+***      Pass: loBridge   - dnb instance
+***            loSource   - Source Object fires events
+***            loHandler  - Target Object that handles events
+***            lcPrefix   - prefix for event methods
+***                         implemented on target (defaults to "On")
+************************************************************************
 FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)
 this.oBridge = loBridge
 this.oHandler = loHandler
@@ -1561,20 +1605,36 @@ this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscrib
 this.HandleNextEvent()
 ENDFUNC
 
-FUNCTION Unsubscribe()
-this.oSubscriber.Dispose()
+************************************************************************
+*  UnSubscribe
+****************************************
+***  Function: Unsubscribes events that are currently subscribed to
+************************************************************************
+FUNCTION UnSubscribe()
+IF !ISNULL(THIS.oSubscriber)
+	this.oSubscriber.Dispose()
+ENDIF
 ENDFUNC
  
+  
 FUNCTION HandleNextEvent()
 this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")
 ENDFUNC
 
-** Forwards the event to a function named On{Event} with the event's parameters.
+************************************************************************
+*  OnComplete
+****************************************
+***  Function: Event Proxy that forwards the event to a function 
+***            named On{Event} with event's parameters.
+************************************************************************
 FUNCTION OnCompleted(lvResult, lcMethod)
 LOCAL loParams,lParamText,lCount
+
 IF ISNULL(lvResult) && If the call to WaitForEvent was canceled:
 	RETURN
 ENDIF
+
+
 loParams=CREATEOBJECT("EMPTY") && Workaround to index into array of parameters. 
 lParamText = ""
 IF NOT ISNULL(lvResult.Params)
@@ -1590,5 +1650,4 @@ this.HandleNextEvent()
 ENDFUNC
 
 ENDDEFINE
-
 *EOC EventSubscription

@@ -96,8 +96,125 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public static string Replicate(char character, int charCount)
         {
-            return new string(character, charCount);
+            return new StringBuilder().Insert(0, character.ToString(), charCount).ToString();
         }
+
+        /// <summary>
+        /// Finds the nth index of strting in a string
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="matchString"></param>
+        /// <param name="stringInstance"></param>
+        /// <returns></returns>
+        public static int IndexOfNth(string source, string matchString, int stringInstance, StringComparison stringComparison = StringComparison.CurrentCulture)
+        {
+            if (string.IsNullOrEmpty(source))
+                return -1;
+
+            int lastPos = 0;
+            int count = 0;
+           
+            while (count < stringInstance )
+            {
+                var len = source.Length - lastPos;
+                lastPos = source.IndexOf(matchString, lastPos,len,stringComparison);
+                if (lastPos == -1)
+                    break;
+
+                count++;
+                if (count == stringInstance)
+                    return lastPos;
+
+                lastPos += matchString.Length;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Returns the nth Index of a character in a string
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="matchChar"></param>
+        /// <param name="charInstance"></param>
+        /// <returns></returns>
+        public static int IndexOfNth(this string source, char matchChar, int charInstance)        
+        {
+            if (string.IsNullOrEmpty(source))
+                return -1;
+
+            if (charInstance < 1)
+                return -1;
+
+            int count = 0;
+            for (int i = 0; i < source.Length; i++)
+            {
+                if (source[i] == matchChar)
+                {
+                    count++;
+                    if (count == charInstance)                 
+                        return i;                 
+                }
+            }
+            return -1;
+        }
+
+
+
+        /// <summary>
+        /// Finds the nth index of strting in a string
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="matchString"></param>
+        /// <param name="charInstance"></param>
+        /// <returns></returns>
+        public static int LastIndexOfNth(string source, string matchString, int charInstance, StringComparison stringComparison = StringComparison.CurrentCulture)
+        {
+            if (string.IsNullOrEmpty(source))
+                return -1;
+
+            int lastPos = source.Length;
+            int count = 0;
+
+            while (count < charInstance)
+            {                
+                lastPos = source.LastIndexOf(matchString, lastPos, lastPos, stringComparison);
+                if (lastPos == -1)
+                    break;
+
+                count++;
+                if (count == charInstance)
+                    return lastPos;                
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Finds the nth index of in a string from the end.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="matchChar"></param>
+        /// <param name="charInstance"></param>
+        /// <returns></returns>
+        public static int LastIndexOfNth(string source, char matchChar, int charInstance)
+        {
+            if (string.IsNullOrEmpty(source))
+                return -1;
+
+            int count = 0;
+            for (int i = source.Length-1 ; i > -1; i--)
+            {
+                if (source[i] == matchChar)
+                {
+                    count++;
+                    if (count == charInstance)
+                        return i;
+                }
+            }
+            return -1;
+        }
+        #endregion
+
+        #region String Casing
 
         /// <summary>
         /// Return a string in proper Case format
@@ -416,43 +533,6 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Parses an string into an integer. If the value can't be parsed
-        /// a default value is returned instead
-        /// </summary>
-        /// <param name="input">Input numeric string to be parsed</param>
-        /// <param name="defaultValue">Optional default value if parsing fails</param>
-        /// <param name="formatProvider">Optional NumberFormat provider. Defaults to current culture's number format</param>
-        /// <returns></returns>
-        public static int ParseInt(string input, int defaultValue = 0, IFormatProvider numberFormat = null)
-        {
-            if (numberFormat == null)
-                numberFormat = CultureInfo.CurrentCulture.NumberFormat;
-
-            int val = defaultValue;
-            if (!int.TryParse(input, NumberStyles.Any, numberFormat, out val))
-                return defaultValue;
-            return val;
-        }
-
-
-
-        /// <summary>
-        /// Parses an string into an decimal. If the value can't be parsed
-        /// a default value is returned instead
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public static decimal ParseDecimal(string input, decimal defaultValue = 0M, IFormatProvider numberFormat = null)
-        {
-            numberFormat = numberFormat ?? CultureInfo.CurrentCulture.NumberFormat;
-            decimal val = defaultValue;
-            if (!decimal.TryParse(input, NumberStyles.Any, numberFormat, out val))
-                return defaultValue;
-            return val;
-        }
-
-        /// <summary>
         /// Strips all non digit values from a string and only
         /// returns the numeric string.
         /// </summary>
@@ -520,6 +600,43 @@ namespace Westwind.WebConnection
                 i++;
             }
             return text;
+        }
+
+        /// <summary>
+        /// Parses an string into an integer. If the value can't be parsed
+        /// a default value is returned instead
+        /// </summary>
+        /// <param name="input">Input numeric string to be parsed</param>
+        /// <param name="defaultValue">Optional default value if parsing fails</param>
+        /// <param name="formatProvider">Optional NumberFormat provider. Defaults to current culture's number format</param>
+        /// <returns></returns>
+        public static int ParseInt(string input, int defaultValue=0, IFormatProvider numberFormat = null)
+        {
+            if (numberFormat == null)
+                numberFormat = CultureInfo.CurrentCulture.NumberFormat;
+
+            int val = defaultValue;
+            if (!int.TryParse(input, NumberStyles.Any, numberFormat, out val))
+                return defaultValue;
+            return val;
+        }
+
+
+
+        /// <summary>
+        /// Parses an string into an decimal. If the value can't be parsed
+        /// a default value is returned instead
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static decimal ParseDecimal(string input, decimal defaultValue = 0M, IFormatProvider numberFormat = null)
+        {
+            numberFormat = numberFormat ?? CultureInfo.CurrentCulture.NumberFormat;
+            decimal val = defaultValue;
+            if (!decimal.TryParse(input, NumberStyles.Any, numberFormat, out val))
+                return defaultValue;
+            return val;
         }
 
         #endregion
@@ -808,7 +925,8 @@ namespace Westwind.WebConnection
         }
         #endregion
 
-        #region Miscellaneous
+        #region Miscellaneous    
+
         /// <summary>
         /// Strips any common white space from all lines of text that have the same
         /// common white space text. Effectively removes common code indentation from
@@ -930,6 +1048,9 @@ namespace Westwind.WebConnection
         }
 
         #endregion
+
+
+
 
         #region Obsolete
         /// <summary>

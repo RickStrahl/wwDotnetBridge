@@ -2,7 +2,7 @@
 /*
  **************************************************************
  *  Author: Rick Strahl 
- *          (c) West Wind Technologies, 2009-2018
+ *          (c) West Wind Technologies, 2009-2018   
  *          http://www.west-wind.com/
  * 
  * Created: 4/10/2009
@@ -32,9 +32,10 @@
 #endregion
 
 // comment for OpenSource version
-//#define WestwindProduct
+// #define WestwindProduct
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Reflection;
@@ -44,11 +45,13 @@ using Newtonsoft.Json;
 
 using System.IO;
 using System.Data;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 
 namespace Westwind.WebConnection
@@ -86,18 +89,28 @@ namespace Westwind.WebConnection
             if (Environment.Version.Major >= 4)
             {
                 LoadAssembly("System.Core");
-                
+
                 if (_firstLoad)
                 {
-                    // Ssl3,Tls,Tls11,Tls12
-                    ServicePointManager.SecurityProtocol =   (SecurityProtocolType) 4080;
+                    if (!ServicePointManager.SecurityProtocol.HasFlag(SecurityProtocolType.Tls12))
+                    {
+                        // support for all SSL/TLS protocols
+                        ServicePointManager.SecurityProtocol =
+                            SecurityProtocolType.Ssl3 |
+                            SecurityProtocolType.Tls |
+                            SecurityProtocolType.Tls11 |
+                            SecurityProtocolType.Tls12;
+                    }
+
                     _firstLoad = false;
+
                 }
             }
         }
 
 
         #region LoadAssembly Routines
+
         /// <summary>
         /// Loads an assembly into the AppDomain by its fully qualified assembly name
         /// </summary>
@@ -145,14 +158,17 @@ namespace Westwind.WebConnection
                     LastException = ex;
                     SetError(ex.Message);
                 }
+
                 return false;
             }
 
             return true;
         }
+
         #endregion
 
         #region CreateInstance by type name only
+
         /// <summary>
         /// Creates a type reference from a given type name if the
         /// assembly is already loaded.
@@ -187,6 +203,7 @@ namespace Westwind.WebConnection
 
             return CreateInstance_Internal(TypeName, Parm1, Parm2);
         }
+
         /// <summary>
         /// Creates a type reference from a given type name if the
         /// assembly is already loaded.
@@ -284,7 +301,8 @@ namespace Westwind.WebConnection
                 if (args == null)
                     instance = AppDomain.CurrentDomain.CreateInstanceAndUnwrap(AssemblyName, TypeName);
                 else
-                    instance = AppDomain.CurrentDomain.CreateInstanceAndUnwrap(AssemblyName, TypeName, false, BindingFlags.Default, null, args, null, null);
+                    instance = AppDomain.CurrentDomain.CreateInstanceAndUnwrap(AssemblyName, TypeName, false,
+                        BindingFlags.Default, null, args, null, null);
             }
             catch (TargetInvocationException ex)
             {
@@ -301,39 +319,86 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Creates an instance of a .NET type and stores it on an existing property of another type.
         /// 
-        /// Use this method if you can't access a type through COM ([ComVisible(false)]
         /// </summary>
         /// <param name="instance"></param>
         /// <param name="property"></param>
         /// <param name="TypeName"></param>
+        /// <param name="parm1"></param>
         /// <returns></returns>
-        public bool CreateInstanceOnType(object instance, string property, string TypeName)
-        {
-            return CreateInstanceOnType_Internal(instance, property, TypeName);
-        }
         public bool CreateInstanceOnType_OneParm(object instance, string property, string TypeName, object parm1)
         {
             return CreateInstanceOnType_Internal(instance, property, TypeName, parm1);
         }
-        public bool CreateInstanceOnType_TwoParms(object instance, string property, string TypeName, object parm1, object parm2)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="property"></param>
+        /// <param name="TypeName"></param>
+        /// <param name="parm1"></param>
+        /// <param name="parm2"></param>
+        /// <returns></returns>
+        public bool CreateInstanceOnType_TwoParms(object instance, string property, string TypeName, object parm1,
+            object parm2)
         {
             return CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2);
         }
-        public bool CreateInstanceOnType_ThreeParms(object instance, string property, string TypeName, object parm1, object parm2, object parm3)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="property"></param>
+        /// <param name="TypeName"></param>
+        /// <param name="parm1"></param>
+        /// <param name="parm2"></param>
+        /// <param name="parm3"></param>
+        /// <returns></returns>
+        public bool CreateInstanceOnType_ThreeParms(object instance, string property, string TypeName, object parm1,
+            object parm2, object parm3)
         {
             return CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2, parm3);
         }
-        public bool CreateInstanceOnType_FourParms(object instance, string property, string TypeName, object parm1, object parm2, object parm3, object parm4)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="property"></param>
+        /// <param name="TypeName"></param>
+        /// <param name="parm1"></param>
+        /// <param name="parm2"></param>
+        /// <param name="parm3"></param>
+        /// <param name="parm4"></param>
+        /// <returns></returns>
+        public bool CreateInstanceOnType_FourParms(object instance, string property, string TypeName, object parm1,
+            object parm2, object parm3, object parm4)
         {
             return CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2, parm3, parm4);
         }
-        public bool CreateInstanceOnType_FiveParms(object instance, string property, string TypeName, object parm1, object parm2, object parm3, object parm4, object parm5)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="property"></param>
+        /// <param name="TypeName"></param>
+        /// <param name="parm1"></param>
+        /// <param name="parm2"></param>
+        /// <param name="parm3"></param>
+        /// <param name="parm4"></param>
+        /// <param name="parm5"></param>
+        /// <returns></returns>
+        public bool CreateInstanceOnType_FiveParms(object instance, string property, string TypeName, object parm1,
+            object parm2, object parm3, object parm4, object parm5)
         {
             return CreateInstanceOnType_Internal(instance, property, TypeName, parm1, parm2, parm3, parm4, parm5);
         }
-        protected bool CreateInstanceOnType_Internal(object instance, string property, string TypeName, params object[] args)
+
+        protected bool CreateInstanceOnType_Internal(object instance, string property, string TypeName,
+            params object[] args)
         {
             SetError();
 
@@ -349,7 +414,8 @@ namespace Westwind.WebConnection
                     return false;
                 }
 
-                newInstance = type.Assembly.CreateInstance(TypeName, false, BindingFlags.Default, null, args, null, null);
+                newInstance =
+                    type.Assembly.CreateInstance(TypeName, false, BindingFlags.Default, null, args, null, null);
             }
             catch (Exception ex)
             {
@@ -375,6 +441,7 @@ namespace Westwind.WebConnection
         #endregion
 
         #region Load instance by assembly name and type
+
         /// <summary>
         /// Creates an instance from a file reference with a parameterless constructor
         /// </summary>
@@ -394,7 +461,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateAssemblyInstanceFromFile_OneParm(string AssemblyFileName, string TypeName, object Parm1)
         {
-            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[1] { Parm1 });
+            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[1] {Parm1});
         }
 
         /// <summary>
@@ -403,9 +470,10 @@ namespace Westwind.WebConnection
         /// <param name="AssemblyFileName"></param>
         /// <param name="TypeName"></param>
         /// <returns></returns>
-        public object CreateAssemblyInstanceFromFile_TwoParms(string AssemblyFileName, string TypeName, object Parm1, object Parm2)
+        public object CreateAssemblyInstanceFromFile_TwoParms(string AssemblyFileName, string TypeName, object Parm1,
+            object Parm2)
         {
-            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[2] { Parm1, Parm2 });
+            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[2] {Parm1, Parm2});
         }
 
 
@@ -427,7 +495,8 @@ namespace Westwind.WebConnection
                 if (args == null)
                     server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName);
                 else
-                    server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName, false, BindingFlags.Default, null, args, null, null);
+                    server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName, false,
+                        BindingFlags.Default, null, args, null, null);
             }
             catch (Exception ex)
             {
@@ -458,6 +527,7 @@ namespace Westwind.WebConnection
         {
             return CreateInstance_Internal(AssemblyFileName, TypeName, null);
         }
+
         /// <summary>
         /// Creates a new instance from a file file based assembly refence. Requires full
         /// filename including extension and path.
@@ -469,6 +539,7 @@ namespace Westwind.WebConnection
         {
             return CreateInstance_Internal(AssemblyFileName, TypeName, Parm1);
         }
+
         /// <summary>
         /// Creates a new instance from a file file based assembly refence. Requires full
         /// filename including extension and path.
@@ -476,13 +547,46 @@ namespace Westwind.WebConnection
         /// <param name="AssemblyFileName"></param>
         /// <param name="TypeName"></param>
         /// <returns></returns>
-        public object CreateAssemblyInstance_TwoParms(string AssemblyFileName, string TypeName, object Parm1, object Parm2)
+        public object CreateAssemblyInstance_TwoParms(string AssemblyFileName, string TypeName, object Parm1,
+            object Parm2)
         {
             return CreateInstance_Internal(AssemblyFileName, TypeName, Parm1, Parm2);
         }
 
 
+        public Type GetType(object value)
+        {
+            if (value == null)
+                return null;
+
+            return value.GetType();
+        }
+
+        /// <summary>
+        /// Helper routine that looks up a type name and tries to retrieve the
+        /// full type reference in the actively executing assemblies.
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <returns></returns>
+        public Type GetTypeFromName(string typeName)
+        {
+            if (string.IsNullOrEmpty(typeName))
+                return null;
+
+            Type type = null;
+            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                type = ass.GetType(typeName, false);
+                if (type != null)
+                    break;
+            }
+
+            return type;
+        }
+
         #endregion
+
+        #region static member access
 
         public object InvokeStaticMethod(string TypeName, string Method)
         {
@@ -501,37 +605,56 @@ namespace Westwind.WebConnection
             return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2);
         }
 
-        public object InvokeStaticMethod_ThreeParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3)
+        public object InvokeStaticMethod_ThreeParms(string TypeName, string Method, object Parm1, object Parm2,
+            object Parm3)
         {
             return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3);
         }
-        public object InvokeStaticMethod_FourParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4)
+
+        public object InvokeStaticMethod_FourParms(string TypeName, string Method, object Parm1, object Parm2,
+            object Parm3, object Parm4)
         {
             return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4);
         }
-        public object InvokeStaticMethod_FiveParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5)
+
+        public object InvokeStaticMethod_FiveParms(string TypeName, string Method, object Parm1, object Parm2,
+            object Parm3, object Parm4, object Parm5)
         {
             return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5);
         }
-        public object InvokeStaticMethod_SixParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6)
+
+        public object InvokeStaticMethod_SixParms(string TypeName, string Method, object Parm1, object Parm2,
+            object Parm3, object Parm4, object Parm5, object Parm6)
         {
             return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6);
         }
-        public object InvokeStaticMethod_SevenParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7)
+
+        public object InvokeStaticMethod_SevenParms(string TypeName, string Method, object Parm1, object Parm2,
+            object Parm3, object Parm4, object Parm5, object Parm6, object Parm7)
         {
             return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7);
         }
-        public object InvokeStaticMethod_EightParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8)
+
+        public object InvokeStaticMethod_EightParms(string TypeName, string Method, object Parm1, object Parm2,
+            object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8)
         {
-            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7,
+                Parm8);
         }
-        public object InvokeStaticMethod_NineParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9)
+
+        public object InvokeStaticMethod_NineParms(string TypeName, string Method, object Parm1, object Parm2,
+            object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9)
         {
-            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8,
+                Parm9);
         }
-        public object InvokeStaticMethod_TenParms(string TypeName, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10)
+
+        public object InvokeStaticMethod_TenParms(string TypeName, string Method, object Parm1, object Parm2,
+            object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9,
+            object Parm10)
         {
-            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10);
+            return InvokeStaticMethod_Internal(TypeName, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8,
+                Parm9, Parm10);
         }
 
         /// <summary>
@@ -569,7 +692,8 @@ namespace Westwind.WebConnection
             object Result = null;
             try
             {
-                Result = type.InvokeMember(Method, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, type, ar);
+                Result = type.InvokeMember(Method,
+                    BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, type, ar);
             }
             catch (Exception ex)
             {
@@ -581,7 +705,7 @@ namespace Westwind.WebConnection
             for (int i = 0; i < ar.Length; i++)
             {
                 if (args[i] is ComValue)
-                    ((ComValue)args[i]).Value = FixupReturnValue(ar[i]);
+                    ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
             }
 
             return FixupReturnValue(Result);
@@ -607,7 +731,9 @@ namespace Westwind.WebConnection
             object val = null;
             try
             {
-                val = type.InvokeMember(Property, BindingFlags.Static | BindingFlags.Public | BindingFlags.GetField | BindingFlags.GetProperty, null, type, null);
+                val = type.InvokeMember(Property,
+                    BindingFlags.Static | BindingFlags.Public | BindingFlags.GetField | BindingFlags.GetProperty, null,
+                    type, null);
                 val = FixupReturnValue(val);
             }
             catch (Exception ex)
@@ -615,6 +741,7 @@ namespace Westwind.WebConnection
                 SetError(ex.GetBaseException(), true);
                 throw ex.GetBaseException();
             }
+
             return val;
         }
 
@@ -622,7 +749,7 @@ namespace Westwind.WebConnection
         {
             SetError();
 
-            
+
             Type type = GetTypeFromName(typeName);
             if (type == null)
             {
@@ -631,11 +758,13 @@ namespace Westwind.WebConnection
             }
 
             value = FixupParameter(value);
-            
-            ErrorMessage = "";            
+
+            ErrorMessage = "";
             try
             {
-                type.InvokeMember(property, BindingFlags.Static | BindingFlags.Public | BindingFlags.SetField | BindingFlags.SetProperty, null, type, new object[1] { value });
+                type.InvokeMember(property,
+                    BindingFlags.Static | BindingFlags.Public | BindingFlags.SetField | BindingFlags.SetProperty, null,
+                    type, new object[1] {value});
             }
             catch (Exception ex)
             {
@@ -646,59 +775,9 @@ namespace Westwind.WebConnection
             return true;
         }
 
+        #endregion
 
-        /// <summary>
-        /// Returns the name of an enum field given an enum value
-        /// passed. Pass in the name of the enum type
-        /// </summary>
-        /// <param name="EnumTypeName"></param>
-        /// <param name="Value"></param>
-        /// <returns></returns>
-        public string GetEnumString(string EnumTypeName, object Value)
-        {
-            SetError();
-            try
-            {
-                Type type = GetTypeFromName(EnumTypeName);
-                return Enum.GetName(type, Value);
-            }
-            catch(Exception ex)
-            {
-                SetError(ex.GetBaseException());
-                throw ex.GetBaseException();
-            }            
-        }
-
-        public Type GetType(object value)
-        {
-            if (value == null)
-                return null;
-
-            return value.GetType();
-        }
-
-        /// <summary>
-        /// Helper routine that looks up a type name and tries to retrieve the
-        /// full type reference in the actively executing assemblies.
-        /// </summary>
-        /// <param name="typeName"></param>
-        /// <returns></returns>
-        public Type GetTypeFromName(string typeName)
-        {
-            if (string.IsNullOrEmpty(typeName))
-                return null;
-
-            Type type = null;
-            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                type = ass.GetType(typeName, false);
-                if (type != null)
-                    break;
-            }
-            return type;
-        }
-
-
+        #region Instance Member access
 
         /// <summary>
         /// Invokes a method with no parameters
@@ -755,42 +834,66 @@ namespace Westwind.WebConnection
         {
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3);
         }
-        public object InvokeMethod_FourParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4)
+
+        public object InvokeMethod_FourParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
+            object Parm4)
         {
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4);
         }
-        public object InvokeMethod_FiveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5)
+
+        public object InvokeMethod_FiveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
+            object Parm4, object Parm5)
         {
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5);
         }
-        public object InvokeMethod_SixParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6)
+
+        public object InvokeMethod_SixParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
+            object Parm4, object Parm5, object Parm6)
         {
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6);
         }
-        public object InvokeMethod_SevenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7)
+
+        public object InvokeMethod_SevenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
+            object Parm4, object Parm5, object Parm6, object Parm7)
         {
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7);
         }
-        public object InvokeMethod_EightParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8)
+
+        public object InvokeMethod_EightParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
+            object Parm4, object Parm5, object Parm6, object Parm7, object Parm8)
         {
             return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8);
         }
-        public object InvokeMethod_NineParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9)
+
+        public object InvokeMethod_NineParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
+            object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9)
         {
-            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8,
+                Parm9);
         }
-        public object InvokeMethod_TenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10)
+
+        public object InvokeMethod_TenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
+            object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10)
         {
-            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8,
+                Parm9, Parm10);
         }
-        public object InvokeMethod_ElevenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10, object Parm11)
+
+        public object InvokeMethod_ElevenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
+            object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10,
+            object Parm11)
         {
-            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10, Parm11);
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8,
+                Parm9, Parm10, Parm11);
         }
-        public object InvokeMethod_TwelveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3, object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10, object Parm11, object Parm12)
+
+        public object InvokeMethod_TwelveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
+            object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10,
+            object Parm11, object Parm12)
         {
-            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8, Parm9, Parm10, Parm11, Parm12);
-        } 
+            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8,
+                Parm9, Parm10, Parm11, Parm12);
+        }
 
         public object InvokeMethod_ParameterArray(object Instance, string Method, object ParameterArray)
         {
@@ -800,6 +903,7 @@ namespace Westwind.WebConnection
                 Array ar = ParmArray.Instance as Array;
                 ar.SetValue(FixupParameter(ar.GetValue(i)), i);
             }
+
             return InvokeMethod_InternalWithObjectArray(Instance, Method, ParmArray.Instance as object[]);
         }
 
@@ -818,11 +922,11 @@ namespace Westwind.WebConnection
                     ar[i] = FixupParameter(args[i]);
                 }
             }
-            
+
             object result = null;
             try
             {
-                if(method.Contains(".") || method.Contains("["))
+                if (method.Contains(".") || method.Contains("["))
                     result = ReflectionUtils.CallMethodEx(instance, method, ar);
                 else
                     result = ReflectionUtils.CallMethodCom(instance, method, ar);
@@ -839,11 +943,11 @@ namespace Westwind.WebConnection
                 if (args[i] is ComValue)
                     ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
             }
-            
+
             return FixupReturnValue(result);
         }
 
-     
+
 
         protected object InvokeMethod_InternalWithObjectArray(object Instance, string Method, object[] args)
         {
@@ -867,137 +971,6 @@ namespace Westwind.WebConnection
         }
 
 
-        /// <summary>
-        /// Invokes a method on a new thread and fires OnCompleted and OnError
-        /// events on a passed in callback object.
-        /// </summary>
-        /// <param name="callBack">
-        /// A callback object that has to have two methods:
-        /// OnCompleted(lvResult, lcMethod)
-        /// OnError(lcErrorMsg,loException, lcMethod)        
-        /// </param>
-        /// <param name="instance"></param>
-        /// <param name="method"></param>
-        /// <param name="parameters"></param>
-        public void InvokeMethodAsync(object callBack, object instance, string method, params object[] parameters)
-        {
-            if (callBack == null || string.IsNullOrEmpty(method))
-                throw new ApplicationException("You have to pass a callback object and method name.");
-
-            var parms = new object[5];
-            parms[0] = callBack;
-            parms[1] = instance;
-            parms[2] = method;
-            parms[3] = parameters;
-            parms[4] = false; // isStatic
-
-            //var t = new Thread(_InvokeMethodAsync);
-            //t.Start(parms);
-
-            Task.Run(() => _InvokeMethodAsync(parms));
-        }
-
-        /// <summary>
-        /// Invokes a method on asynchronously and fires OnCompleted and OnError
-        /// events on a passed in callback object.
-        /// </summary>
-        /// <param name="callBack">
-        /// A callback object that has to have two methods:
-        /// OnCompleted(lvResult, lcMethod)
-        /// OnError(lcErrorMsg,loException, lcMethod)        
-        /// </param>
-        /// <param name="instance"></param>
-        /// <param name="method"></param>
-        /// <param name="parameters"></param>
-        public void InvokeStaticMethodAsync(object callBack, string typeName, string method, params object[] parameters)
-        {
-            if (callBack == null || string.IsNullOrEmpty(method))
-                throw new ApplicationException("You have to pass a callback object and method name.");
-
-            var parms = new object[5];
-            parms[0] = callBack;
-            parms[1] = typeName;
-            parms[2] = method;
-            parms[3] = parameters;
-            parms[4] = true; // isStatic
-
-            //var t = new Thread(_InvokeMethodAsync);
-            //t.Start(parms);
-
-            Task.Run(() => _InvokeMethodAsync(parms));
-        }
-
-        /// <summary>
-        /// Internal handler method that actually makes the async call on a thread
-        /// </summary>
-        /// <param name="parmList"></param>
-        private void _InvokeMethodAsync(object parmList)
-        {
-            object[] parms = parmList as object[];
-            
-            object callBack = parms[0];
-            if (callBack is DBNull)
-                callBack = null;
-
-            object instance = parms[1];
-            string method = parms[2] as string;
-            object[] parameters = parms[3] as object[];
-
-            bool isStatic = false;
-            if (parms.Length > 4)
-                isStatic = (bool) parms[4];
-
-            object result = null;
-            try
-            {
-                if (!isStatic)
-                {
-                    if (parameters == null || parameters.Length < 1)
-                        result = InvokeMethod_Internal(instance, method);
-                    else
-                        result = InvokeMethod_Internal(instance, method, parameters);
-                }
-                else
-                {
-                    if (parameters == null || parameters.Length < 1)
-                        result = InvokeStaticMethod_Internal(instance as string, method);
-                    else
-                        result = InvokeStaticMethod_Internal(instance as string, method, parameters);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                if (callBack != null)
-                {
-                    try
-                    {
-                        InvokeMethod_Internal(callBack, "onError", ex.Message, ex.GetBaseException(), method);
-                    }
-                    catch
-                    {
-                        // no error method - just eat it
-                        LastException = ex;
-                    }
-
-                }
-                return;
-            }
-
-            if (callBack != null)
-            {
-                try
-                {
-                    InvokeMethod_Internal(callBack, "onCompleted", result, method);                    
-                }
-                catch (Exception ex)
-                {
-                    // no callback method - just eat it
-                    LastException = ex;
-                }
-            }
-        }       
-        
         public object GetProperty(object Instance, string Property)
         {
             LastException = null;
@@ -1103,16 +1076,166 @@ namespace Westwind.WebConnection
             }
         }
 
-        //public object InvokeMethod_OneParm(string Method, object Parm1)
-        //{
-        //    return InvokeMethod_Internal(Method, Parm1);
-        //}
-        //public object InvokeMethod_OneParm(string Method, object Parm1)
-        //{
-        //    return InvokeMethod_Internal(Method, Parm1);
-        //}
+        /// <summary>
+        /// Returns the name of an enum field given an enum value
+        /// passed. Pass in the name of the enum type
+        /// </summary>
+        /// <param name="EnumTypeName"></param>
+        /// <param name="Value"></param>
+        /// <returns></returns>
+        public string GetEnumString(string EnumTypeName, object Value)
+        {
+            SetError();
+            try
+            {
+                Type type = GetTypeFromName(EnumTypeName);
+                return Enum.GetName(type, Value);
+            }
+            catch (Exception ex)
+            {
+                SetError(ex.GetBaseException());
+                throw ex.GetBaseException();
+            }
+        }
 
-        
+        #endregion
+
+        #region Async Methods
+
+        /// <summary>
+        /// Invokes a method on asynchronously and fires OnCompleted and OnError
+        /// events on a passed in callback object.
+        /// </summary>
+        /// <param name="callBack">
+        /// A callback object that has to have two methods:
+        /// OnCompleted(lvResult, lcMethod)
+        /// OnError(lcErrorMsg,loException, lcMethod)        
+        /// </param>
+        /// <param name="instance"></param>
+        /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        public void InvokeStaticMethodAsync(object callBack, string typeName, string method, params object[] parameters)
+        {
+            if (callBack == null || string.IsNullOrEmpty(method))
+                throw new ApplicationException("You have to pass a callback object and method name.");
+
+            var parms = new object[5];
+            parms[0] = callBack;
+            parms[1] = typeName;
+            parms[2] = method;
+            parms[3] = parameters;
+            parms[4] = true; // isStatic
+
+            //var t = new Thread(_InvokeMethodAsync);
+            //t.Start(parms);
+
+            Task.Run(() => _InvokeMethodAsync(parms));
+        }
+
+        /// <summary>
+        /// Invokes a method on a new thread and fires OnCompleted and OnError
+        /// events on a passed in callback object.
+        /// </summary>
+        /// <param name="callBack">
+        /// A callback object that has to have two methods:
+        /// OnCompleted(lvResult, lcMethod)
+        /// OnError(lcErrorMsg,loException, lcMethod)        
+        /// </param>
+        /// <param name="instance"></param>
+        /// <param name="method"></param>
+        /// <param name="parameters"></param>
+        public void InvokeMethodAsync(object callBack, object instance, string method, params object[] parameters)
+        {
+            if (callBack == null || string.IsNullOrEmpty(method))
+                throw new ApplicationException("You have to pass a callback object and method name.");
+
+            var parms = new object[5];
+            parms[0] = callBack;
+            parms[1] = instance;
+            parms[2] = method;
+            parms[3] = parameters;
+            parms[4] = false; // isStatic
+
+            //var t = new Thread(_InvokeMethodAsync);
+            //t.Start(parms);
+
+            Task.Run(() => _InvokeMethodAsync(parms));
+        }
+
+        /// <summary>
+        /// Internal handler method that actually makes the async call on a thread
+        /// </summary>
+        /// <param name="parmList"></param>
+        private void _InvokeMethodAsync(object parmList)
+        {
+            object[] parms = parmList as object[];
+
+            object callBack = parms[0];
+            if (callBack is DBNull)
+                callBack = null;
+
+            object instance = parms[1];
+            string method = parms[2] as string;
+            object[] parameters = parms[3] as object[];
+
+            bool isStatic = false;
+            if (parms.Length > 4)
+                isStatic = (bool) parms[4];
+
+            object result = null;
+            try
+            {
+                if (!isStatic)
+                {
+                    if (parameters == null || parameters.Length < 1)
+                        result = InvokeMethod_Internal(instance, method);
+                    else
+                        result = InvokeMethod_Internal(instance, method, parameters);
+                }
+                else
+                {
+                    if (parameters == null || parameters.Length < 1)
+                        result = InvokeStaticMethod_Internal(instance as string, method);
+                    else
+                        result = InvokeStaticMethod_Internal(instance as string, method, parameters);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                if (callBack != null)
+                {
+                    try
+                    {
+                        InvokeMethod_Internal(callBack, "onError", ex.Message, ex.GetBaseException(), method);
+                    }
+                    catch
+                    {
+                        // no error method - just eat it
+                        LastException = ex;
+                    }
+
+                }
+
+                return;
+            }
+
+            if (callBack != null)
+            {
+                try
+                {
+                    InvokeMethod_Internal(callBack, "onCompleted", result, method);
+                }
+                catch (Exception ex)
+                {
+                    // no callback method - just eat it
+                    LastException = ex;
+                }
+            }
+        }
+
+        #endregion
+
         #region Array Functions
 
         /// <summary>
@@ -1251,8 +1374,8 @@ namespace Westwind.WebConnection
             SetError();
 
             Array ar = baseObject.GetType().InvokeMember(arrayObject,
-                                  BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
-                                   null, baseObject, null) as Array;
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
+                null, baseObject, null) as Array;
 
             // *** Null assignments are not allowed because we may have to create the array
             // *** and a type is required for that. If necessary create an empty instance
@@ -1273,7 +1396,7 @@ namespace Westwind.WebConnection
             {
                 Type itemType = ar.GetType().GetElementType();
 
-                int Size = ar.GetLength(0);  // one dimensional
+                int Size = ar.GetLength(0); // one dimensional
 
                 // resize the array by creating a new one
                 Array TempArray = Array.CreateInstance(itemType, Size + 1);
@@ -1289,8 +1412,8 @@ namespace Westwind.WebConnection
             // make sure the original array instance reference gets updated
             // both for new array and updated array!
             baseObject.GetType().InvokeMember(arrayObject,
-                                  BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.SetField,
-                                  null, baseObject, new object[1] { ar });
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.SetField,
+                null, baseObject, new object[1] {ar});
 
             return true;
         }
@@ -1312,7 +1435,7 @@ namespace Westwind.WebConnection
                 return GetPropertyEx(this, "_tvalue[" + index + "]");
             }
             finally
-            {                
+            {
                 _tvalue = null;
             }
         }
@@ -1329,8 +1452,8 @@ namespace Westwind.WebConnection
             SetError();
 
             Array ar = baseObject.GetType().InvokeMember(arrayName,
-                                  BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
-                                   null, baseObject, null) as Array;
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
+                null, baseObject, null) as Array;
 
             // *** Null assignments are not allowed because we may have to create the array
             // *** and a type is required for that. If necessary create an empty instance
@@ -1354,8 +1477,8 @@ namespace Westwind.WebConnection
             SetError();
 
             Array ar = baseObject.GetType().InvokeMember(arrayName,
-                                  BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
-                                   null, baseObject, null) as Array;
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
+                null, baseObject, null) as Array;
 
             // *** Null assignments are not allowed because we may have to create the array
             // *** and a type is required for that. If necessary create an empty instance
@@ -1385,8 +1508,8 @@ namespace Westwind.WebConnection
 
             // *** USe Reflection to get a reference to the array Property
             Array ar = baseObject.GetType().InvokeMember(arrayObject,
-                      BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
-                       null, baseObject, null) as Array;
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.GetField,
+                null, baseObject, null) as Array;
 
             // *** This may be ambigous - could mean no property or array exists and is null
             if (ar == null)
@@ -1413,8 +1536,8 @@ namespace Westwind.WebConnection
             }
 
             baseObject.GetType().InvokeMember(arrayObject,
-                                  BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.SetField,
-                                   null, baseObject, new object[1] { NewArray });
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.SetField,
+                null, baseObject, new object[1] {NewArray});
 
             return true;
         }
@@ -1492,15 +1615,15 @@ namespace Westwind.WebConnection
             //    return Convert.ToInt64(val);
             //if (type == typeof(Single))
             //    return Convert.ToSingle(val);
-            
+
             // if we're dealing with ComValue parameter/value
             // just use it's Value property
             if (type == typeof(ComValue))
-                return ((ComValue)val).Value;
+                return ((ComValue) val).Value;
             if (type == typeof(ComGuid))
-                return ((ComGuid)val).Guid;
+                return ((ComGuid) val).Guid;
             if (type == typeof(ComArray))
-                return ((ComArray)val).Instance;
+                return ((ComArray) val).Instance;
 
             return val;
         }
@@ -1524,19 +1647,20 @@ namespace Westwind.WebConnection
             if (type == typeof(Guid))
             {
                 ComGuid guid = new ComGuid();
-                guid.Guid = (Guid)val;
+                guid.Guid = (Guid) val;
                 return guid;
             }
-            if (type == typeof(long) || type == typeof(Int64) )
+
+            if (type == typeof(long) || type == typeof(Int64))
                 return Convert.ToDecimal(val);
-            if (type == typeof (char))
+            if (type == typeof(char))
                 return val.ToString();
             if (type == typeof(byte[]))
             {
                 // this ensures byte[] is not treated like an array (below)                
                 // but returned as binary data
             }
-                // FoxPro can't deal with DBNull as it's a value type
+            // FoxPro can't deal with DBNull as it's a value type
             else if (type == typeof(DBNull))
             {
                 val = null;
@@ -1546,7 +1670,15 @@ namespace Westwind.WebConnection
                 ComArray comArray = new ComArray();
                 comArray.Instance = val as Array;
                 return comArray;
-            }     
+            }
+            else if (type.IsGenericType && val is IList )
+            {
+                var enumerable = val as IEnumerable;
+                ComArray comArray = new ComArray();
+                comArray.FromEnumerable(enumerable);
+                return comArray;
+            }
+
             //else if (type.IsValueType)
             //{
             //    var comValue = new ComValue();
@@ -1564,14 +1696,11 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public static byte[] ConvertObjectToByteArray(object val)
         {
-            Array ct = (Array)val;
+            Array ct = (Array) val;
             Byte[] content = new byte[ct.Length];
             ct.CopyTo(content, 0);
             return content;
         }
-
-        #endregion
-
 
         /// <summary>
         /// Helper routine that automatically assigns default names to certain
@@ -1592,7 +1721,8 @@ namespace Westwind.WebConnection
                 else if (lowerAssemblyName == "mscorlib")
                     AssemblyName = "mscorlib, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
                 else if (lowerAssemblyName == "system.windows.forms")
-                    AssemblyName = "System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
+                    AssemblyName =
+                        "System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
                 else if (lowerAssemblyName == "system.xml")
                     AssemblyName = "System.Xml, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
                 else if (lowerAssemblyName == "system.drawing")
@@ -1609,7 +1739,8 @@ namespace Westwind.WebConnection
                 else if (lowerAssemblyName == "mscorlib")
                     AssemblyName = "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
                 else if (lowerAssemblyName == "system.windows.forms")
-                    AssemblyName = "System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
+                    AssemblyName =
+                        "System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
                 else if (lowerAssemblyName == "system.xml")
                     AssemblyName = "System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
                 else if (lowerAssemblyName == "system.drawing")
@@ -1621,17 +1752,25 @@ namespace Westwind.WebConnection
                 else if (lowerAssemblyName == "system.core")
                     AssemblyName = "System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
                 else if (lowerAssemblyName == "microsoft.csharp")
-                    AssemblyName = "Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+                    AssemblyName =
+                        "Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
                 else if (lowerAssemblyName == "microsoft.visualbasic")
-                    AssemblyName = "Microsoft.VisualBasic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+                    AssemblyName =
+                        "Microsoft.VisualBasic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
                 else if (lowerAssemblyName == "system.servicemodel")
-                    AssemblyName = "System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
+                    AssemblyName =
+                        "System.ServiceModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
                 else if (lowerAssemblyName == "system.runtime.serialization")
-                    AssemblyName = "System.Runtime.Serialization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
+                    AssemblyName =
+                        "System.Runtime.Serialization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
             }
 
             return AssemblyName;
         }
+
+        #endregion
+
+        #region Error Reporting
 
         protected void SetError()
         {
@@ -1644,9 +1783,10 @@ namespace Westwind.WebConnection
             {
                 LastException = null;
                 Error = false;
-                ErrorMessage = "";
+                ErrorMessage = string.Empty;
                 return;
             }
+
             Error = true;
             ErrorMessage = message;
 
@@ -1680,19 +1820,130 @@ namespace Westwind.WebConnection
             SetError(ex, false);
         }
 
+        #endregion
+
+        #region Version
 
         public string GetVersionInfo()
         {
-            string res = @".NET Version: " + Environment.Version.ToString() + "\r\n" +
-               GetType().Assembly.CodeBase;
+            string res =
+                $@"wwDotnetBridge Version   : {Assembly.GetExecutingAssembly().GetName().Version}
+wwDotnetBridge Location  : {GetType().Assembly.Location}
+.NET Version (official)  : {Environment.Version}
+.NET Version (simplified): {GetDotnetVersion()}
+Windows Version          : {GetWindowsVersion(WindowsVersionModes.Full)}";
             return res;
         }
+
+
+        static string DotnetVersion = null;
+
+        /// <summary> 
+        /// Returns the .NET framework version installed on the machine
+        /// as a string  of 4.x.y version
+        /// </summary>
+        /// <remarks>Minimum version supported is 4.0</remarks>
+        /// <returns></returns>
+        public static string GetDotnetVersion()
+        {
+            if (!string.IsNullOrEmpty(DotnetVersion))
+                return DotnetVersion;
+
+            dynamic value;
+            TryGetRegistryKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\", "Release", out value);
+
+            if (value == null)
+            {
+                DotnetVersion = "4.0";
+                return DotnetVersion;
+            }
+
+            int releaseKey = value;
+
+            // https://msdn.microsoft.com/en-us/library/hh925568(v=vs.110).aspx
+            // RegEdit paste: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full
+            if (releaseKey >= 461808)
+                DotnetVersion = "4.7.2";
+            else if (releaseKey >= 461308)
+                DotnetVersion = "4.7.1";
+            else if (releaseKey >= 460798)
+                DotnetVersion = "4.7";
+            else if (releaseKey >= 394802)
+                DotnetVersion = "4.6.2";
+            else if (releaseKey >= 394254)
+                DotnetVersion = "4.6.1";
+            else if (releaseKey >= 393295)
+                DotnetVersion = "4.6";
+            else if ((releaseKey >= 379893))
+                DotnetVersion = "4.5.2";
+            else if ((releaseKey >= 378675))
+                DotnetVersion = "4.5.1";
+            else if ((releaseKey >= 378389))
+                DotnetVersion = "4.5";
+
+            // This line should never execute. A non-null release key should mean 
+            // that 4.5 or later is installed. 
+            else
+                DotnetVersion = "4.0";
+
+            return DotnetVersion;
+        }
+
+        
+
+        /// <summary>
+        /// Returns Windows Version as a string
+        /// 0 - Full: 10.0.17134.0 - Release: 1803
+        /// 1 - Version only: 10.0.17134.0
+        /// 2 - Release only: 1803
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public string GetWindowsVersion(WindowsVersionModes mode = WindowsVersionModes.Full)
+        {
+            if (mode == WindowsVersionModes.VersionOnly)            
+                return Environment.OSVersion.ToString();
+            
+            dynamic releaseId = null;
+            TryGetRegistryKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion",
+                "ReleaseId", out releaseId);
+
+            if (mode == WindowsVersionModes.ReleaseOnly)
+                return releaseId.ToString();
+            
+            return $"{Environment.OSVersion.Version}{(releaseId != null ? " - Release: " + releaseId : null)}";
+        }
+
+        internal static bool TryGetRegistryKey(string path, string key, out dynamic value, bool UseCurrentUser = false)
+        {
+            value = null;
+            try
+            {
+                RegistryKey rk;
+                if (UseCurrentUser)
+                    rk = Registry.CurrentUser.OpenSubKey(path);
+                else
+                    rk = Registry.LocalMachine.OpenSubKey(path);
+
+                if (rk == null) return false;
+                value = rk.GetValue(key);
+                return value != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
+        #endregion
 
 
 #if WestwindProduct
 
         // These are included only in the commercial version of Web Connection
         // the open source version omits these
+
         #region JsonXmlConversions
 
         /// <summary>
@@ -1707,8 +1958,8 @@ namespace Westwind.WebConnection
             try
             {
                 return JsonConvert.SerializeObject(
-                                value,
-                                formatted ? Formatting.Indented : Formatting.None);
+                    value,
+                    formatted ? Formatting.Indented : Formatting.None);
             }
             catch (Exception ex)
             {
@@ -1756,6 +2007,7 @@ namespace Westwind.WebConnection
                 SetError(ex, true);
                 return null;
             }
+
             return xmlResultString;
         }
 
@@ -1784,4 +2036,12 @@ namespace Westwind.WebConnection
 
 #endif
     }
+
+    public enum WindowsVersionModes
+    {
+        Full = 0,
+        VersionOnly = 1,
+        ReleaseOnly = 2
+    }
+
 }
