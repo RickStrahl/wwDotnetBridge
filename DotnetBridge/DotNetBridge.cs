@@ -318,12 +318,27 @@ namespace Westwind.WebConnection
             return FixupReturnValue(instance);
         }
 
+
+
         /// <summary>
-        /// 
+        /// Creates an instance of a type on an existing property of another type
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="property"></param>
-        /// <param name="TypeName"></param>
+        /// <param name="instance">Parent Instance that contains the property to set</param>
+        /// <param name="property">The property on the parent instance to set</param>
+        /// <param name="TypeName">Full name of the type to create</param>
+        /// <returns></returns>
+        public bool CreateInstanceOnType(object instance, string property, string TypeName)
+        {
+            return CreateInstanceOnType_Internal(instance, property, TypeName);
+        }
+
+
+        /// <summary>
+        /// Creates an instance of a type on an existing property of another type
+        /// </summary>
+        /// <param name="instance">Parent Instance that contains the property to set</param>
+        /// <param name="property">The property on the parent instance to set</param>
+        /// <param name="TypeName">Full name of the type to create</param>
         /// <param name="parm1"></param>
         /// <returns></returns>
         public bool CreateInstanceOnType_OneParm(object instance, string property, string TypeName, object parm1)
@@ -332,11 +347,11 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// 
+        /// Creates an instance of a type on an existing property of another type
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="property"></param>
-        /// <param name="TypeName"></param>
+        /// <param name="instance">Parent Instance that contains the property to set</param>
+        /// <param name="property">The property on the parent instance to set</param>
+        /// <param name="TypeName">Full name of the type to create</param>
         /// <param name="parm1"></param>
         /// <param name="parm2"></param>
         /// <returns></returns>
@@ -347,11 +362,11 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// 
+        /// Creates an instance of a type on an existing property of another type
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="property"></param>
-        /// <param name="TypeName"></param>
+        /// <param name="instance">Parent Instance that contains the property to set</param>
+        /// <param name="property">The property on the parent instance to set</param>
+        /// <param name="TypeName">Full name of the type to create</param>
         /// <param name="parm1"></param>
         /// <param name="parm2"></param>
         /// <param name="parm3"></param>
@@ -363,11 +378,11 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// 
+        /// Creates an instance of a type on an existing property of another type
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="property"></param>
-        /// <param name="TypeName"></param>
+        /// <param name="instance">Parent Instance that contains the property to set</param>
+        /// <param name="property">The property on the parent instance to set</param>
+        /// <param name="TypeName">Full name of the type to create</param>
         /// <param name="parm1"></param>
         /// <param name="parm2"></param>
         /// <param name="parm3"></param>
@@ -380,12 +395,11 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// 
+        /// Creates an instance of a type on an existing property of another type
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="property"></param>
-        /// <param name="TypeName"></param>
-        /// <param name="parm1"></param>
+        /// <param name="instance">Parent Instance that contains the property to set</param>
+        /// <param name="property">The property on the parent instance to set</param>
+        /// <param name="TypeName">Full name of the type to create</param>/// <param name="parm1"></param>
         /// <param name="parm2"></param>
         /// <param name="parm3"></param>
         /// <param name="parm4"></param>

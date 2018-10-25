@@ -1052,6 +1052,80 @@ namespace Westwind.WebConnection
 
 
 
+        static string HtmlSanitizeTagBlackList { get; } = "script|iframe|object|embed|form";
+
+        static Regex _RegExScript = new Regex($@"(<({HtmlSanitizeTagBlackList})\b[^<]*(?:(?!<\/({HtmlSanitizeTagBlackList}))<[^<]*)*<\/({HtmlSanitizeTagBlackList})>)",
+        RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+        // strip javascript: and unicode representation of javascript:
+        // href='javascript:alert(\"gotcha\")'
+        // href='&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;:alert(\"gotcha\");'
+        static Regex _RegExJavaScriptHref = new Regex(
+            @"<[^>]*?\s(href|src|dynsrc|lowsrc)=.{0,20}((javascript:)|(&#)).*?>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        static Regex _RegExOnEventAttributes = new Regex(
+            @"<[^>]*?\s(on[^\s\\]{0,20}=([""].*?[""]|['].*?['])).*?(>|\/>)",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        /// <summary>
+        /// Sanitizes HTML to some of the most of common XSS attacks
+        /// </summary>
+        /// <remarks>
+        /// This provides rudimentary HTML sanitation catching the most obvious
+        /// XSS script attack vectors. For mroe complete HTML Sanitation please look into
+        /// a dedicated HTML Sanitizer.
+        /// </remarks>
+        /// <param name="html">input html</param>
+        /// <param name="htmlTagBlacklist">A list of HTML tags that are stripped.</param>
+        /// <returns>Sanitized HTML</returns>
+        public static string SanitizeHtml(string html, string htmlTagBlacklist = "script|iframe|object|embed|form")
+        {
+            if (string.IsNullOrEmpty(html))
+                return html;
+
+            if (!string.IsNullOrEmpty(htmlTagBlacklist) || htmlTagBlacklist == HtmlSanitizeTagBlackList)
+            {
+                // Replace Script tags - reused expr is more efficient
+                html = _RegExScript.Replace(html, string.Empty);
+            }
+            else
+            {
+                html = Regex.Replace(html,
+                                        $@"(<({htmlTagBlacklist})\b[^<]*(?:(?!<\/({HtmlSanitizeTagBlackList}))<[^<]*)*<\/({htmlTagBlacklist})>)",
+                                        "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            }
+
+            // Remove javascript: directives
+            var matches = _RegExJavaScriptHref.Matches(html);
+            foreach (Match match in matches)
+            {
+                if (match.Groups.Count > 2)
+                {
+                    var txt = match.Value.Replace(match.Groups[2].Value, "unsupported:");
+                    html = html.Replace(match.Value, txt);
+                }
+            }
+
+            // Remove onEvent handlers from elements
+            matches = _RegExOnEventAttributes.Matches(html);
+            foreach (Match match in matches)
+            {
+                var txt = match.Value;
+                if (match.Groups.Count > 1)
+                {
+                    var onEvent = match.Groups[1].Value;
+                    txt = txt.Replace(onEvent, string.Empty);
+                    if (!string.IsNullOrEmpty(txt))
+                        html = html.Replace(match.Value, txt);
+                }
+            }
+
+            return html;
+        }
+
+
+
         #region Obsolete
         /// <summary>
         /// Determines whether a string is empty (null or zero length)

@@ -83,34 +83,43 @@
             <param name="TypeName"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType(System.Object,System.String,System.String)">
+            <summary>
+            Creates an instance of a type on an existing property of another type
+            </summary>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_OneParm(System.Object,System.String,System.String,System.Object)">
             <summary>
-            
+            Creates an instance of a type on an existing property of another type
             </summary>
-            <param name="instance"></param>
-            <param name="property"></param>
-            <param name="TypeName"></param>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
             <param name="parm1"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_TwoParms(System.Object,System.String,System.String,System.Object,System.Object)">
             <summary>
-            
+            Creates an instance of a type on an existing property of another type
             </summary>
-            <param name="instance"></param>
-            <param name="property"></param>
-            <param name="TypeName"></param>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
             <param name="parm1"></param>
             <param name="parm2"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_ThreeParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object)">
             <summary>
-            
+            Creates an instance of a type on an existing property of another type
             </summary>
-            <param name="instance"></param>
-            <param name="property"></param>
-            <param name="TypeName"></param>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
             <param name="parm1"></param>
             <param name="parm2"></param>
             <param name="parm3"></param>
@@ -118,11 +127,11 @@
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_FourParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object,System.Object)">
             <summary>
-            
+            Creates an instance of a type on an existing property of another type
             </summary>
-            <param name="instance"></param>
-            <param name="property"></param>
-            <param name="TypeName"></param>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
             <param name="parm1"></param>
             <param name="parm2"></param>
             <param name="parm3"></param>
@@ -131,12 +140,11 @@
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_FiveParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object,System.Object,System.Object)">
             <summary>
-            
+            Creates an instance of a type on an existing property of another type
             </summary>
-            <param name="instance"></param>
-            <param name="property"></param>
-            <param name="TypeName"></param>
-            <param name="parm1"></param>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>/// <param name="parm1"></param>
             <param name="parm2"></param>
             <param name="parm3"></param>
             <param name="parm4"></param>
@@ -1286,6 +1294,19 @@
             <param name="key"></param>
             <param name="value"></param>
             <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.SanitizeHtml(System.String,System.String)">
+            <summary>
+            Sanitizes HTML to some of the most of common XSS attacks
+            </summary>
+            <remarks>
+            This provides rudimentary HTML sanitation catching the most obvious
+            XSS script attack vectors. For mroe complete HTML Sanitation please look into
+            a dedicated HTML Sanitizer.
+            </remarks>
+            <param name="html">input html</param>
+            <param name="htmlTagBlacklist">A list of HTML tags that are stripped.</param>
+            <returns>Sanitized HTML</returns>
         </member>
         <member name="M:Westwind.WebConnection.StringUtils.Empty(System.String)">
             <summary>
