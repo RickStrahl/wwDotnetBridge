@@ -251,7 +251,7 @@ ENDFUNC
 ***  Function: Unloads the CLR and AppDomain
 ***    Assume: Don't call this unless you want to explicity force
 ***            the AppDomain to be unloaded and a new one to be spun
-***            up. Generally a single domain shoudl be sufficient.
+***            up. Generally a single domain should be sufficient.
 ***      Pass:
 ***    Return:
 ************************************************************************
@@ -458,8 +458,7 @@ DO CASE
 ENDCASE
 
 IF loBridge.Error
-   this.cErrorMsg = loBridge.ErrorMessage
-   this.lError = .T.
+   this.SetError(loBridge.ErrorMessage)
 ENDIF   
 
 RETURN loResult
@@ -511,8 +510,7 @@ ENDCASE
 loResult = loBridge.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
 
 IF loBridge.Error
-   this.cErrorMsg = loBridge.ErrorMessage
-   this.lError = .T.
+   this.SetError(loBridge.ErrorMessage)
 ENDIF   
 
 RETURN loResult
@@ -760,8 +758,7 @@ DO CASE
 ENDCASE
 
 IF loBridge.Error
-   this.cErrorMsg = loBridge.ErrorMessage
-   this.lError = .T.
+   this.SetError(loBridge.ErrorMessage)
 ENDIF   
 
 RETURN loResult
