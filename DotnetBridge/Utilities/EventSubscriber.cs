@@ -19,6 +19,10 @@ namespace Westwind.WebConnection
         private readonly object _source;
         private readonly List<Delegate> _eventHandlers = new List<Delegate>();
         private readonly ConcurrentQueue<RaisedEvent> _raisedEvents = new ConcurrentQueue<RaisedEvent>();
+
+        /// <summary>
+        /// Completed when an event is raised, or with null if the client is not waiting.
+        /// </summary>
         private TaskCompletionSource<RaisedEvent> _completion = new TaskCompletionSource<RaisedEvent>();
 
         public EventSubscriber(object source)
@@ -48,7 +52,7 @@ namespace Westwind.WebConnection
             var events = _source.GetType().GetEvents();
             for (int e = 0; e < events.Length; ++e)
                 events[e].RemoveEventHandler(_source, _eventHandlers[e]);
-            _completion.TrySetCanceled();
+            _completion.TrySetResult(null); // Releases the waiting client.
         }
 
         private void QueueInteropEvent(string name, object[] parameters)
@@ -66,11 +70,7 @@ namespace Westwind.WebConnection
         {
             if (_raisedEvents.TryDequeue(out var interopEvent)) return interopEvent;
             _completion = new TaskCompletionSource<RaisedEvent>();
-            var task = _completion.Task;
-            
-            task.Wait();
-
-            return task.IsCanceled ? null : task.Result;
+            return _completion.Task.Result;
         }
     }
 

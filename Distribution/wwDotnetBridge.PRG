@@ -1565,7 +1565,7 @@ ENDFUNC
 ** Forwards the event to a function named On{Event} with the event's parameters.
 FUNCTION OnCompleted(lvResult, lcMethod)
 LOCAL lParamText,nCount
-IF ISNULL(lvResult) && If the call to WaitForEvent was canceled:
+IF VARTYPE(lvResult) # "O" OR VARTYPE(this.oHandler) # "O" && If the call to WaitForEvent was canceled or the handler was destroyed:
     RETURN
 ENDIF
 lParamText = ""
