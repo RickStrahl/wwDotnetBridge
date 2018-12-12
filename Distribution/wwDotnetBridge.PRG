@@ -1550,31 +1550,23 @@ FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)
 this.oBridge = loBridge
 this.oHandler = loHandler
 this.oPrefix = lcPrefix
-this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource)
-this.HandleNextEvent()
+this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource, this)
 ENDFUNC
 
 FUNCTION Unsubscribe()
 this.oSubscriber.Dispose()
 ENDFUNC
  
-FUNCTION HandleNextEvent()
-this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")
+** Forwards the event to a function named On{Event} with the event's parameters.
+FUNCTION OnEvent(lcName AS STRING, oParams)
+LOCAL lParamText,nCount
+lParamText = ""
+FOR nCount = 0 TO oParams.Count - 1
+    lParamText = lParamText + ",oParams.Item(" + ALLTRIM(STR(nCount)) + ")"
+ENDFOR
+=EVALUATE("this.oHandler." + this.oPrefix + lcName + "("+SUBSTR(lParamText,2)+")")
 ENDFUNC
 
-** Forwards the event to a function named On{Event} with the event's parameters.
-FUNCTION OnCompleted(lvResult, lcMethod)
-LOCAL lParamText,nCount
-IF VARTYPE(lvResult) # "O" OR VARTYPE(this.oHandler) # "O" && If the call to WaitForEvent was canceled or the handler was destroyed:
-    RETURN
-ENDIF
-lParamText = ""
-FOR nCount = 0 TO lvResult.Params.Count - 1
-    lParamText = lParamText + ",lvResult.Params.Item(" + ALLTRIM(STR(nCount)) + ")"
-ENDFOR
-=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
-this.HandleNextEvent()
-ENDFUNC
 
 ENDDEFINE
 

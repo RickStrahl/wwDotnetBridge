@@ -8,38 +8,8 @@ using System.Threading.Tasks;
 namespace Westwind.WebConnection.Tests
 {
     /// <summary>
-    /// Tests FoxPro interop.
+    /// Test class that immediately raises events when <see cref="Raise"/> is called.
     /// </summary>
-    [TestClass]
-    public class EventSubscriberTests
-    {
-        [TestMethod]
-        public void EventSubscriber_WaitForPastEvents()
-        {
-            var loopback = new Loopback();
-            var subscriber = new EventSubscriber(loopback);
-            loopback.Raise();
-            VerifyResults(subscriber);
-        }
-
-        [TestMethod]
-        public void EventSubscriber_WaitForFutureEvents()
-        {
-            var loopback = new Loopback();
-            var subscriber = new EventSubscriber(loopback);
-            Task.Delay(1).ContinueWith(t => loopback.Raise());
-            VerifyResults(subscriber);
-        }
-
-        static void VerifyResults(EventSubscriber subscriber)
-        {
-            var result = subscriber.WaitForEvent();
-            Assert.IsTrue(result.Name == nameof(Loopback.NoParams) && result.Params.Count == 0);
-            result = subscriber.WaitForEvent();
-            Assert.IsTrue(result.Name == nameof(Loopback.TwoParams) && result.Params.Count == 2 && (string)result.Params[0] == "A" && (int)result.Params[1] == 1);
-        }
-    }
-
     public class Loopback
     {
         public event Action NoParams;
