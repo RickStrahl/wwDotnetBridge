@@ -85,70 +85,13 @@
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType(System.Object,System.String,System.String)">
             <summary>
-            Creates an instance of a type on an existing property of another type
+            Creates an instance of a .NET type and stores it on an existing property of another type.
+            
+            Use this method if you can't access a type through COM ([ComVisible(false)]
             </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_OneParm(System.Object,System.String,System.String,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <param name="parm1"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_TwoParms(System.Object,System.String,System.String,System.Object,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <param name="parm1"></param>
-            <param name="parm2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_ThreeParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <param name="parm1"></param>
-            <param name="parm2"></param>
-            <param name="parm3"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_FourParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <param name="parm1"></param>
-            <param name="parm2"></param>
-            <param name="parm3"></param>
-            <param name="parm4"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_FiveParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object,System.Object,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>/// <param name="parm1"></param>
-            <param name="parm2"></param>
-            <param name="parm3"></param>
-            <param name="parm4"></param>
-            <param name="parm5"></param>
+            <param name="instance"></param>
+            <param name="property"></param>
+            <param name="TypeName"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile(System.String,System.String)">
@@ -210,14 +153,6 @@
             <param name="TypeName"></param>
             <returns></returns>
         </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetTypeFromName(System.String)">
-            <summary>
-            Helper routine that looks up a type name and tries to retrieve the
-            full type reference in the actively executing assemblies.
-            </summary>
-            <param name="typeName"></param>
-            <returns></returns>
-        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethod_Internal(System.String,System.String,System.Object[])">
             <summary>
             Invokes a static method
@@ -233,6 +168,23 @@
             </summary>
             <param name="TypeName">Full type name (namespace.class)</param>
             <param name="Property">Property to get value from</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetEnumString(System.String,System.Object)">
+            <summary>
+            Returns the name of an enum field given an enum value
+            passed. Pass in the name of the enum type
+            </summary>
+            <param name="EnumTypeName"></param>
+            <param name="Value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetTypeFromName(System.String)">
+            <summary>
+            Helper routine that looks up a type name and tries to retrieve the
+            full type reference in the actively executing assemblies.
+            </summary>
+            <param name="typeName"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod(System.Object,System.String)">
@@ -272,6 +224,40 @@
             <param name="Parm2"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethodAsync(System.Object,System.Object,System.String,System.Object[])">
+            <summary>
+            Invokes a method on a new thread and fires OnCompleted and OnError
+            events on a passed in callback object.
+            </summary>
+            <param name="callBack">
+            A callback object that has to have two methods:
+            OnCompleted(lvResult, lcMethod)
+            OnError(lcErrorMsg,loException, lcMethod)        
+            </param>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethodAsync(System.Object,System.String,System.String,System.Object[])">
+            <summary>
+            Invokes a method on a new thread and fires OnCompleted and OnError
+            events on a passed in callback object.
+            </summary>
+            <param name="callBack">
+            A callback object that has to have two methods:
+            OnCompleted(lvResult, lcMethod)
+            OnError(lcErrorMsg,loException, lcMethod)        
+            </param>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge._InvokeMethodAsync(System.Object)">
+            <summary>
+            Internal handler method that actually makes the async call on a thread
+            </summary>
+            <param name="parmList"></param>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetPropertyEx(System.Object,System.String)">
             <summary>
             Returns a property value by allowing . syntax to drill
@@ -302,49 +288,6 @@
             <param name="Instance"></param>
             <param name="Property"></param>
             <param name="Value"></param>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetEnumString(System.String,System.Object)">
-            <summary>
-            Returns the name of an enum field given an enum value
-            passed. Pass in the name of the enum type
-            </summary>
-            <param name="EnumTypeName"></param>
-            <param name="Value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethodAsync(System.Object,System.String,System.String,System.Object[])">
-            <summary>
-            Invokes a method on asynchronously and fires OnCompleted and OnError
-            events on a passed in callback object.
-            </summary>
-            <param name="callBack">
-            A callback object that has to have two methods:
-            OnCompleted(lvResult, lcMethod)
-            OnError(lcErrorMsg,loException, lcMethod)        
-            </param>
-            <param name="instance"></param>
-            <param name="method"></param>
-            <param name="parameters"></param>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethodAsync(System.Object,System.Object,System.String,System.Object[])">
-            <summary>
-            Invokes a method on a new thread and fires OnCompleted and OnError
-            events on a passed in callback object.
-            </summary>
-            <param name="callBack">
-            A callback object that has to have two methods:
-            OnCompleted(lvResult, lcMethod)
-            OnError(lcErrorMsg,loException, lcMethod)        
-            </param>
-            <param name="instance"></param>
-            <param name="method"></param>
-            <param name="parameters"></param>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge._InvokeMethodAsync(System.Object)">
-            <summary>
-            Internal handler method that actually makes the async call on a thread
-            </summary>
-            <param name="parmList"></param>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayInstanceInternal(System.Object,System.String,System.Int32)">
             <summary>
@@ -405,8 +348,8 @@
             <summary>
             Returns an indexed property Value
             </summary>
-            <param name="baseList">List object</param>
-            <param name="index">Index into the list</param>
+            <param name="baseList"></param>
+            <param name="index"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetArrayItem(System.Object,System.String,System.Int32)">
@@ -482,29 +425,10 @@
             </summary>
             <param name="AssemblyName"></param>
         </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDotnetVersion">
-            <summary> 
-            Returns the .NET framework version installed on the machine
-            as a string  of 4.x.y version
-            </summary>
-            <remarks>Minimum version supported is 4.0</remarks>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetWindowsVersion(Westwind.WebConnection.WindowsVersionModes)">
-            <summary>
-            Returns Windows Version as a string
-            0 - Full: 10.0.17134.0 - Release: 1803
-            1 - Version only: 10.0.17134.0
-            2 - Release only: 1803
-            </summary>
-            <param name="mode"></param>
-            <returns></returns>
-        </member>
         <member name="T:Westwind.WebConnection.EventSubscriber">
             <summary>
             FoxPro interop access to .NET events. Handles all events of a source object for subsequent retrieval by a FoxPro client.
             </summary>
-            <remarks>For a FoxPro program to be notified of events, it should use `wwDotNetBridge.InvokeMethodAsync` to call <see cref="M:Westwind.WebConnection.EventSubscriber.WaitForEvent"/>. When <see cref="M:Westwind.WebConnection.EventSubscriber.WaitForEvent"/> asynchronously completes, the FoxPro program should handle the event it returns and then call <see cref="M:Westwind.WebConnection.EventSubscriber.WaitForEvent"/> again to wait for the next event. The FoxPro class `EventSubscription`, which is returned by `SubscribeToEvents`, encapsulates this async wait loop.</remarks>
         </member>
         <member name="M:Westwind.WebConnection.EventSubscriber.WaitForEvent">
             <summary>
@@ -949,42 +873,6 @@
             <param name="character"></param>
             <returns></returns>
         </member>
-        <member name="M:Westwind.WebConnection.StringUtils.IndexOfNth(System.String,System.String,System.Int32,System.StringComparison)">
-            <summary>
-            Finds the nth index of strting in a string
-            </summary>
-            <param name="source"></param>
-            <param name="matchString"></param>
-            <param name="stringInstance"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.StringUtils.IndexOfNth(System.String,System.Char,System.Int32)">
-            <summary>
-            Returns the nth Index of a character in a string
-            </summary>
-            <param name="source"></param>
-            <param name="matchChar"></param>
-            <param name="charInstance"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.StringUtils.LastIndexOfNth(System.String,System.String,System.Int32,System.StringComparison)">
-            <summary>
-            Finds the nth index of strting in a string
-            </summary>
-            <param name="source"></param>
-            <param name="matchString"></param>
-            <param name="charInstance"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.StringUtils.LastIndexOfNth(System.String,System.Char,System.Int32)">
-            <summary>
-            Finds the nth index of in a string from the end.
-            </summary>
-            <param name="source"></param>
-            <param name="matchChar"></param>
-            <param name="charInstance"></param>
-            <returns></returns>
-        </member>
         <member name="M:Westwind.WebConnection.StringUtils.ProperCase(System.String)">
             <summary>
             Return a string in proper Case format
@@ -1094,6 +982,25 @@
             <param name="s">string to count lines for</param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.StringUtils.ParseInt(System.String,System.Int32,System.IFormatProvider)">
+            <summary>
+            Parses an string into an integer. If the value can't be parsed
+            a default value is returned instead
+            </summary>
+            <param name="input">Input numeric string to be parsed</param>
+            <param name="defaultValue">Optional default value if parsing fails</param>
+            <param name="formatProvider">Optional NumberFormat provider. Defaults to current culture's number format</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.StringUtils.ParseDecimal(System.String,System.Decimal,System.IFormatProvider)">
+            <summary>
+            Parses an string into an decimal. If the value can't be parsed
+            a default value is returned instead
+            </summary>
+            <param name="input"></param>
+            <param name="defaultValue"></param>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.StringUtils.StripNonNumber(System.String)">
             <summary>
             Strips all non digit values from a string and only
@@ -1123,25 +1030,6 @@
             <param name="text"></param>
             <param name="tokens"></param>
             <param name="replaceDelimiter"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.StringUtils.ParseInt(System.String,System.Int32,System.IFormatProvider)">
-            <summary>
-            Parses an string into an integer. If the value can't be parsed
-            a default value is returned instead
-            </summary>
-            <param name="input">Input numeric string to be parsed</param>
-            <param name="defaultValue">Optional default value if parsing fails</param>
-            <param name="formatProvider">Optional NumberFormat provider. Defaults to current culture's number format</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.StringUtils.ParseDecimal(System.String,System.Decimal,System.IFormatProvider)">
-            <summary>
-            Parses an string into an decimal. If the value can't be parsed
-            a default value is returned instead
-            </summary>
-            <param name="input"></param>
-            <param name="defaultValue"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.StringUtils.NewStringId">
@@ -1294,19 +1182,6 @@
             <param name="key"></param>
             <param name="value"></param>
             <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.StringUtils.SanitizeHtml(System.String,System.String)">
-            <summary>
-            Sanitizes HTML to some of the most of common XSS attacks
-            </summary>
-            <remarks>
-            This provides rudimentary HTML sanitation catching the most obvious
-            XSS script attack vectors. For mroe complete HTML Sanitation please look into
-            a dedicated HTML Sanitizer.
-            </remarks>
-            <param name="html">input html</param>
-            <param name="htmlTagBlacklist">A list of HTML tags that are stripped.</param>
-            <returns>Sanitized HTML</returns>
         </member>
         <member name="M:Westwind.WebConnection.StringUtils.Empty(System.String)">
             <summary>

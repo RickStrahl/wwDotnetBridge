@@ -3,27 +3,27 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 *** This flag defines West Wind's commercial version
 *** The open source version should be set to .F.
 #DEFINE IS_WESTWIND        .F.
-#DEFINE IS_LEGACY 	   .T.
+#DEFINE IS_LEGACY        .T.
 
 #IF IS_WESTWIND
-	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
+    #DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
 
-	*** Other dependencies
-	* .NET Runtime 2.0 or later
+    *** Other dependencies
+    * .NET Runtime 2.0 or later
 
-	*** DLLs
-	* wwIpStuff.dll
-	* wwDotnetBridge.dll
-	* NewtonSoft.Json.dll - ToJson()/FromJson() only
+    *** DLLs
+    * wwIpStuff.dll
+    * wwDotnetBridge.dll
+    * NewtonSoft.Json.dll - ToJson()/FromJson() only
 #ELSE
-	#DEFINE WWC_CLR_HOSTDLL clrhost.dll
+    #DEFINE WWC_CLR_HOSTDLL clrhost.dll
 
-	*** Other dependencies
-	* .NET Runtime 2.0 or later
+    *** Other dependencies
+    * .NET Runtime 2.0 or later
 
-	*** DLLs
-	* clrhost.dll
-	* wwDotnetBridge.dll
+    *** DLLs
+    * clrhost.dll
+    * wwDotnetBridge.dll
 #ENDIF
 
 
@@ -39,7 +39,7 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 FUNCTION GetwwDotNetBridge(lcVersion, llUseCom)
 IF VARTYPE(__DOTNETBRIDGE) != "O"
    IF EMPTY(lcVersion)       
-		lcVersion = "V4"
+        lcVersion = "V4"
    ENDIF
 
    PUBLIC __DOTNETBRIDGE
@@ -135,9 +135,9 @@ IF !EMPTY(lcVersion)
    LOCAL lcShortVer
    lcShortVer = UPPER(lcVersion)
    DO CASE 
-   	CASE lcShortVer == "V4"
-   	  lcVersion = "v4.0.30319"
-	CASE lcShortVer == "V2"
+    CASE lcShortVer == "V4"
+      lcVersion = "v4.0.30319"
+    CASE lcShortVer == "V2"
       lcVersion = "v2.0.50727"     
    ENDCASE
 
@@ -170,50 +170,50 @@ FUNCTION Load(llNoUnblockOnError)
 LOCAL lcError, lnSize, lnDispHandle, lcPath, lcCmd
 
 IF VARTYPE(this.oDotNetBridge) != "O"
-	this.SetClrVersion(this.cClrVersion)
-	
-	IF this.lUseCom
-		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
-	ELSE	
-		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
-	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
+    this.SetClrVersion(this.cClrVersion)
+    
+    IF this.lUseCom
+        this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
+    ELSE	
+        *** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
+        DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
 
-		*** Remove the Zone Identifier to 'Unblock'
-	     	DECLARE INTEGER DeleteFile IN WIN32API STRING		  			  			
-   	        DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
-		
-		#IF IS_WESTWIND
-			DeleteFile(FULLPATH("Newtosoft.Json.dll") + ":Zone.Identifier")
-			DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
-		#ENDIF
-			
-		lcError = SPACE(2048)
-		lnSize = 0
-		lnDispHandle = ClrCreateInstanceFrom(FULLPATH("wwDotNetBridge.dll"),;
-				"Westwind.WebConnection.wwDotNetBridge",@lcError,@lnSize)
+        *** Remove the Zone Identifier to 'Unblock'
+            DECLARE INTEGER DeleteFile IN WIN32API STRING		  			  			
+            DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
+        
+        #IF IS_WESTWIND
+            DeleteFile(FULLPATH("Newtonsoft.Json.dll") + ":Zone.Identifier")
+            DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
+        #ENDIF
+            
+        lcError = SPACE(2048)
+        lnSize = 0
+        lnDispHandle = ClrCreateInstanceFrom(FULLPATH("wwDotNetBridge.dll"),;
+                "Westwind.WebConnection.wwDotNetBridge",@lcError,@lnSize)
 
-		IF lnDispHandle < 1
-		   lcError =  LEFT(lcError,lnSize)
-		
-		   this.SetError( "Unable to load Clr Instance. "  + lcError  + CHR(13) +;
-			   "Most likely wwDotnetBridge.dll is blocked or you don't have network permissions to load the assembly." + CHR(13)+;
-			   "Search for: 'Unable to load CLR Instance' at: https://webconnection.west-wind.com/docs" )
-		   RETURN NULL 
-		ENDIF
+        IF lnDispHandle < 1
+           lcError =  LEFT(lcError,lnSize)
+        
+           this.SetError( "Unable to load Clr Instance. "  + lcError  + CHR(13) +;
+               "Most likely wwDotnetBridge.dll is blocked or you don't have network permissions to load the assembly." + CHR(13)+;
+               "Search for: 'Unable to load CLR Instance' at: https://webconnection.west-wind.com/docs" )
+           RETURN NULL 
+        ENDIF
 
-		*** Turn handle into IDispatch COM object
-		this.oDotNetBridge = SYS(3096, lnDispHandle)	
+        *** Turn handle into IDispatch COM object
+        this.oDotNetBridge = SYS(3096, lnDispHandle)    
 
-		*** Explicitly AddRef here - otherwise weird shit happens when objects are released
-		SYS(3097, this.oDotNetBridge)
+        *** Explicitly AddRef here - otherwise weird shit happens when objects are released
+        SYS(3097, this.oDotNetBridge)
 
-		IF ISNULL(this.oDotNetBridge)
-			this.SetError("COM Load Error: Can't access CLR COM reference.")
-			RETURN null
-		ENDIF
-	ENDIF
+        IF ISNULL(this.oDotNetBridge)
+            this.SetError("COM Load Error: Can't access CLR COM reference.")
+            RETURN null
+        ENDIF
+    ENDIF
 
-	this.oDotNetBridge.LoadAssembly("System")	
+    this.oDotNetBridge.LoadAssembly("System")    
 ENDIF
 
 RETURN this.oDotNetBridge
@@ -248,9 +248,9 @@ ENDFUNC
 ************************************************************************
 FUNCTION Unload()
 IF VARTYPE(this.oDotNetBridge) == "O"
-	this.oDotNetBridge = NULL	
-	DECLARE Integer ClrUnload IN WWC_CLR_HOSTDLL	
-	ClrUnload()
+    this.oDotNetBridge = NULL    
+    DECLARE Integer ClrUnload IN WWC_CLR_HOSTDLL    
+    ClrUnload()
 ENDIF
 ENDFUNC
 *   Unload
@@ -282,9 +282,9 @@ ENDIF
 lnParmCount = PCOUNT()
 DO CASE 
     CASE lnParmCount = 1 
-    	loObject = loBridge.CreateInstance(lcClass)
-	CASE lnParmCount = 2
-		loObject = loBridge.CreateInstance_OneParm(lcClass,lvParm1)
+        loObject = loBridge.CreateInstance(lcClass)
+    CASE lnParmCount = 2
+        loObject = loBridge.CreateInstance_OneParm(lcClass,lvParm1)
     CASE lnParmCount = 3
         loObject = loBridge.CreateInstance_TwoParms(lcClass,lvParm1, lvParm2)
     CASE lnParmCount = 4
@@ -298,8 +298,8 @@ DO CASE
 ENDCASE
 
 IF ISNULL(loObject) OR loBridge.Error
-	this.SetError( loBridge.ErrorMessage )
-	RETURN NULL
+    this.SetError( loBridge.ErrorMessage )
+    RETURN NULL
 ENDIF
 
 RETURN loObject
@@ -327,8 +327,8 @@ ENDIF
 
 lnParmCount = PCOUNT()
 DO CASE 
-	CASE lnParmCount = 4
-		loObject = loBridge.CreateInstanceOnType_OneParm(loInstance,lcProperty, lcClass,lvParm1)
+    CASE lnParmCount = 4
+        loObject = loBridge.CreateInstanceOnType_OneParm(loInstance,lcProperty, lcClass,lvParm1)
     CASE lnParmCount = 5
         loObject = loBridge.CreateInstanceOnType_TwoParms(loInstance,lcProperty,lcClass,lvParm1, lvParm2)
     CASE lnParmCount = 6
@@ -342,8 +342,8 @@ DO CASE
 ENDCASE
 
 IF ISNULL(loObject) OR loBridge.Error
-	this.SetError( loBridge.ErrorMessage )
-	RETURN .F.
+    this.SetError( loBridge.ErrorMessage )
+    RETURN .F.
 ENDIF
 
 RETURN .T.
@@ -359,10 +359,10 @@ ENDFUNC
 ***    Return:
 ************************************************************************
 FUNCTION InvokeMethod(loObject, lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,;
-										  lvParm6, lvParm7, lvParm8, lvParm9, lvParm10,;
-										  lvParm11, lvParm12, lvParm13, lvParm14, lvParm15,;
-										  lvParm16, lvParm17, lvParm18, lvParm19, lvParm20,;
-										  lvParm21, lvParm22, lvParm23, lvParm24)
+                                          lvParm6, lvParm7, lvParm8, lvParm9, lvParm10,;
+                                          lvParm11, lvParm12, lvParm13, lvParm14, lvParm15,;
+                                          lvParm16, lvParm17, lvParm18, lvParm19, lvParm20,;
+                                          lvParm21, lvParm22, lvParm23, lvParm24)
 LOCAL loBridge, lnParms, loResult
 
 this.SetError()
@@ -374,38 +374,38 @@ loResult = NULL
 DO CASE
     CASE lnParms = 2
       loResult = loBridge.InvokeMethod(loObject, lcMethod)
-	CASE lnParms = 3
-	  loResult = loBridge.InvokeMethod_OneParm(loObject, lcMethod, lvParm1)
-	CASE lnParms = 4
-	  loResult = loBridge.InvokeMethod_TwoParms(loObject, lcMethod,lvParm1, lvParm2)
-	CASE lnParms = 5
-	  loResult = loBridge.InvokeMethod_ThreeParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3)
-	CASE lnParms = 6
-	  loResult = loBridge.InvokeMethod_FourParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)
-	CASE lnParms = 7
-	  loResult = loBridge.InvokeMethod_FiveParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
-	CASE lnParms = 8
-	  loResult = loBridge.InvokeMethod_SixParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)
-	CASE lnParms = 9
-	  loResult = loBridge.InvokeMethod_SevenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)
-	CASE lnParms = 10
-	  loResult = loBridge.InvokeMethod_EightParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)
-	CASE lnParms = 11
-	  loResult = loBridge.InvokeMethod_NineParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)
-	CASE lnParms = 12
-	  loResult = loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	  
+    CASE lnParms = 3
+      loResult = loBridge.InvokeMethod_OneParm(loObject, lcMethod, lvParm1)
+    CASE lnParms = 4
+      loResult = loBridge.InvokeMethod_TwoParms(loObject, lcMethod,lvParm1, lvParm2)
+    CASE lnParms = 5
+      loResult = loBridge.InvokeMethod_ThreeParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3)
+    CASE lnParms = 6
+      loResult = loBridge.InvokeMethod_FourParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)
+    CASE lnParms = 7
+      loResult = loBridge.InvokeMethod_FiveParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+    CASE lnParms = 8
+      loResult = loBridge.InvokeMethod_SixParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)
+    CASE lnParms = 9
+      loResult = loBridge.InvokeMethod_SevenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)
+    CASE lnParms = 10
+      loResult = loBridge.InvokeMethod_EightParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)
+    CASE lnParms = 11
+      loResult = loBridge.InvokeMethod_NineParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)
+    CASE lnParms = 12
+      loResult = loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)      
 
-	OTHERWISE
-      	    LOCAL loArray as Westwind.WebConnection.ComArray
-	    loArray = this.CreateArray("System.Object")
+    OTHERWISE
+            LOCAL loArray as Westwind.WebConnection.ComArray
+        loArray = this.CreateArray("System.Object")
 
-	    LOCAL lvParm
-	    FOR lnX = 1 TO lnParms-2
-		   	lvParm = EVALUATE("lvParm" + TRANSFORM(lnX))
-		   	loArray.AddItem(lvParm)   	
-	    ENDFOR
-	    
-	    RETURN THIS.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
+        LOCAL lvParm
+        FOR lnX = 1 TO lnParms-2
+            lvParm = EVALUATE("lvParm" + TRANSFORM(lnX))
+            loArray.AddItem(lvParm)       
+        ENDFOR
+        
+        RETURN THIS.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
 ENDCASE
 
 IF loBridge.Error
@@ -431,7 +431,7 @@ LPARAMETERS loObject, lcMethod, laParms
 LOCAL loBridge, loResult, lnX
 
 IF .F.
-	LOCAL ARRAY laParms[1] && Compiler needs this or compile error
+    LOCAL ARRAY laParms[1] && Compiler needs this or compile error
 ENDIF
 
 this.SetError()
@@ -444,20 +444,20 @@ loArray = this.CreateInstance("Westwind.WebConnection.ComArray")
 loArray.Create("System.Object")
 
 DO CASE
-	CASE TYPE("laParms.Instance") # "U"
-	   *** It's already a parameter array
-	   loArray = laParms
-	CASE TYPE("ALEN(laParms)") = "N"
-	   *** It's a Fox array
-	   lnsize = ALEN(laParms)
-	   FOR lnX = 1 TO lnSize
-		   	loArray.AddItem(laParms[lnX])   	
-	   ENDFOR
-	CASE TYPE("laParms.Count") = "N"
-		*** It's a .NET array/collection
-	    FOR lnX =1 TO laParms.Count
-	    	loArray.AddItem(laParms[lnX])
-	    ENDFOR
+    CASE TYPE("laParms.Instance") # "U"
+       *** It's already a parameter array
+       loArray = laParms
+    CASE TYPE("ALEN(laParms)") = "N"
+       *** It's a Fox array
+       lnsize = ALEN(laParms)
+       FOR lnX = 1 TO lnSize
+            loArray.AddItem(laParms[lnX])       
+       ENDFOR
+    CASE TYPE("laParms.Count") = "N"
+        *** It's a .NET array/collection
+        FOR lnX =1 TO laParms.Count
+            loArray.AddItem(laParms[lnX])
+        ENDFOR
 ENDCASE
 
 loResult = loBridge.InvokeMethod_ParameterArray(loObject, lcMethod, loArray)
@@ -625,30 +625,30 @@ loBridge = this.oDotNetBridge
 lnParms = PCOUNT()
 loResult = NULL
 DO CASE
-	CASE lnParms = 3
-	  loResult = loBridge.InvokeStaticMethod_OneParm(lcTypeName, lcMethod, lvParm1)
-	CASE lnParms = 4
-	  loResult = loBridge.InvokeStaticMethod_TwoParms(lcTypeName, lcMethod,lvParm1, lvParm2)
-	CASE lnParms = 5
-	  loResult = loBridge.InvokeStaticMethod_ThreeParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3)
-	CASE lnParms = 6
-	  loResult = loBridge.InvokeStaticMethod_FourParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)
-	CASE lnParms = 7
-	  loResult = loBridge.InvokeStaticMethod_FiveParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
-	CASE lnParms = 8
-	  loResult = loBridge.InvokeStaticMethod_SixParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6)
-	CASE lnParms = 9
-	  loResult = loBridge.InvokeStaticMethod_SevenParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7)	
-	CASE lnParms = 10
-	  loResult = loBridge.InvokeStaticMethod_EightParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8)	
-	CASE lnParms = 11
-	  loResult = loBridge.InvokeStaticMethod_NineParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8, lvParm9)	
-	CASE lnParms = 12
-	  loResult = loBridge.InvokeStaticMethod_TenParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	
+    CASE lnParms = 3
+      loResult = loBridge.InvokeStaticMethod_OneParm(lcTypeName, lcMethod, lvParm1)
+    CASE lnParms = 4
+      loResult = loBridge.InvokeStaticMethod_TwoParms(lcTypeName, lcMethod,lvParm1, lvParm2)
+    CASE lnParms = 5
+      loResult = loBridge.InvokeStaticMethod_ThreeParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3)
+    CASE lnParms = 6
+      loResult = loBridge.InvokeStaticMethod_FourParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)
+    CASE lnParms = 7
+      loResult = loBridge.InvokeStaticMethod_FiveParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+    CASE lnParms = 8
+      loResult = loBridge.InvokeStaticMethod_SixParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6)
+    CASE lnParms = 9
+      loResult = loBridge.InvokeStaticMethod_SevenParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7)    
+    CASE lnParms = 10
+      loResult = loBridge.InvokeStaticMethod_EightParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8)    
+    CASE lnParms = 11
+      loResult = loBridge.InvokeStaticMethod_NineParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8, lvParm9)    
+    CASE lnParms = 12
+      loResult = loBridge.InvokeStaticMethod_TenParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)    
 
-	OTHERWISE
-	
-	  loResult = loBridge.InvokeStaticMethod(lcTypeName, lcMethod)
+    OTHERWISE
+    
+      loResult = loBridge.InvokeStaticMethod(lcTypeName, lcMethod)
 ENDCASE
 
 IF loBridge.Error
@@ -775,11 +775,11 @@ LOCAL loComArray, lcType
 lcType = VARTYPE(lvArrayInstanceOrElementTypeString)
 DO CASE
   CASE lcType = "X" OR EMPTY(lvArrayInstanceOrElementTypeString)
-	  loComArray = this.oDotnetBridge.CreateInstance("Westwind.WebConnection.ComArray")
+      loComArray = this.oDotnetBridge.CreateInstance("Westwind.WebConnection.ComArray")
   CASE lcType = "C"
-	  loComArray = this.oDotnetBridge.CreateArray(lvArrayInstanceOrElementTypeString)
+      loComArray = this.oDotnetBridge.CreateArray(lvArrayInstanceOrElementTypeString)
   CASE lcType = "O"
-	  loComArray = this.oDotnetBridge.CreateArrayFromInstance(lvArrayInstanceOrElementTypeString)
+      loComArray = this.oDotnetBridge.CreateArrayFromInstance(lvArrayInstanceOrElementTypeString)
   OTHERWISE
       ERROR "Invalid parameter passed to CreateArray"   
 ENDCASE
@@ -825,11 +825,11 @@ ENDFUNC
 FUNCTION CreateArrayOnInstance(loBaseType, lcType, lnSize)
 
 IF VARTYPE(lnSize) # "N"
-	IF !this.oDotNetBridge.CreateArrayOnInstanceWithObject(loBaseType, lcType, lnSize)
-	   THIS.SetError(this.oDotnetBridge.ErrorMessage)
-	   RETURN .F.
-	ENDIF
-	RETURN .T.	
+    IF !this.oDotNetBridge.CreateArrayOnInstanceWithObject(loBaseType, lcType, lnSize)
+       THIS.SetError(this.oDotnetBridge.ErrorMessage)
+       RETURN .F.
+    ENDIF
+    RETURN .T.    
 ENDIF
 
 IF !this.oDotNetBridge.CreateArrayOnInstance(loBaseType, lcType, lnSize)
@@ -899,11 +899,11 @@ ENDFUNC
 FUNCTION RemoveArrayItem(loBaseType, lcArrayProperty, lnIndex)
 
 IF !this.oDotNetBridge.RemoveArrayItem(loBaseType,lcArrayProperty, lnIndex)
-	this.SetError("Couldn't remove item from array: " + this.oDotnetBridge.ErrorMessage)
-	RETURN .F.
+    this.SetError("Couldn't remove item from array: " + this.oDotnetBridge.ErrorMessage)
+    RETURN .F.
 ENDIF
 
-RETURN .T.	
+RETURN .T.    
 ENDFUNC
 *   RemoveArrayItem
 
@@ -926,7 +926,7 @@ ENDFUNC
 ************************************************************************
 *  GetTypeName
 ****************************************
-***  Function: Returns a typename for an instance
+***  Function: Returns a type name for an instance
 ***    Assume: Shortcut for InvokeMethod(instance,"ToString")
 ***      Pass:
 ***    Return:
@@ -961,7 +961,7 @@ ENDFUNC
 ************************************************************************
 FUNCTION SubscribeToEvents(loSource, loHandler, lcPrefix)
 IF EMPTY(lcPrefix)
-	lcPrefix = "On"
+    lcPrefix = "On"
 ENDIF
 LOCAL loSubscription
 loSubscription = CREATEOBJECT("EventSubscription")
@@ -985,7 +985,7 @@ LOCAL lcXML
 lcXML = this.InvokeMethod(this.oDotNetBridge,"DataSetToXmlString",loDs,.T.)
 
 IF EMPTY(lcXml)
-	RETURN null
+    RETURN null
 ENDIF
 
 LOCAL loAdapter as XMLAdapter
@@ -1061,13 +1061,13 @@ loAdapter = CREATEOBJECT("XmlAdapter")
 
 LOCAL ARRAY laCursors[1]   
 #IF VERSION(5) > 800
-	lnCount = ALINES(laCursors,lcAliasList,1 + 4,",")
+    lnCount = ALINES(laCursors,lcAliasList,1 + 4,",")
 #ELSE
-	lnCount = ALINES(laCursors,lcAliasList,",")
+    lnCount = ALINES(laCursors,lcAliasList,",")
 #ENDIF	
 
 FOR lnX = 1 TO lnCount
-	loAdapter.AddTableSchema(laCursors[lnX],.T.)
+    loAdapter.AddTableSchema(laCursors[lnX],.T.)
 ENDFOR
 
 lcXml = ""
@@ -1093,11 +1093,11 @@ FUNCTION XmlAdapterToCursors(loAdapter)
 
 IF VARTYPE(loAdapter) # "O" 
    this.SetError("No Adapter passed")
-   RETURN .F.	
+   RETURN .F.    
 ENDIF
 IF loAdapter.Tables.Count < 1
-	THIS.SetError("No tables on XmlAdapter")
-	RETURN .F.
+    THIS.SetError("No tables on XmlAdapter")
+    RETURN .F.
 ENDIF
 FOR EACH loTable IN loAdapter.Tables
     USE IN SELECT(loTable.Alias)
@@ -1122,9 +1122,9 @@ LOCAL loTable, loTbl
 IF EMPTY(lvCursor)
    *** Get the first cursor if no cursor name is passed
    IF loAdapter.Tables.Count > 0
-   	  lvCursor = loAdapter.Tables[1].Alias
+      lvCursor = loAdapter.Tables[1].Alias
    ELSE
-   	  RETURN .F.
+      RETURN .F.
    ENDIF
 ENDIF   
 
@@ -1133,13 +1133,13 @@ loTable = null
 IF VARTYPE(lvCursor) = "N"
    loTable = loAdapter.tables[lvCursor]
 ELSE
-	lvCursor = LOWER(lvCursor)
-	FOR EACH loTbl in loAdapter.Tables
-	   IF lvCursor == LOWER(loTbl.alias)
-	      loTable = loTbl
-	      EXIT
-	   ENDIF      
-	ENDFOR
+    lvCursor = LOWER(lvCursor)
+    FOR EACH loTbl in loAdapter.Tables
+       IF lvCursor == LOWER(loTbl.alias)
+          loTable = loTbl
+          EXIT
+       ENDIF      
+    ENDFOR
 ENDIF
 
 IF ISNULL(loTable)
@@ -1175,24 +1175,24 @@ IF ISNULL(loBridge)
 ENDIF
 
 IF FILE(lcAssembly)
-	lcAssembly = LOWER(FULLPATH(lcAssembly))
+    lcAssembly = LOWER(FULLPATH(lcAssembly))
 ENDIF
 
 IF AT(":\",lcAssembly) > 0 OR AT("\\",lcAssembly) > 0
-	*** It's a file based assembly path
-	IF !loBridge.LoadAssemblyFrom(lcAssembly)
-		this.SetError(lobridge.ErrorMessage)
-		RETURN .F.
-	ENDIF
+    *** It's a file based assembly path
+    IF !loBridge.LoadAssemblyFrom(lcAssembly)
+        this.SetError(lobridge.ErrorMessage)
+        RETURN .F.
+    ENDIF
 ELSE
     *** It's an assembly name
-	IF !loBridge.LoadAssembly(lcAssembly)
-		this.SetError(lobridge.ErrorMessage)
-		RETURN .F.
-	ENDIF
+    IF !loBridge.LoadAssembly(lcAssembly)
+        this.SetError(lobridge.ErrorMessage)
+        RETURN .F.
+    ENDIF
 ENDIF
 
-RETURN .T.	
+RETURN .T.    
 ENDFUNC
 *   LoadAssembly
 
@@ -1213,32 +1213,32 @@ RETURN loThread
 ENDFUNC
 *  wwDotNetBridge ::  ExecutePrgOnThread
 
-*!*	************************************************************************
-*!*	*  CreateClrInstanceFrom
-*!*	****************************************
-*!*	***  Function: Creates an instance of a .NET class by referencing
-*!*	***            a fully qualified assembly path.
-*!*	***      Pass: lcLibrary - fully qualified path to the assembly 
-*!*	***                        including extension
-*!*	***            lcClass   - MyNamespace.MyClass
-*!*	***    Return: Instance or NULL
-*!*	************************************************************************
-*!*	FUNCTION CreateClrInstance(lcLibrary,lcClass,lcError)
-*!*	LOCAL lnDispHandle, lnSize
+*!*    ************************************************************************
+*!*    *  CreateClrInstanceFrom
+*!*    ****************************************
+*!*    ***  Function: Creates an instance of a .NET class by referencing
+*!*    ***            a fully qualified assembly path.
+*!*    ***      Pass: lcLibrary - fully qualified path to the assembly 
+*!*    ***                        including extension
+*!*    ***            lcClass   - MyNamespace.MyClass
+*!*    ***    Return: Instance or NULL
+*!*    ************************************************************************
+*!*    FUNCTION CreateClrInstance(lcLibrary,lcClass,lcError)
+*!*    LOCAL lnDispHandle, lnSize
 
-*!*	DECLARE Integer ClrCreateInstance IN WWC_CLR_HOSTDLL string, string, string@, integer@
+*!*    DECLARE Integer ClrCreateInstance IN WWC_CLR_HOSTDLL string, string, string@, integer@
 
-*!*	lcError = SPACE(2048)
-*!*	lnSize = 0
-*!*	lnDispHandle = ClrCreateInstance("wcDotNetBridge","Westwind.WebConnection.wwDotNetBridge",@lcError,@lnSize)
+*!*    lcError = SPACE(2048)
+*!*    lnSize = 0
+*!*    lnDispHandle = ClrCreateInstance("wcDotNetBridge","Westwind.WebConnection.wwDotNetBridge",@lcError,@lnSize)
 
-*!*	IF lnDispHandle < 1
-*!*	   lcError = LEFT(lcError,lnSize)
-*!*	   RETURN NULL 
-*!*	ENDIF
+*!*    IF lnDispHandle < 1
+*!*       lcError = LEFT(lcError,lnSize)
+*!*       RETURN NULL 
+*!*    ENDIF
 
-*!*	RETURN SYS(3096, lnDispHandle)
-*!*	ENDFUNC
+*!*    RETURN SYS(3096, lnDispHandle)
+*!*    ENDFUNC
 
 
 ************************************************************************
@@ -1255,8 +1255,8 @@ lcType = LOWER(lcType)
 
 *** Only create loVal object on types that need conversion
 IF EMPTY(lcType) OR INLIST(lcType,"int16","int64","byte","dbnull")
-	LOCAL loVal as Westwind.WebConnnection.ComValue
-	loVal = this.CreateInstance("Westwind.WebConnection.ComValue")
+    LOCAL loVal as Westwind.WebConnnection.ComValue
+    loVal = this.CreateInstance("Westwind.WebConnection.ComValue")
 ENDIF
 
 IF EMPTY(lcType)
@@ -1283,12 +1283,12 @@ DO CASE
       *CAST(lvFoxValue as Currency)      
   CASE lcType = "binary" OR lcType = "byte[]"
       #IF VERSION(5) > 800
-	     RETURN CAST(lvFoxValue as BLOB)      
-	  #ELSE
-	  	 RETURN CREATEBINARY(lvFoxValue)
+         RETURN CAST(lvFoxValue as BLOB)      
+      #ELSE
+         RETURN CREATEBINARY(lvFoxValue)
       #ENDIF
   OTHERWISE
-  	  *** If no conversion exists just return the value as is
+      *** If no conversion exists just return the value as is
       RETURN lvFoxValue
 ENDCASE
 
@@ -1520,7 +1520,6 @@ ENDFUNC
 *   OnError
 
 ENDDEFINE
-
 *EOC AsyncCallbackEvents 
 
 
@@ -1555,7 +1554,7 @@ lcVersion = NULL
 lcFrameworkPath = lcFrameworkPath + "Microsoft.NET\Framework\"
 lnCount = ADIR(laNetDirs,lcFrameworkPath + "v?.*.*","D")
 IF lnCount < 1
-	RETURN null
+    RETURN null
 ENDIF
 
 *** Highest version comes last so go backwards through list
@@ -1578,13 +1577,9 @@ DEFINE CLASS EventSubscription as AsyncCallbackEvents
 *************************************************************
 *:  Author: Edward Brey  - https://github.com/breyed
 *:  Usage: Used internally by SubscribeToEvents
-************************************************************
-HIDDEN oBridge, oHandler, oSubscriber, oPrefix
+*************************************************************
 
-oBridge = null
-oHandler = null
-oPrefix = null
-oSubscriber = null
+HIDDEN oBridge, oHandler, oSubscriber, oPrefix
 
 ************************************************************************
 *  Setup
@@ -1595,59 +1590,33 @@ oSubscriber = null
 ***            loSource   - Source Object fires events
 ***            loHandler  - Target Object that handles events
 ***            lcPrefix   - prefix for event methods
-***                         implemented on target (defaults to "On")
+***                         implemented on target (by convention "On")
 ************************************************************************
 FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)
 this.oBridge = loBridge
 this.oHandler = loHandler
 this.oPrefix = lcPrefix
-this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource)
-this.HandleNextEvent()
+this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource, this)
 ENDFUNC
 
-************************************************************************
-*  UnSubscribe
-****************************************
-***  Function: Unsubscribes events that are currently subscribed to
-************************************************************************
-FUNCTION UnSubscribe()
-IF !ISNULL(THIS.oSubscriber)
-	this.oSubscriber.Dispose()
-ENDIF
+FUNCTION Unsubscribe()
+this.oHandler = null
+this.oSubscriber.Dispose()
 ENDFUNC
  
-  
-FUNCTION HandleNextEvent()
-this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")
-ENDFUNC
-
-************************************************************************
-*  OnComplete
-****************************************
-***  Function: Event Proxy that forwards the event to a function 
-***            named On{Event} with event's parameters.
-************************************************************************
-FUNCTION OnCompleted(lvResult, lcMethod)
-LOCAL loParams,lParamText,lCount
-
-IF ISNULL(lvResult) && If the call to WaitForEvent was canceled:
-	RETURN
+** Forwards the event to a function named On{Event} with the event's parameters.
+FUNCTION OnEvent(lcName AS STRING, oParams)
+LOCAL lParamText,nCount
+IF ISNULL(this.oHandler)
+    RETURN
 ENDIF
-
-
-loParams=CREATEOBJECT("EMPTY") && Workaround to index into array of parameters. 
 lParamText = ""
-IF NOT ISNULL(lvResult.Params)
-	lCount = 0
-	FOR EACH lParam IN lvResult.Params
-		lCount = lCount + 1
-		AddProperty(loParams,"P" + ALLTRIM(STR(lCount)),lParam)
-		lParamText = lParamText + ",loParams.P" + ALLTRIM(STR(lCount))
-	ENDFOR
-ENDIF
-=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
-this.HandleNextEvent()
+FOR nCount = 0 TO oParams.Count - 1
+    lParamText = lParamText + ",oParams.Item(" + ALLTRIM(STR(nCount)) + ")"
+ENDFOR
+=EVALUATE("this.oHandler." + this.oPrefix + lcName + "("+SUBSTR(lParamText,2)+")")
 ENDFUNC
+
 
 ENDDEFINE
 *EOC EventSubscription

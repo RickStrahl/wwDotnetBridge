@@ -2,7 +2,7 @@
 /*
  **************************************************************
  *  Author: Rick Strahl 
- *          (c) West Wind Technologies, 2009-2018   
+ *          (c) West Wind Technologies, 2009-2018
  *          http://www.west-wind.com/
  * 
  * Created: 4/10/2009
@@ -50,9 +50,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.Win32;
-
 
 namespace Westwind.WebConnection
 {
@@ -70,7 +67,6 @@ namespace Westwind.WebConnection
     [ProgId("Westwind.wwDotNetBridge")]
     public class wwDotNetBridge
     {
-
         private static bool _firstLoad = true;
 
         /// <summary>
@@ -138,8 +134,6 @@ namespace Westwind.WebConnection
         /// <summary>
         /// Loads an assembly into the AppDomain by a fully qualified assembly path
         /// </summary>
-        /// <param name="AssemblyFileName"></param>
-        /// <returns></returns>
         public bool LoadAssemblyFrom(string AssemblyFileName)
         {
             try
@@ -173,8 +167,6 @@ namespace Westwind.WebConnection
         /// Creates a type reference from a given type name if the
         /// assembly is already loaded.
         /// </summary>
-        /// <param name="TypeName"></param>
-        /// <returns></returns>
         public object CreateInstance(string TypeName)
         {
             object obj = CreateInstance_Internal(TypeName);
@@ -245,9 +237,6 @@ namespace Westwind.WebConnection
         /// name specified because this code has to search for the type first rather
         /// than directly activating it.
         /// </summary>
-        /// <param name="TypeName"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         protected internal object CreateInstance_Internal(string TypeName, params object[] args)
         {
             SetError();
@@ -286,9 +275,6 @@ namespace Westwind.WebConnection
         /// assemblies must be visible via the .NET path (current path or BIN dir) and
         /// GAC assemblies must be referenced by their full assembly name.
         /// </summary>
-        /// <param name="AssemblyName"></param>
-        /// <param name="TypeName"></param>
-        /// <returns></returns>
         protected object CreateInstance_Internal(string AssemblyName, string TypeName, params object[] args)
         {
             SetError();
@@ -319,7 +305,6 @@ namespace Westwind.WebConnection
         }
 
 
-
         /// <summary>
         /// Creates an instance of a type on an existing property of another type
         /// </summary>
@@ -332,14 +317,12 @@ namespace Westwind.WebConnection
             return CreateInstanceOnType_Internal(instance, property, TypeName);
         }
 
-
         /// <summary>
         /// Creates an instance of a type on an existing property of another type
         /// </summary>
         /// <param name="instance">Parent Instance that contains the property to set</param>
         /// <param name="property">The property on the parent instance to set</param>
         /// <param name="TypeName">Full name of the type to create</param>
-        /// <param name="parm1"></param>
         /// <returns></returns>
         public bool CreateInstanceOnType_OneParm(object instance, string property, string TypeName, object parm1)
         {
@@ -352,8 +335,6 @@ namespace Westwind.WebConnection
         /// <param name="instance">Parent Instance that contains the property to set</param>
         /// <param name="property">The property on the parent instance to set</param>
         /// <param name="TypeName">Full name of the type to create</param>
-        /// <param name="parm1"></param>
-        /// <param name="parm2"></param>
         /// <returns></returns>
         public bool CreateInstanceOnType_TwoParms(object instance, string property, string TypeName, object parm1,
             object parm2)
@@ -367,10 +348,6 @@ namespace Westwind.WebConnection
         /// <param name="instance">Parent Instance that contains the property to set</param>
         /// <param name="property">The property on the parent instance to set</param>
         /// <param name="TypeName">Full name of the type to create</param>
-        /// <param name="parm1"></param>
-        /// <param name="parm2"></param>
-        /// <param name="parm3"></param>
-        /// <returns></returns>
         public bool CreateInstanceOnType_ThreeParms(object instance, string property, string TypeName, object parm1,
             object parm2, object parm3)
         {
@@ -383,11 +360,6 @@ namespace Westwind.WebConnection
         /// <param name="instance">Parent Instance that contains the property to set</param>
         /// <param name="property">The property on the parent instance to set</param>
         /// <param name="TypeName">Full name of the type to create</param>
-        /// <param name="parm1"></param>
-        /// <param name="parm2"></param>
-        /// <param name="parm3"></param>
-        /// <param name="parm4"></param>
-        /// <returns></returns>
         public bool CreateInstanceOnType_FourParms(object instance, string property, string TypeName, object parm1,
             object parm2, object parm3, object parm4)
         {
@@ -400,11 +372,6 @@ namespace Westwind.WebConnection
         /// <param name="instance">Parent Instance that contains the property to set</param>
         /// <param name="property">The property on the parent instance to set</param>
         /// <param name="TypeName">Full name of the type to create</param>/// <param name="parm1"></param>
-        /// <param name="parm2"></param>
-        /// <param name="parm3"></param>
-        /// <param name="parm4"></param>
-        /// <param name="parm5"></param>
-        /// <returns></returns>
         public bool CreateInstanceOnType_FiveParms(object instance, string property, string TypeName, object parm1,
             object parm2, object parm3, object parm4, object parm5)
         {
@@ -531,19 +498,16 @@ namespace Westwind.WebConnection
 
 
         /// <summary>
-        /// Creates a new instance from a file file based assembly refence. Requires full
+        /// Creates a new instance from a file-based assembly reference. Requires full
         /// filename including extension and path.
         /// </summary>
-        /// <param name="AssemblyFileName"></param>
-        /// <param name="TypeName"></param>
-        /// <returns></returns>
         public object CreateAssemblyInstance(string AssemblyFileName, string TypeName)
         {
             return CreateInstance_Internal(AssemblyFileName, TypeName, null);
         }
 
         /// <summary>
-        /// Creates a new instance from a file file based assembly refence. Requires full
+        /// Creates a new instance from a file-based assembly reference. Requires full
         /// filename including extension and path.
         /// </summary>
         /// <param name="AssemblyFileName"></param>
@@ -555,18 +519,15 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Creates a new instance from a file file based assembly refence. Requires full
+        /// Creates a new instance from a file-based assembly reference. Requires full
         /// filename including extension and path.
         /// </summary>
-        /// <param name="AssemblyFileName"></param>
-        /// <param name="TypeName"></param>
         /// <returns></returns>
         public object CreateAssemblyInstance_TwoParms(string AssemblyFileName, string TypeName, object Parm1,
             object Parm2)
         {
             return CreateInstance_Internal(AssemblyFileName, TypeName, Parm1, Parm2);
         }
-
 
         public Type GetType(object value)
         {
@@ -674,10 +635,6 @@ namespace Westwind.WebConnection
         /// <summary>
         /// Invokes a static method
         /// </summary>
-        /// <param name="TypeName"></param>
-        /// <param name="Method"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
         internal object InvokeStaticMethod_Internal(string TypeName, string Method, params object[] args)
         {
             SetError();
@@ -730,7 +687,6 @@ namespace Westwind.WebConnection
         /// </summary>
         /// <param name="TypeName">Full type name (namespace.class)</param>
         /// <param name="Property">Property to get value from</param>
-        /// <returns></returns>
         public object GetStaticProperty(string TypeName, string Property)
         {
             SetError();
@@ -772,7 +728,7 @@ namespace Westwind.WebConnection
             }
 
             value = FixupParameter(value);
-
+            
             ErrorMessage = "";
             try
             {
@@ -1117,17 +1073,14 @@ namespace Westwind.WebConnection
         #region Async Methods
 
         /// <summary>
-        /// Invokes a method on asynchronously and fires OnCompleted and OnError
-        /// events on a passed in callback object.
+        /// Invokes a method on a thread pool thread and calls OnCompleted or OnError
+        /// on a passed-in callback object.
         /// </summary>
         /// <param name="callBack">
         /// A callback object that has to have two methods:
         /// OnCompleted(lvResult, lcMethod)
-        /// OnError(lcErrorMsg,loException, lcMethod)        
+        /// OnError(lcErrorMsg,loException, lcMethod)
         /// </param>
-        /// <param name="instance"></param>
-        /// <param name="method"></param>
-        /// <param name="parameters"></param>
         public void InvokeStaticMethodAsync(object callBack, string typeName, string method, params object[] parameters)
         {
             if (callBack == null || string.IsNullOrEmpty(method))
@@ -1140,20 +1093,17 @@ namespace Westwind.WebConnection
             parms[3] = parameters;
             parms[4] = true; // isStatic
 
-            //var t = new Thread(_InvokeMethodAsync);
-            //t.Start(parms);
-
             Task.Run(() => _InvokeMethodAsync(parms));
         }
 
         /// <summary>
-        /// Invokes a method on a new thread and fires OnCompleted and OnError
-        /// events on a passed in callback object.
+        /// Invokes a static method on a thread pool thread and calls OnCompleted and OnError
+        /// on a passed-in callback object.
         /// </summary>
         /// <param name="callBack">
         /// A callback object that has to have two methods:
         /// OnCompleted(lvResult, lcMethod)
-        /// OnError(lcErrorMsg,loException, lcMethod)        
+        /// OnError(lcErrorMsg,loException, lcMethod)
         /// </param>
         /// <param name="instance"></param>
         /// <param name="method"></param>
@@ -1169,9 +1119,6 @@ namespace Westwind.WebConnection
             parms[2] = method;
             parms[3] = parameters;
             parms[4] = false; // isStatic
-
-            //var t = new Thread(_InvokeMethodAsync);
-            //t.Start(parms);
 
             Task.Run(() => _InvokeMethodAsync(parms));
         }

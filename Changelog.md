@@ -3,6 +3,11 @@
 <small>[Latest Online Documentation](http://west-wind.com/webconnection/docs/_24n1cfw3a.htm)</small>
 
 
+### Version 6.23
+
+* **Event Unsubscribe cleanup**  
+Event in version 6.22 were raised via InvokeMethodAsync. They are now raised directly, which avoids timing issues when unsubscribing.
+
 ### Version 6.22
 
 * **Added Event Subscription Support**  
