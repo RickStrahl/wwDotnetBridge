@@ -101,6 +101,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

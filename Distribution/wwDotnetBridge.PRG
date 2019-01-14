@@ -12,8 +12,8 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
     * .NET Runtime 2.0 or later
 
     *** DLLs
-    * wwDotnetBridge.dll
     * wwIpStuff.dll
+    * wwDotnetBridge.dll
     * NewtonSoft.Json.dll - ToJson()/FromJson() only
 #ELSE
     #DEFINE WWC_CLR_HOSTDLL clrhost.dll
@@ -22,8 +22,8 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
     * .NET Runtime 2.0 or later
 
     *** DLLs
-    * wwDotnetBridge.dll
     * clrhost.dll
+    * wwDotnetBridge.dll
 #ENDIF
 
 
@@ -36,14 +36,14 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 ***      Pass:
 ***    Return: 
 ************************************************************************
-FUNCTION GetwwDotNetBridge(lcVersion)
+FUNCTION GetwwDotNetBridge(lcVersion, llUseCom)
 IF VARTYPE(__DOTNETBRIDGE) != "O"
    IF EMPTY(lcVersion)       
         lcVersion = "V4"
    ENDIF
 
    PUBLIC __DOTNETBRIDGE
-   __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
+   __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion, llUseCom)
    IF VARTYPE(__DOTNETBRIDGE) # "O"
       RETURN NULL
    ENDIF
@@ -63,8 +63,8 @@ ENDFUNC
 ***    Return: wwDotnetBridge instance 
 ***            (you don't have to do anything with it)
 ************************************************************************
-FUNCTION InitializeDotnetVersion(lcVersion)
-RETURN GetwwDotnetBridge(lcVersion)
+FUNCTION InitializeDotnetVersion(lcVersion,llUseCom)
+RETURN GetwwDotnetBridge(lcVersion,llUseCom)
 ENDFUNC
 
 
@@ -147,7 +147,7 @@ this.lUseCom = llUseCom
 
 *** Fail creation if the object couldn't be created
 IF ISNULL(this.Load())
-   ERROR "Unable to load wwDotNetBridge: " + this.cErrorMsg
+   ERROR this.cErrorMsg
    RETURN .F.
 ENDIF
 
@@ -162,27 +162,42 @@ ENDFUNC
 ***  Function: Creates an instance of the .NET Bridge component
 ***            that allows loading of content.
 ***    Assume: Define as LOCAL obridge as Westwind.WebConnection.wwDotNetBridge
-***      Pass:
-***    Return:
+***      Pass: llNoUnblockOnError - if true doesn't try to run external unblock
+***                                 command. Used internally to prevent recursion.
+***    Return: nothing
 ************************************************************************
-FUNCTION Load()
+FUNCTION Load(llNoUnblockOnError)
+LOCAL lcError, lnSize, lnDispHandle, lcPath, lcCmd
 
 IF VARTYPE(this.oDotNetBridge) != "O"
     this.SetClrVersion(this.cClrVersion)
-
+    
     IF this.lUseCom
         this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
-    ELSE
+    ELSE	
         *** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
         DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
 
+        *** Remove the Zone Identifier to 'Unblock'
+            DECLARE INTEGER DeleteFile IN WIN32API STRING		  			  			
+            DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
+        
+        #IF IS_WESTWIND
+            DeleteFile(FULLPATH("Newtonsoft.Json.dll") + ":Zone.Identifier")
+            DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
+        #ENDIF
+            
         lcError = SPACE(2048)
         lnSize = 0
         lnDispHandle = ClrCreateInstanceFrom(FULLPATH("wwDotNetBridge.dll"),;
                 "Westwind.WebConnection.wwDotNetBridge",@lcError,@lnSize)
 
         IF lnDispHandle < 1
-           this.SetError( "Unable to load CLR Instance. " + LEFT(lcError,lnSize) )
+           lcError =  LEFT(lcError,lnSize)
+        
+           this.SetError( "Unable to load Clr Instance. "  + lcError  + CHR(13) +;
+               "Most likely wwDotnetBridge.dll is blocked or you don't have network permissions to load the assembly." + CHR(13)+;
+               "Search for: 'Unable to load CLR Instance' at: https://webconnection.west-wind.com/docs" )
            RETURN NULL 
         ENDIF
 
@@ -193,7 +208,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
         SYS(3097, this.oDotNetBridge)
 
         IF ISNULL(this.oDotNetBridge)
-            this.SetError("Can't access CLR COM reference.")
+            this.SetError("COM Load Error: Can't access CLR COM reference.")
             RETURN null
         ENDIF
     ENDIF
@@ -259,13 +274,15 @@ LOCAL lnDispHandle, lnSize, loBridge, loObject, lnParmCount
 
 this.SetError()
 
-loBridge = this.Load()
+loBridge = this.oDotnetBridge
 IF ISNULL(loBridge)
    RETURN NULL
 ENDIF
 
 lnParmCount = PCOUNT()
 DO CASE 
+    CASE lnParmCount = 1 
+        loObject = loBridge.CreateInstance(lcClass)
     CASE lnParmCount = 2
         loObject = loBridge.CreateInstance_OneParm(lcClass,lvParm1)
     CASE lnParmCount = 3
@@ -303,7 +320,7 @@ LOCAL lnDispHandle, lnSize, loBridge, loObject, lnParmCount
 
 this.SetError()
 
-loBridge = this.Load()
+loBridge = this.oDotnetBridge
 IF ISNULL(loBridge)
    RETURN NULL
 ENDIF
@@ -379,7 +396,7 @@ DO CASE
       loResult = loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)      
 
     OTHERWISE
-        LOCAL loArray as Westwind.WebConnection.ComArray
+            LOCAL loArray as Westwind.WebConnection.ComArray
         loArray = this.CreateArray("System.Object")
 
         LOCAL lvParm
@@ -764,7 +781,7 @@ DO CASE
   CASE lcType = "O"
       loComArray = this.oDotnetBridge.CreateArrayFromInstance(lvArrayInstanceOrElementTypeString)
   OTHERWISE
-      THROW "Invalid parameter passed to CreateArray"
+      ERROR "Invalid parameter passed to CreateArray"   
 ENDCASE
 
 IF ISNULL(loComArray)
@@ -907,6 +924,19 @@ ENDFUNC
 
 
 ************************************************************************
+*  GetTypeName
+****************************************
+***  Function: Returns a type name for an instance
+***    Assume: Shortcut for InvokeMethod(instance,"ToString")
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetTypeName(lvValue)
+RETURN this.InvokeMethod(lvValue,"ToString")
+ENDFUNC
+*   GetTypeName
+
+************************************************************************
 *  GetTypeFromName
 ****************************************
 ***  Function:
@@ -1030,7 +1060,12 @@ LOCAL loAdapter as XMLAdapter
 loAdapter = CREATEOBJECT("XmlAdapter")
 
 LOCAL ARRAY laCursors[1]   
-lnCount = ALINES(laCursors,lcAliasList,1 + 4,",")
+#IF VERSION(5) > 800
+    lnCount = ALINES(laCursors,lcAliasList,1 + 4,",")
+#ELSE
+    lnCount = ALINES(laCursors,lcAliasList,",")
+#ENDIF	
+
 FOR lnX = 1 TO lnCount
     loAdapter.AddTableSchema(laCursors[lnX],.T.)
 ENDFOR
@@ -1485,7 +1520,6 @@ ENDFUNC
 *   OnError
 
 ENDDEFINE
-
 *EOC AsyncCallbackEvents 
 
 
@@ -1541,11 +1575,23 @@ ENDFUNC
 *************************************************************
 DEFINE CLASS EventSubscription as AsyncCallbackEvents
 *************************************************************
+*:  Author: Edward Brey  - https://github.com/breyed
 *:  Usage: Used internally by SubscribeToEvents
 *************************************************************
 
 HIDDEN oBridge, oHandler, oSubscriber, oPrefix
 
+************************************************************************
+*  Setup
+****************************************
+***  Function: Sets up an event subscription. 
+***    Assume:
+***      Pass: loBridge   - dnb instance
+***            loSource   - Source Object fires events
+***            loHandler  - Target Object that handles events
+***            lcPrefix   - prefix for event methods
+***                         implemented on target (by convention "On")
+************************************************************************
 FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)
 this.oBridge = loBridge
 this.oHandler = loHandler
@@ -1573,5 +1619,4 @@ ENDFUNC
 
 
 ENDDEFINE
-
 *EOC EventSubscription

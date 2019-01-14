@@ -38,15 +38,10 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 ************************************************************************
 FUNCTION GetwwDotNetBridge(lcVersion)
 IF VARTYPE(__DOTNETBRIDGE) != "O"
-   *** Auto-detect latest version
-   *** This requires wwUtils/wwApi
    IF EMPTY(lcVersion)       
-	   lcVersion = GetHighestDotnetVersion()
-	   IF ISNULL(lcVersion)
-	       ERROR "Couldn't find a .NET version installed."
-	   ENDIF
+		lcVersion = "V4"
    ENDIF
-   
+
    PUBLIC __DOTNETBRIDGE
    __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
    IF VARTYPE(__DOTNETBRIDGE) # "O"
@@ -244,6 +239,10 @@ IF VARTYPE(this.oDotNetBridge) == "O"
 ENDIF
 ENDFUNC
 *   Unload
+
+FUNCTION EnableThrowOnError()
+this.oDotNetBridge.IsThrowOnErrorEnabled = .T.
+ENDFUNC
 
 ************************************************************************
 *  CreateInstance
@@ -926,15 +925,17 @@ ENDFUNC
 ****************************************
 ***  Function: Handles all events of a source object for subsequent retrieval by calling WaitForEvent.
 ***  loSource: The object for which to subscribe to events.
-*** loHandler: An object with a method OnEvent(loEventName, loParams).
+***  loHandler: An object with a method OnEvent(loEventName, loParams).
+***  lcPrefix: The initial part of the event handler function for each event. Defaults to "On".
 ***    Return: A subscription object. The subscription ends when this object goes out of scope.
 ************************************************************************
-FUNCTION SubscribeToEvents(loSource, loHandler)
+FUNCTION SubscribeToEvents(loSource, loHandler, lcPrefix)
+IF EMPTY(lcPrefix)
+	lcPrefix = "On"
+ENDIF
 LOCAL loSubscription
-
 loSubscription = CREATEOBJECT("EventSubscription")
-loSubscription.Setup(this, loSource, loHandler)
-
+loSubscription.Setup(this, loSource, loHandler, lcPrefix)
 RETURN loSubscription
 ENDFUNC
 *   SubscribeToEvents
@@ -1512,7 +1513,7 @@ ELSE
    lcFrameworkPath = TRIM(lcFrameworkPath)
 ENDIF
    
-*** Assume .NET 2.0
+*** Assume .NET 4.0
 lcVersion = NULL
    
    *** Try to find the largest version number
@@ -1540,90 +1541,36 @@ ENDFUNC
 *************************************************************
 DEFINE CLASS EventSubscription as AsyncCallbackEvents
 *************************************************************
+*:  Author: Edward Brey  - https://github.com/breyed
 *:  Usage: Used internally by SubscribeToEvents
-*************************************************************
-HIDDEN oBridge, oHandler, oSubscriber
+************************************************************
+HIDDEN oBridge, oHandler, oSubscriber, oPrefix
 
-
-oBridge = null
-oHandler = null
-oSubscriber = null
-
-************************************************************************
-*  Setup
-****************************************
-***  Function: Sets up the initial event binding from event source
-***            to event target
-************************************************************************
-FUNCTION Setup(loBridge, loSource, loHandler)
-
+FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)
 this.oBridge = loBridge
 this.oHandler = loHandler
+this.oPrefix = lcPrefix
 this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource)
-
 this.HandleNextEvent()
-
 ENDFUNC
-*   Setup
 
-************************************************************************
-*  Destroy
-****************************************
-***  Function: Cleanup subscriber
-************************************************************************
-FUNCTION Destroy()
-this.Dispose()
+FUNCTION Unsubscribe()
+this.oSubscriber.Dispose()
 ENDFUNC
-*   Destroy
-
-************************************************************************
-*  Dispose
-****************************************
-***  Function:
-***    Assume:
-***      Pass:
-***    Return:
-************************************************************************
-FUNCTION Dispose()
-IF !ISNULL(this.oSubscriber)
-	this.oSubscriber.Dispose()
-ENDIF
-ENDFUNC
-*   Dispose
-
-************************************************************************
-*  HandleNextEvent
-****************************************
-***  Function: 
-***    Assume:
-***      Pass:
-***    Return:
-************************************************************************
+ 
 FUNCTION HandleNextEvent()
 this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")
 ENDFUNC
-*   HandleNextEvent 
-
-
-************************************************************************
-*  OnCompleted
-****************************************
-***  Function:
-***    Assume:
-***      Pass:
-***    Return:
-************************************************************************
-FUNCTION OnCompleted(lvResult, lcMethod)
 
 ** Forwards the event to a function named On{Event} with the event's parameters.
+FUNCTION OnCompleted(lvResult, lcMethod)
 LOCAL loParams,lParamText,lCount
 IF ISNULL(lvResult) && If the call to WaitForEvent was canceled:
 	RETURN
 ENDIF
-
 loParams=CREATEOBJECT("EMPTY") && Workaround to index into array of parameters. 
 lParamText = ""
-IF !ISNULL(lvResult.Params)
+IF NOT ISNULL(lvResult.Params)
 	lCount = 0
 	FOR EACH lParam IN lvResult.Params
 		lCount = lCount + 1
@@ -1631,17 +1578,9 @@ IF !ISNULL(lvResult.Params)
 		lParamText = lParamText + ",loParams.P" + ALLTRIM(STR(lCount))
 	ENDFOR
 ENDIF
-
-TRY
-	=EVALUATE("this.oHandler.On" + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
-CATCH
-    ** We have to handle this otherwise the event chain is broken
-ENDTRY
-
+=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
 this.HandleNextEvent()
-
 ENDFUNC
-*   OnCompleted
 
 ENDDEFINE
 *EOC EventSubscription

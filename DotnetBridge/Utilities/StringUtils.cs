@@ -96,8 +96,125 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public static string Replicate(char character, int charCount)
         {
-            return new string(character, charCount);
+            return new StringBuilder().Insert(0, character.ToString(), charCount).ToString();
         }
+
+        /// <summary>
+        /// Finds the nth index of strting in a string
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="matchString"></param>
+        /// <param name="stringInstance"></param>
+        /// <returns></returns>
+        public static int IndexOfNth(string source, string matchString, int stringInstance, StringComparison stringComparison = StringComparison.CurrentCulture)
+        {
+            if (string.IsNullOrEmpty(source))
+                return -1;
+
+            int lastPos = 0;
+            int count = 0;
+           
+            while (count < stringInstance )
+            {
+                var len = source.Length - lastPos;
+                lastPos = source.IndexOf(matchString, lastPos,len,stringComparison);
+                if (lastPos == -1)
+                    break;
+
+                count++;
+                if (count == stringInstance)
+                    return lastPos;
+
+                lastPos += matchString.Length;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Returns the nth Index of a character in a string
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="matchChar"></param>
+        /// <param name="charInstance"></param>
+        /// <returns></returns>
+        public static int IndexOfNth(this string source, char matchChar, int charInstance)        
+        {
+            if (string.IsNullOrEmpty(source))
+                return -1;
+
+            if (charInstance < 1)
+                return -1;
+
+            int count = 0;
+            for (int i = 0; i < source.Length; i++)
+            {
+                if (source[i] == matchChar)
+                {
+                    count++;
+                    if (count == charInstance)                 
+                        return i;                 
+                }
+            }
+            return -1;
+        }
+
+
+
+        /// <summary>
+        /// Finds the nth index of strting in a string
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="matchString"></param>
+        /// <param name="charInstance"></param>
+        /// <returns></returns>
+        public static int LastIndexOfNth(string source, string matchString, int charInstance, StringComparison stringComparison = StringComparison.CurrentCulture)
+        {
+            if (string.IsNullOrEmpty(source))
+                return -1;
+
+            int lastPos = source.Length;
+            int count = 0;
+
+            while (count < charInstance)
+            {                
+                lastPos = source.LastIndexOf(matchString, lastPos, lastPos, stringComparison);
+                if (lastPos == -1)
+                    break;
+
+                count++;
+                if (count == charInstance)
+                    return lastPos;                
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// Finds the nth index of in a string from the end.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="matchChar"></param>
+        /// <param name="charInstance"></param>
+        /// <returns></returns>
+        public static int LastIndexOfNth(string source, char matchChar, int charInstance)
+        {
+            if (string.IsNullOrEmpty(source))
+                return -1;
+
+            int count = 0;
+            for (int i = source.Length-1 ; i > -1; i--)
+            {
+                if (source[i] == matchChar)
+                {
+                    count++;
+                    if (count == charInstance)
+                        return i;
+                }
+            }
+            return -1;
+        }
+        #endregion
+
+        #region String Casing
 
         /// <summary>
         /// Return a string in proper Case format
@@ -416,43 +533,6 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Parses an string into an integer. If the value can't be parsed
-        /// a default value is returned instead
-        /// </summary>
-        /// <param name="input">Input numeric string to be parsed</param>
-        /// <param name="defaultValue">Optional default value if parsing fails</param>
-        /// <param name="formatProvider">Optional NumberFormat provider. Defaults to current culture's number format</param>
-        /// <returns></returns>
-        public static int ParseInt(string input, int defaultValue = 0, IFormatProvider numberFormat = null)
-        {
-            if (numberFormat == null)
-                numberFormat = CultureInfo.CurrentCulture.NumberFormat;
-
-            int val = defaultValue;
-            if (!int.TryParse(input, NumberStyles.Any, numberFormat, out val))
-                return defaultValue;
-            return val;
-        }
-
-
-
-        /// <summary>
-        /// Parses an string into an decimal. If the value can't be parsed
-        /// a default value is returned instead
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public static decimal ParseDecimal(string input, decimal defaultValue = 0M, IFormatProvider numberFormat = null)
-        {
-            numberFormat = numberFormat ?? CultureInfo.CurrentCulture.NumberFormat;
-            decimal val = defaultValue;
-            if (!decimal.TryParse(input, NumberStyles.Any, numberFormat, out val))
-                return defaultValue;
-            return val;
-        }
-
-        /// <summary>
         /// Strips all non digit values from a string and only
         /// returns the numeric string.
         /// </summary>
@@ -520,6 +600,43 @@ namespace Westwind.WebConnection
                 i++;
             }
             return text;
+        }
+
+        /// <summary>
+        /// Parses an string into an integer. If the value can't be parsed
+        /// a default value is returned instead
+        /// </summary>
+        /// <param name="input">Input numeric string to be parsed</param>
+        /// <param name="defaultValue">Optional default value if parsing fails</param>
+        /// <param name="formatProvider">Optional NumberFormat provider. Defaults to current culture's number format</param>
+        /// <returns></returns>
+        public static int ParseInt(string input, int defaultValue=0, IFormatProvider numberFormat = null)
+        {
+            if (numberFormat == null)
+                numberFormat = CultureInfo.CurrentCulture.NumberFormat;
+
+            int val = defaultValue;
+            if (!int.TryParse(input, NumberStyles.Any, numberFormat, out val))
+                return defaultValue;
+            return val;
+        }
+
+
+
+        /// <summary>
+        /// Parses an string into an decimal. If the value can't be parsed
+        /// a default value is returned instead
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static decimal ParseDecimal(string input, decimal defaultValue = 0M, IFormatProvider numberFormat = null)
+        {
+            numberFormat = numberFormat ?? CultureInfo.CurrentCulture.NumberFormat;
+            decimal val = defaultValue;
+            if (!decimal.TryParse(input, NumberStyles.Any, numberFormat, out val))
+                return defaultValue;
+            return val;
         }
 
         #endregion
@@ -808,7 +925,8 @@ namespace Westwind.WebConnection
         }
         #endregion
 
-        #region Miscellaneous
+        #region Miscellaneous    
+
         /// <summary>
         /// Strips any common white space from all lines of text that have the same
         /// common white space text. Effectively removes common code indentation from
@@ -930,6 +1048,83 @@ namespace Westwind.WebConnection
         }
 
         #endregion
+
+
+
+
+        static string HtmlSanitizeTagBlackList { get; } = "script|iframe|object|embed|form";
+
+        static Regex _RegExScript = new Regex($@"(<({HtmlSanitizeTagBlackList})\b[^<]*(?:(?!<\/({HtmlSanitizeTagBlackList}))<[^<]*)*<\/({HtmlSanitizeTagBlackList})>)",
+        RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+        // strip javascript: and unicode representation of javascript:
+        // href='javascript:alert(\"gotcha\")'
+        // href='&#106;&#97;&#118;&#97;&#115;&#99;&#114;&#105;&#112;&#116;:alert(\"gotcha\");'
+        static Regex _RegExJavaScriptHref = new Regex(
+            @"<[^>]*?\s(href|src|dynsrc|lowsrc)=.{0,20}((javascript:)|(&#)).*?>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        static Regex _RegExOnEventAttributes = new Regex(
+            @"<[^>]*?\s(on[^\s\\]{0,20}=([""].*?[""]|['].*?['])).*?(>|\/>)",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+        /// <summary>
+        /// Sanitizes HTML to some of the most of common XSS attacks
+        /// </summary>
+        /// <remarks>
+        /// This provides rudimentary HTML sanitation catching the most obvious
+        /// XSS script attack vectors. For mroe complete HTML Sanitation please look into
+        /// a dedicated HTML Sanitizer.
+        /// </remarks>
+        /// <param name="html">input html</param>
+        /// <param name="htmlTagBlacklist">A list of HTML tags that are stripped.</param>
+        /// <returns>Sanitized HTML</returns>
+        public static string SanitizeHtml(string html, string htmlTagBlacklist = "script|iframe|object|embed|form")
+        {
+            if (string.IsNullOrEmpty(html))
+                return html;
+
+            if (!string.IsNullOrEmpty(htmlTagBlacklist) || htmlTagBlacklist == HtmlSanitizeTagBlackList)
+            {
+                // Replace Script tags - reused expr is more efficient
+                html = _RegExScript.Replace(html, string.Empty);
+            }
+            else
+            {
+                html = Regex.Replace(html,
+                                        $@"(<({htmlTagBlacklist})\b[^<]*(?:(?!<\/({HtmlSanitizeTagBlackList}))<[^<]*)*<\/({htmlTagBlacklist})>)",
+                                        "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            }
+
+            // Remove javascript: directives
+            var matches = _RegExJavaScriptHref.Matches(html);
+            foreach (Match match in matches)
+            {
+                if (match.Groups.Count > 2)
+                {
+                    var txt = match.Value.Replace(match.Groups[2].Value, "unsupported:");
+                    html = html.Replace(match.Value, txt);
+                }
+            }
+
+            // Remove onEvent handlers from elements
+            matches = _RegExOnEventAttributes.Matches(html);
+            foreach (Match match in matches)
+            {
+                var txt = match.Value;
+                if (match.Groups.Count > 1)
+                {
+                    var onEvent = match.Groups[1].Value;
+                    txt = txt.Replace(onEvent, string.Empty);
+                    if (!string.IsNullOrEmpty(txt))
+                        html = html.Replace(match.Value, txt);
+                }
+            }
+
+            return html;
+        }
+
+
 
         #region Obsolete
         /// <summary>
