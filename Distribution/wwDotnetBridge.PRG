@@ -1554,12 +1554,16 @@ this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscrib
 ENDFUNC
 
 FUNCTION Unsubscribe()
+this.oHandler = null
 this.oSubscriber.Dispose()
 ENDFUNC
  
 ** Forwards the event to a function named On{Event} with the event's parameters.
 FUNCTION OnEvent(lcName AS STRING, oParams)
 LOCAL lParamText,nCount
+IF ISNULL(this.oHandler)
+    RETURN
+ENDIF
 lParamText = ""
 FOR nCount = 0 TO oParams.Count - 1
     lParamText = lParamText + ",oParams.Item(" + ALLTRIM(STR(nCount)) + ")"
