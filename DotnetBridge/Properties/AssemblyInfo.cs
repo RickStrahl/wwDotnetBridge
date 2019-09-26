@@ -14,7 +14,7 @@ using System.Security;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("West Wind Technologies")]
 [assembly: AssemblyProduct("West Wind Client Tools")]
-[assembly: AssemblyCopyright("Copyright ©  2007-2018")]
+[assembly: AssemblyCopyright("© West Wind Technologies, 2007-2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -38,5 +38,4 @@ using System.Security;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("6.23")]
-
+[assembly: AssemblyVersion("7.09")]

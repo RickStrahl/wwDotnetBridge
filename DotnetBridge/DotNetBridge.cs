@@ -36,22 +36,19 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using System.IO;
+using System.Data;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Win32;
+
 #if WestwindProduct
 using Newtonsoft.Json;
 #endif
 
-using System.IO;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Microsoft.Win32;
 
 
 namespace Westwind.WebConnection
@@ -711,8 +708,9 @@ namespace Westwind.WebConnection
             }
             catch (Exception ex)
             {
-                SetError(ex.GetBaseException(), true);
-                throw ex.GetBaseException();
+                var innerEx = ex.GetBaseException();
+                SetError(innerEx, true);
+                throw innerEx;
             }
 
             // Update ComValue parameters to support ByRef Parameters
@@ -995,7 +993,7 @@ namespace Westwind.WebConnection
                 if (Property.Contains(".") || Property.Contains("["))
                     val = ReflectionUtils.GetPropertyEx(Instance, Property);
                 else
-                    val = ReflectionUtils.GetPropertyCom(Instance, Property);
+                    val = ReflectionUtils.GetPropertyCom(Instance, Property);  // this is more reliable in that it handles value conversions
 
                 val = FixupReturnValue(val);
                 return val;
@@ -1658,15 +1656,19 @@ namespace Westwind.WebConnection
             // *** Need to figure out a solution for value types
             Type type = val.GetType();
 
+            
             if (type == typeof(Guid))
             {
-                ComGuid guid = new ComGuid();
-                guid.Guid = (Guid) val;
-                return guid;
+                ComValue guidValue = new ComValue();
+                guidValue.Value = (Guid) val;
+                return guidValue;
             }
 
+            // convert longs to Decimal so we can use larger than 32 bit nums
             if (type == typeof(long) || type == typeof(Int64))
-                return Convert.ToDecimal(val);
+            {
+                return Convert.ToDecimal(val);                
+            }
             if (type == typeof(char))
                 return val.ToString();
             if (type == typeof(byte[]))
@@ -1692,7 +1694,13 @@ namespace Westwind.WebConnection
                 comArray.FromEnumerable(enumerable);
                 return comArray;
             }
-
+            else if (type == typeof(Task) || type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
+            {
+                // Minimize impact of deadlock when calling .Result or .Wait()
+                var t = val as Task;                
+                t.ConfigureAwait(false);
+                return t;
+            }
             //else if (type.IsValueType)
             //{
             //    var comValue = new ComValue();
@@ -1845,6 +1853,7 @@ namespace Westwind.WebConnection
 wwDotnetBridge Location  : {GetType().Assembly.Location}
 .NET Version (official)  : {Environment.Version}
 .NET Version (simplified): {GetDotnetVersion()}
+.NET Version (Release)   : {GetDotnetVersion(true)}
 Windows Version          : {GetWindowsVersion(WindowsVersionModes.Full)}";
             return res;
         }
@@ -1858,25 +1867,35 @@ Windows Version          : {GetWindowsVersion(WindowsVersionModes.Full)}";
         /// </summary>
         /// <remarks>Minimum version supported is 4.0</remarks>
         /// <returns></returns>
-        public static string GetDotnetVersion()
+        public static string GetDotnetVersion(bool getReleaseVersion = false)
         {
-            if (!string.IsNullOrEmpty(DotnetVersion))
+            if (!string.IsNullOrEmpty(DotnetVersion) && !getReleaseVersion)
                 return DotnetVersion;
 
             dynamic value;
             TryGetRegistryKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\", "Release", out value);
 
+
+
             if (value == null)
             {
+                if (getReleaseVersion)
+                    return null;
+
                 DotnetVersion = "4.0";
                 return DotnetVersion;
             }
+
+            if (getReleaseVersion)
+                return value.ToString();
 
             int releaseKey = value;
 
             // https://msdn.microsoft.com/en-us/library/hh925568(v=vs.110).aspx
             // RegEdit paste: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full
-            if (releaseKey >= 461808)
+            if (releaseKey >= 528040) 
+                DotnetVersion = "4.8";
+            else if (releaseKey >= 461808)
                 DotnetVersion = "4.7.2";
             else if (releaseKey >= 461308)
                 DotnetVersion = "4.7.1";
@@ -2050,6 +2069,7 @@ Windows Version          : {GetWindowsVersion(WindowsVersionModes.Full)}";
 
 #endif
     }
+
 
     public enum WindowsVersionModes
     {

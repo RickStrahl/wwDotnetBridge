@@ -113,6 +113,16 @@ ENDFUNC
 cClrVersion = "v4.0.30319"
 lUseCom = .F.
 
+lThrowOnError = .F.
+FUNCTION lThrowOnError_Assign(llValue)
+
+THIS.lThrowOnError = llValue
+IF !ISNULL(THIS.oDotnetBridge)
+	this.oDotNetBridge.IsThrowOnErrorEnabled = llValue
+ENDIF
+
+ENDFUNC
+
 *** Don't set here: Use CREATEOBJECT("wwDotNetBridge","V4")
 *cClrVersion = "v4.0.30319"
 
@@ -162,11 +172,9 @@ ENDFUNC
 ***  Function: Creates an instance of the .NET Bridge component
 ***            that allows loading of content.
 ***    Assume: Define as LOCAL obridge as Westwind.WebConnection.wwDotNetBridge
-***      Pass: llNoUnblockOnError - if true doesn't try to run external unblock
-***                                 command. Used internally to prevent recursion.
 ***    Return: nothing
 ************************************************************************
-FUNCTION Load(llNoUnblockOnError)
+FUNCTION Load()
 LOCAL lcError, lnSize, lnDispHandle, lcPath, lcCmd
 
 IF VARTYPE(this.oDotNetBridge) != "O"
@@ -175,18 +183,18 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 	IF this.lUseCom
 		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
 	ELSE	
-		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
-	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
-
 		*** Remove the Zone Identifier to 'Unblock'
-	     	DECLARE INTEGER DeleteFile IN WIN32API STRING		  			  			
-   	        DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
+	    DECLARE INTEGER DeleteFile IN WIN32API STRING		  			  			
+   	    DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
 		
 		#IF IS_WESTWIND
 			DeleteFile(FULLPATH("Newtosoft.Json.dll") + ":Zone.Identifier")
 			DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
+			DeleteFile(FULLPATH("Renci.SshNet.dll") + ":Zone.Identifier")
 		#ENDIF
-			
+		
+		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
+	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
 		lcError = SPACE(2048)
 		lnSize = 0
 		lnDispHandle = ClrCreateInstanceFrom(FULLPATH("wwDotNetBridge.dll"),;
@@ -213,7 +221,8 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 		ENDIF
 	ENDIF
 
-	this.oDotNetBridge.LoadAssembly("System")	
+	this.oDotNetBridge.LoadAssembly("System")		
+	this.oDotNetBridge.IsThrowOnErrorEnabled = this.lThrowOnError
 ENDIF
 
 RETURN this.oDotNetBridge
@@ -227,12 +236,12 @@ ENDFUNC
 ***            this method must be called before this.Load() is 
 ***            called and the runtime is instantiated for the very
 ***            first time.
-***      Pass: lcVersion -  Clr version in the format of "v2.0.50727"
+***      Pass: lcVersion -  Clr version in the format of "v4.0.30319"
 ***    Return: nothing
 ************************************************************************
 PROTECTED FUNCTION SetClrVersion(lcVersion)
-DECLARE Integer SetClrVersion IN WWC_CLR_HOSTDLL string
-SetClrVersion(lcVersion)
+DECLARE Integer SetClrVersion IN WWC_CLR_HOSTDLL AS SetClrVersionApi string
+SetClrVersionApi(lcVersion)
 ENDFUNC
 *   SetClrVersion
 
@@ -1645,9 +1654,229 @@ IF NOT ISNULL(lvResult.Params)
 		lParamText = lParamText + ",loParams.P" + ALLTRIM(STR(lCount))
 	ENDFOR
 ENDIF
-=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
-this.HandleNextEvent()
+
+IF VARTYPE(THIS.oHandler) = "O"
+	=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
+	this.HandleNextEvent()
+ENDIF
+
 ENDFUNC
 
 ENDDEFINE
 *EOC EventSubscription
+
+
+*************************************************************
+DEFINE CLASS wwDotnetCoreBridge AS wwDotnetBridge
+*************************************************************
+*: Author: Rick Strahl
+*:         (c) West Wind Technologies, 2019
+*:Contact: http://www.west-wind.com
+*:Created: 06/18/2019
+*************************************************************
+#IF .F.
+*:Help Documentation
+*:Topic:
+Class wwDotnetCoreBridge
+
+*:Description:
+
+*:Example:
+
+*:Remarks:
+
+*:SeeAlso:
+
+
+*:ENDHELP
+#ENDIF
+
+*** Custom Properties
+cRuntimeFolder = ""
+
+
+************************************************************************
+* wwDotnetBridge ::  Init
+****************************************
+***  Function: Initializes the .NET runtime inside of FoxPro
+***    Assume: Calls Load() to actual perform load operation
+***      Pass: lcRuntimeFolder -  specific .NET Version or
+***                         Full Runtime Path: <full path>
+***                         Version only; 2.2.5, 2.1.4, 3.0.1
+***                         Partial Version: 2.2 2.1 3.0
+***            llUseCom  -  if .T. loads .NET Bridge via
+***                         plain COM interop rather than 
+***                         hosting .NET runtime itself.
+***                         If you do COM 
+***    Return: nothing
+************************************************************************
+FUNCTION Init(lcRuntimeFolder)
+
+IF !EMPTY(lcRuntimeFolder)
+   THIS.cRuntimeFolder = lcRuntimeFolder
+ENDIF
+
+*** Fail creation if the object couldn't be created
+IF ISNULL(this.Load())
+   ERROR this.cErrorMsg
+   RETURN .F.
+ENDIF
+
+ENDFUNC
+*  wwDotnetBridge ::  Init
+
+
+************************************************************************
+*  Load
+****************************************
+***  Function: Creates an instance of the .NET Bridge component
+***            that allows loading of content.
+***    Assume: Define as LOCAL obridge as Westwind.WebConnection.wwDotNetBridge
+***    Return: nothing
+************************************************************************
+FUNCTION Load()
+LOCAL lcError, lnSize, lnDispHandle, lcPath, lcCmd
+
+IF VARTYPE(this.oDotNetBridge) != "O"
+
+	IF this.lUseCom
+		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
+	ELSE	
+		*** Remove the Zone Identifier to 'Unblock'
+	    DECLARE INTEGER DeleteFile IN WIN32API STRING		  			  			
+   	    DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
+		
+		#IF IS_WESTWIND
+			DeleteFile(FULLPATH("Newtosoft.Json.dll") + ":Zone.Identifier")
+			DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
+			DeleteFile(FULLPATH("Renci.SshNet.dll") + ":Zone.Identifier")
+		#ENDIF
+		
+		LOCAL ARRAY laVersion[1]
+		LOCAL lnInfos, lcVersion
+		lcVersion = ""  && ie. 7.7.0.0
+		lnInfos = AGETFILEVERSION(laVersion,FULLPATH("wwDotnetBridge.dll"))
+		IF (lnInfos > 3)
+		    lcVersion = laVersion[4]
+		ENDIF
+				
+		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
+	   	DECLARE Integer CoreClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
+		lcError = SPACE(2048)
+		lnSize = LEN(lcError)
+		lcRuntimePath = this.GetDotnetCoreRuntimeFolder(this.cRuntimeFolder)
+		lnDispHandle = CoreClrCreateInstanceFrom(lcRuntimePath,lcVersion,@lcError,@lnSize)
+
+		IF lnDispHandle < 1
+		   lcError =  LEFT(lcError,lnSize)
+		
+		   this.SetError( "Unable to load Clr Instance. "  + lcError  + CHR(13) +;
+			   "Most likely wwDotnetBridge.dll is blocked or you don't have network permissions to load the assembly." + CHR(13)+;
+			   "Search for: 'Unable to load CLR Instance' at: https://webconnection.west-wind.com/docs" )
+		   RETURN NULL 
+		ENDIF
+
+		*** Turn handle into IDispatch COM object
+		this.oDotNetBridge = SYS(3096, lnDispHandle)	
+
+		*** Explicitly AddRef here - otherwise weird shit happens when objects are released
+		SYS(3097, this.oDotNetBridge)
+
+		IF ISNULL(this.oDotNetBridge)
+			this.SetError("COM Load Error: Can't access CLR COM reference.")
+			RETURN null
+		ENDIF
+	ENDIF
+
+	*this.oDotNetBridge.LoadAssembly("System")		
+	this.oDotNetBridge.IsThrowOnErrorEnabled = this.lThrowOnError
+ENDIF
+
+
+RETURN this.oDotNetBridge
+ENDFUNC
+*   Load
+
+************************************************************************
+*  Unload
+****************************************
+***  Function: Unloads the CLR and AppDomain
+***    Assume: Don't call this unless you want to explicity force
+***            the AppDomain to be unloaded and a new one to be spun
+***            up. Generally a single domain shoudl be sufficient.
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION Unload()
+IF VARTYPE(this.oDotNetBridge) == "O"
+	this.oDotNetBridge = NULL	
+	DECLARE Integer CoreClrUnload IN WWC_CLR_HOSTDLL	
+	CoreClrUnload()
+ENDIF
+ENDFUNC
+*   Unload
+
+************************************************************************
+*  FindDotnetCoreRuntime
+****************************************
+***  Function: Finds the .NET Core Runtime Path
+***    Assume:
+***      Pass: lcVersion
+***            Modes:
+***            Full Path: C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.5
+***            Version only: 2.2.5
+***            Partial version 2.1  or 2.2 or 3.0
+***    Return: Runtime Folder path or empty string
+************************************************************************
+FUNCTION GetDotnetCoreRuntimeFolder(lcVersion)
+LOCAL lcFolder, lcFolderName, lnX
+
+IF !EMPTY(lcVersion) AND DIRECTORY(lcVersion)
+	RETURN ADDBS(lcVersion)
+ENDIF
+
+
+DECLARE INTEGER SHGetFolderPath IN Shell32.dll ;
+      INTEGER Hwnd, INTEGER nFolder, INTEGER Token, INTEGER Flags, STRING @cPath
+
+lnFolderId = 0x0026  && Program Files
+lcOutput = repl(CHR(0),256)
+lnResult = SHGetFolderPath(_VFP.hWnd,lnFolderId,0,0,@lcOutput)
+IF lnResult = 0
+   lcOutput = STRTRAN(lcOutput,CHR(0),"") + "\"
+ELSE
+   lcOutput = ""
+ENDIF
+
+lcBasePath = lcOutput + "dotnet\shared\Microsoft.NETCore.App\"
+
+IF !EMPTY(lcVersion)
+   IF DIRECTORY(lcVersion)
+      RETURN ADDBS(lcFolder)
+   ENDIF
+   
+   IF DIRECTORY(lcBasePath + lcVersion)
+      RETURN lcBasePath + lcVersion + "\"
+   ENDIF
+        
+ENDIF
+
+LOCAL laFolders[1]
+lnFolders = ADIR(laFolders,lcBasePath + "*.*","D")
+IF lnFolders < 1
+   RETURN ""
+ENDIF
+
+ASORT(laFolders,1,ALEN(laFolders,1),0)
+
+
+
+
+lcVersion = JUSTFNAME(laFolders[ALEN(laFolders,1),1])
+
+RETURN lcBasePath + lcVersion + "\"
+ENDFUNC
+*   FindDotnetCoreRuntime
+
+ENDDEFINE
+*EOC wwDotnetCoreBridge 

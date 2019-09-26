@@ -246,6 +246,8 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool SetItem(int index, object value)
         {
+            value = wwDotNetBridge.FixupParameter(value);
+
             Array ar = Instance as Array;
             ar.SetValue(value, index);
 
@@ -278,6 +280,8 @@ namespace Westwind.WebConnection
             {
                 if (!CreateEmptyArray(itemType.FullName))
                     return false;
+
+                ar = Instance as Array;
             }
                         
             int size = ar.GetLength(0);

@@ -12,6 +12,7 @@ namespace Westwind.WebConnection
     /// </summary>
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.AutoDual)]
+    [Obsolete("Please replace ComGuid with ComValue")]
     [ProgId("Westwind.WebConnection.ComGuid")]
     public class ComGuid
     {

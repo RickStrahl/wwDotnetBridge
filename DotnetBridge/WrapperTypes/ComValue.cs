@@ -2,6 +2,8 @@
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Collections;
+using System.Globalization;
+using System.Reflection;
 
 namespace Westwind.WebConnection
 {
@@ -331,6 +333,42 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
+        /// Creates a generic type and stores it on the Value object.
+        /// </summary>
+        /// <param name="genericTypeName">Name of the base generic type. Example: System.Collections.Generics.List</param>
+        /// <param name="typeNames">A ComArray of string type names that are the generic parameters</param>
+        /// <param name="constructorParms"></param>
+        public void SetValueFromCreateGenericInstance(string genericTypeName, ComArray typeNames, ComArray constructorParms)
+        {            
+            var genericTypes = wwDotNetBridge.FixupParameter(typeNames) as string[];
+            object[] parameters = wwDotNetBridge.FixupParameter(constructorParms) as object[];
+
+            object parmList = null;
+            if (parameters.Length > 0)
+                parmList = parameters;
+
+            if (genericTypes == null || genericTypes.Length == 0)
+                throw new ArgumentException("Must pass at least one generic type argument to CreateGenericType");
+
+            var typename = genericTypeName + "`" + genericTypes.Length + "[";
+            foreach (string typeName in genericTypes)
+            {
+                typename += typeName + ",";
+            }
+            typename = typename.TrimEnd(',') + "]";
+
+
+            var type = Type.GetType(typename);
+            object instance;
+            if (parmList == null)
+                instance = Activator.CreateInstance(type);
+            else                     
+                instance = type.Assembly.CreateInstance(typename, false, BindingFlags.Default, null, parameters, null, null);
+
+            Value = instance;
+        }
+
+        /// <summary>
         /// Sets the Value property from a CreateInstance call. Useful for
         /// value types that can't be passed back to FoxPro.
         /// </summary>
@@ -347,26 +385,36 @@ namespace Westwind.WebConnection
         /// either ComGuid instance
         /// a string, or if null creates a new GUID.                
         /// </summary>
-        /// <param name="value"></param>
-        public void SetGuid(object value)
+        /// <param name="value">Pass in: String, ComGuid, ComValue (silly but for compatibility), null/DBNull
+        ///
+        /// if NULL or DbNull is passed a new ID is generated (same as NewGuid())
+        /// </param>
+        /// <returns>Guid as string</returns>
+        public string SetGuid(object value)
         {
             if (value == null || value is DBNull)
                 Value = Guid.NewGuid();
+            else if (value is ComValue)
+                Value = ((ComValue)value).Value;
             else if (value is ComGuid)
                 Value = ((ComGuid) value).Guid;
-            else if (value is String)
+            else if (value is string guidString)
             {
-                Value = new Guid(value as string);
+                Value = new Guid(guidString);
             }
+
+            return Value.ToString();
         }
 
         /// <summary>
         /// Create a new Guid on the Value structure
         /// </summary>
-        public void NewGuid()
+        public string NewGuid()
         {
             Value = Guid.NewGuid();
+            return Value.ToString();
         }
+
 
         /// <summary>
         /// Retrieves a GUID value as a string
@@ -375,12 +423,13 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public string GetGuid()
         {
-            if (Value == null)
-                return null;
+            if (!(Value is Guid))
+                Value = Guid.Empty;
 
             Guid guid = (Guid) Value;
             return guid.ToString();
         }
+        
 
         /// <summary>
         /// Returns the string value of the embedded Value object
