@@ -10,9 +10,14 @@ When using intrinsic methods to get/set/call values `Task<T>` is now fixed up wi
 * **ComValue.SetValueFromGenericInstance()**  
 New helper method that allows assignment of a ComValue from a Generic type value. Since Generics aren't natively supported this method is one way to pass or receive Generic values from and to .NET.
 
+* **ComGuid Deprecated**  
+Moved all code that used to convert to and from `ComGuid` to work with `ComValue` for consistency. This might be a breaking change if you were working with .NET Guids previously. Instead of retrieving `GuidString` call `GetGuid()` instead, and when passing use `CreateValue()` and `SetGuid()`, `NewGuid()` to assign guids.
+
+* **Fix `ComArray.SetItem()` for Property Fixups**  
+Fixed `SetItem()` to use the same internal `FixupParameters` logic that understands common conversions from FoxPro to .NET. Previously this wasn't hooked up. Note `AddItem()` worked correctly.
 
 * **First cut at wwDotnetCoreBridge to host and access .NET Core**  
-There's now a `wwDotnetBridgeCore` class that can be used to host .NET Core and access .NET Core components. It works with .NET Core 3.0 and requires that .NET Core 3.0 is installed.  This is still experimental but it does work. To work you'll need the **32 bit .NET Runtime** installed. There are limitations currently - you can't unload the runtime and re-run it (including clearing all) without restarting. 
+There's now a `wwDotnetBridgeCore` class that can be used to host .NET Core and access .NET Core components. It works with .NET Core 3.0 and requires that .NET Core 3.0 is installed.  This is still experimental but it does work. To work you'll need the **32 bit .NET Runtime** installed. There are limitations currently - you can't unload the runtime and re-run it (including clearing all) without restarting. But it works fairly.
 
 ### Version 6.22
 
