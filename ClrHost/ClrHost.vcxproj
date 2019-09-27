@@ -101,7 +101,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <UACExecutionLevel>HighestAvailable</UACExecutionLevel>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>$(SolutionDir)Examples\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -158,9 +158,11 @@
       <ImportLibrary>
       </ImportLibrary>
       <DelayLoadDLLs>mscoree.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <OutputFile>$(SolutionDir)Distribution\ClrHost.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\WebConnection\VisualStudio\C++\smtp\wwsmtp\CoreClrHost.cpp" />
     <ClCompile Include="ClrHost.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +172,7 @@
     <None Include="ClrHost.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\WebConnection\VisualStudio\C++\smtp\wwsmtp\coreclrhost.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

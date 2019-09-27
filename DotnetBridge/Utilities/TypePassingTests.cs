@@ -8,7 +8,7 @@ using System.Windows.Forms;
 namespace Westwind.WebConnection
 {
     [ComVisible(true)]
-    [ClassInterface(ClassIanterfaceType.AutoDual)]
+    [ClassInterface(ClassInterfaceType.AutoDual)]
     public class TypePassingTests
     {
         public decimal? DecimalValue { get; set; }

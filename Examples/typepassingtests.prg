@@ -16,7 +16,12 @@ loValue.SetValueFromSystemConvert("ToUInt64","23")
 ? loValue.ToString()  && 20
 ? loValue.GetTypeName()  && System.UInt64
 
-RETURN
+*** Long - Max Length
+LOCAL loNet as Westwind.WebConnection.TypePassingTests
+loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
+
+? loBridge.InvokeMethod(loNet,"ReturnLong")
+
 
 
 LOCAL loNet as Westwind.WebConnection.TypePassingTests
@@ -27,7 +32,6 @@ loStrings = loBridge.CreateArray("System.String")
 loStrings.AddItem("It's")
 loStrings.AddItem("BigDay")
 
-LOCAL loValue as Westwind.WebConnection.ComValue
 loValue = loBridge.CreateComValue(loStrings)
 
 lobridge.InvokeMethod(loNet,"PassArrayByReference",loValue)
@@ -36,10 +40,6 @@ loStringsResult =  loValue.GetValue()
 *loBridge.GetProperty(loValue,"Value")
 ? loStringsResult.Count
 
-RETURN
-
-
-
 
 *** UInt64
 LOCAL loU64 as Westwind.WebConnection.ComValue
@@ -47,6 +47,9 @@ loU64 = loBridge.CreateComValue(0)
 loU64.SetUInt64(10)
 ? loBridge.SetProperty(loNet,"UInt64Value",loU64)
 ? loU64.ToString()
+
+*** Long - Max Length
+? "Long: " + TRANSFORM(loBridge.InvokeMethod(loNet,"ReturnLong"))
 
 
 LOCAL loParms as WESTWIND.WebConnection.ComArray
@@ -57,7 +60,6 @@ loU64 = loBridge.CreateComValue()
 loU64.SetValueFromInvokeStaticMethod("System.Convert","ToUInt64",loParms)
 ? loU64.ToString()
 
-RETURN
 
 
 loInt = loBridge.CreateComValue(INT(10))
@@ -162,6 +164,17 @@ loComValue.SetSingle(10.2)
 loComValue = lobridge.CreateComValue()
 loComValue.SetLong(10)
 ? loBridge.InvokeMethod(loNet,"PassLong",loComValue)
+
+
+*** GUIDS cannot be accessed IN ANY WAY in FoxPro natively
+*** wwDotnetBridge needs to wrpa them in a ComValue object
+*** To retrieve a GUID always use `InvokeMethod` or `GetProperty`
+loGuidComValue =  loBridge.InvokeMethod(loNet,"GetGuid") && returns COM Value
+lcGuid = loGuidComValue.GetGuid() 
+? lcGuid
+
+lcGuid = loGuidComValue.NewGuid()
+? "New Guid: " + lcGuid
 
 
 *** Char by string

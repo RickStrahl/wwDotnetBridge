@@ -4,7 +4,7 @@
 do wwDotNetBridge
 LOCAL loBridge as wwDotNetBridge
 loBridge = CREATEOBJECT("wwDotnetCoreBridge")
-
+? loBridge.GetDotnetversion()
 
 ? loBridge.GetStaticProperty("System.Runtime.InteropServices.RuntimeInformation","FrameworkDescription");
 

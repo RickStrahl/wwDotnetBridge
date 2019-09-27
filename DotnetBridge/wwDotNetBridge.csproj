@@ -79,13 +79,15 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DotNetBridge.cs" />
+    <Compile Include="wwDotNetBridge.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\EventSubscriber.cs" />
     <Compile Include="Utilities\TypePassingTests.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="WrapperTypes\ComArray.cs" />
     <Compile Include="WrapperTypes\ComGuid.cs" />
     <Compile Include="WrapperTypes\ComValue.cs" />
+    <Compile Include="wwDotnetBridgeFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />

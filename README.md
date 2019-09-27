@@ -8,13 +8,25 @@ wwDotnetBridge also provides a host of tools to make it possible to access .NET 
 #### wwDotnetBridge and .NET Versions
 > The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
 >
-> * .NET 4.5 or later
+> * .NET 4.5.2 or later
 > * Windows 7 and newer
 > * Windows Server 2008 R2 and newer
 >
 > For support of Windows XP, Server 2003 and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008. Note that you can use the new version just fine for loading .NET 1.1, 2.0 and 4.0 compiled assemblies.
 
 ## Getting Started
+Typical steps for working with wwDotnetBridge are:
+
+* Initialize the .NET Runtime during Startup
+* Instantiate a wwDotnetBridge instance
+* Use `.CreateInstance()` to create .NET Objects
+* Use direct property and method access to call methods and access properties
+* Use `.GetProperty()`, `.SetProperty()` and `.InvokeMethod()`   
+for unsupported .NET types
+
+### Initialize the .NET Runtime
+Although not strictly required it's a good idea to initialize the .NET Runtime during application startup. This ensures that you're loading a specific version of .NET (the latest typically) and another component can't load something different.
+
 Somewhere in the startup of your application call `InitializeDotnetVersion()`:
 
 ```foxpro
@@ -25,10 +37,8 @@ DO wwDotnetBridge
 InitializeDotnetVersion("V4") 
 ```
 
-This ensures that wwDotnetBridge loads with the specified **single version of the .NET Runtime** that your FoxPro application can load.
-
 > #### @icon-warning  Unable to load CLR Instance Errors
-> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, you probably need to unblock the wwdotnetbridge.dll or need to ensure that the wwdotnetbridge.dll and wwipstuff.dll are in your FoxPro path. Please see [Unable to load CLR Instance](https://www.west-wind.com/webconnection/wwClient_docs/_3rf12jtma.htm) for more info.
+> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, there might be a permissions problem access the wwDotnetBridge.dll. Please see [Unable to load CLR Instance](https://www.west-wind.com/webconnection/wwClient_docs/_3rf12jtma.htm) for more info on how to fix this issue.
 
 Then when you need to utilize wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
 
@@ -55,10 +65,33 @@ loItem = loBridge.CreateInstance("Custom.Item")
 loItem.Sku = "NewSku"
 lnTotal = loItem.CalculateTotal()
 
+
 *** Access non-accessible properties and methods indirectly
+*** Non accessible might be: Value Type, Enum, Generic Type, Long, Guid etc.
 lnFlagValue = loBridge.GetProperty(loItem,"Flag")
 lnFlagValue = loBridge.SetProperty(loItem,"Flag",5) 
 loBridge.InvokeMethod(loItem,"PassFlagValue",lnFlagValue)
+
+*** Access Static Properties and methods
+lcDomain = loBridge.GetStaticProperty("System.Environment","UserDomainName")
+llOnline = loBridge.InvokeStaticMethod("System.Net.NetworkInformation.NetworkInterface",;
+                                       "GetIsNetworkAvailable")
+
+*** Array Result Fixups
+loComArray = loBridge.InvokeMethod(loItem,"GetDetailItems",lnPk)  && returns object array
+FOR lnX = 1 to loComarray.Count
+     loLineItem = loComArray.Item[lnX]
+     ? loLineItem.Sku + " " + loLineItem.Descript
+ENDFOR     
+
+*** Pass an Array
+loItems = loBridge.CreateArray("MyApp.LineItem")
+loItem = loBridige.CreateInstance("MyApp.LineItem")
+loItem.Sku = "XXXX"
+loItem.Descript = "New Item"
+loItems.AddItem(loItem)
+
+loBridge.InvokeMethod(loInvoice,"AddItems",loItems)
 ```
 
 ## Features at a glance
@@ -136,14 +169,20 @@ FOR lnX = lnCount TO 1 STEP -1
    ENDIF
 ENDFOR
 ```
-The example demonstrates a few simple features: Loading an assembly, creating a .NET type instance and then calling methods and accessing properties either directly or indirectly. For many methods and properties on .NET object references you can directly access the members, but some members are not directly callable via COM if there are overloads on a method, if there are Generics, enums or Value Types involved in the method or member access. It's best to always try direct access first and if that fails attempt to use indirect access to the wwDotnetBridge instance.
+The example demonstrates a few simple features: Loading an assembly, creating a .NET type instance and then calling methods and accessing properties either directly or indirectly. You can call Static methods and access static members.
+
+For many methods and properties on .NET object references you can directly access the members, but some members are not directly callable via COM if there are overloads on a method, if there are Generics, enums or Value Types involved in the method or member access. It's best to always try direct access first and if that fails attempt to use indirect access to the wwDotnetBridge instance.
 
 In that case you can use indirect referencing to access members with:
 
 * loBridge.InvokeMethod(instance,"Method",parm1,parm2..,parm15)
 * loBridge.GetProperty(instance,"Property")  
 * loBridge.SetProperty(instance,"Property",valueToSet)
-* GetPropertyEx(),SetPropertyEx,InvokeMethodEx() which supported nested names for the member
+
+Nested hierarchies can also be accessed for child properties or arrays:
+
+* loBridge.GetProperty(instance,"Property.SubProperty")
+* loBridge.GetProperty(instance,"Property.ArrayProp[0]") 
 
 These methods internally use Reflection to call .NET code, but because they run inside of .NET they can do many things that native COM interop cannot due to the limitations for type marshalling over COM and the incompatibilities of the FoxPro type system.
 

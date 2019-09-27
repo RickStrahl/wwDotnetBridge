@@ -482,7 +482,7 @@
             </summary>
             <param name="AssemblyName"></param>
         </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDotnetVersion">
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDotnetVersion(System.Boolean)">
             <summary> 
             Returns the .NET framework version installed on the machine
             as a string  of 4.x.y version
@@ -570,7 +570,7 @@
         <member name="M:Westwind.WebConnection.FileUtils.GetFullPath(System.String)">
             <summary>
             Returns a fully qualified path from a partial or relative
-            path.
+            path. Also fixes up case of the entire path **if the file exists**
             </summary>
             <param name="Path"></param>
         </member>
@@ -586,6 +586,49 @@
             Examples of returned values:
              .\test.txt, ..\test.txt, ..\..\..\test.txt, ., ..
             </returns>
+            <summary>
+            Returns a relative path string from a full path based on a base path
+            provided.
+            </summary>
+            <param name="fullPath">The path to convert. Can be either a file or a directory</param>
+            <param name="basePath">The base path on which relative processing is based. Should be a directory.</param>
+            <returns>
+            String of the relative path.
+            
+            Examples of returned values:
+             test.txt, ..\test.txt, ..\..\..\test.txt, ., .., subdir\test.txt
+            </returns>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.SaveFileDialog(System.String,System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Returns a filename for a file to save
+            </summary>
+            <param name="folder"></param>
+            <param name="caption"></param>
+            <param name="title"></param>
+            <param name="defaultExtension">a default extension like png, txt, md etc.</param>
+            <param name="extensionFilter">"|Png Image (.png)|*.png|JPEG Image (.jpeg)|*.jpeg|Gif Image (.gif)|*.gif|Tiff Image (.tiff)|*.tiff|All Files (*.*)|*.*";</param>
+            <param name="promptOverwrite">If true prompts if file exists</param>
+            <returns>Filename or null</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.OpenFileDialog(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            Returns a filename for a file to open
+            </summary>
+            <param name="folder"></param>
+            <param name="caption"></param>
+            <param name="title"></param>        
+            <param name="extensionFilter">"|Png Image (.png)|*.png|JPEG Image (.jpeg)|*.jpeg|Gif Image (.gif)|*.gif|Tiff Image (.tiff)|*.tiff|All Files (*.*)|*.*";</param>
+            <param name="checkIfFileExists">If true requires that the selected file exists. Otherwise you can type a filename.</param>
+            <returns>Filename or null</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.OpenFolderDialog(System.String,System.String)">
+            <summary>
+            Displays a folder browser dialog box
+            </summary>
+            <param name="startFolder"></param>
+            <param name="description"></param>
+            <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.FileUtils.DeleteFiles(System.String,System.Int32)">
             <summary>
@@ -595,6 +638,22 @@
             </summary>
             <param name="filespec">A DOS filespec that includes path and/or wildcards to select files</param>
             <param name="seconds">The timeout - if files are older than this timeout they are deleted</param>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.ZipFolder(System.String,System.String,System.Boolean)">
+            <summary>
+            Zips a folder 
+            </summary>
+            <param name="outputZipFile"></param>
+            <param name="folder"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.FileUtils.UnzipFolder(System.String,System.String)">
+            <summary>
+            Unzips a zip file to a destination folder.
+            </summary>
+            <param name="zipFile"></param>
+            <param name="folder"></param>
+            <returns></returns>
         </member>
         <member name="T:Westwind.WebConnection.ReflectionUtils">
             <summary>
@@ -1691,6 +1750,14 @@
             <param name="typeName"></param>
             <param name="parms"></param>
         </member>
+        <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateGenericInstance(System.String,Westwind.WebConnection.ComArray,Westwind.WebConnection.ComArray)">
+            <summary>
+            Creates a generic type and stores it on the Value object.
+            </summary>
+            <param name="genericTypeName">Name of the base generic type. Example: System.Collections.Generics.List</param>
+            <param name="typeNames">A ComArray of string type names that are the generic parameters</param>
+            <param name="constructorParms"></param>
+        </member>
         <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateInstance_Internal(System.String,System.Object[])">
             <summary>
             Sets the Value property from a CreateInstance call. Useful for
@@ -1700,12 +1767,16 @@
             <param name="parms"></param>
         </member>
         <member name="M:Westwind.WebConnection.ComValue.SetGuid(System.Object)">
-            <summary>
-            Sets value to a .NET Guid. Creates a GUID from 
-            either ComGuid instance
-            a string, or if null creates a new GUID.                
-            </summary>
-            <param name="value"></param>
+             <summary>
+             Sets value to a .NET Guid. Creates a GUID from 
+             either ComGuid instance
+             a string, or if null creates a new GUID.                
+             </summary>
+             <param name="value">Pass in: String, ComGuid, ComValue (silly but for compatibility), null/DBNull
+            
+             if NULL or DbNull is passed a new ID is generated (same as NewGuid())
+             </param>
+             <returns>Guid as string</returns>
         </member>
         <member name="M:Westwind.WebConnection.ComValue.NewGuid">
             <summary>
@@ -1722,6 +1793,18 @@
         <member name="M:Westwind.WebConnection.ComValue.ToString">
             <summary>
             Returns the string value of the embedded Value object
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Westwind.WebConnection.wwDotnetBridgeFactory">
+            <summary>
+            Can be used to create an instance of wwDotnetBridge
+            from the .NET Core Runtime Host which requires a static method
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotnetBridgeFactory.Ping">
+            <summary>
+            Test method that returns an integer value of 10 for testing
             </summary>
             <returns></returns>
         </member>

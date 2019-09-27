@@ -12,7 +12,7 @@ New helper method that allows assignment of a ComValue from a Generic type value
 
 
 * **First cut at wwDotnetCoreBridge to host and access .NET Core**  
-There's now a `wwDotnetBridgeCore` class that can be used to host .NET Core and access .NET Core components. It works with .NET Core 3.0 and requires that .NET Core 3.0 is installed.  This is still experimental but it does work. To work you'll need the **32 bit .NET Runtime** installed.
+There's now a `wwDotnetBridgeCore` class that can be used to host .NET Core and access .NET Core components. It works with .NET Core 3.0 and requires that .NET Core 3.0 is installed.  This is still experimental but it does work. To work you'll need the **32 bit .NET Runtime** installed. There are limitations currently - you can't unload the runtime and re-run it (including clearing all) without restarting. 
 
 ### Version 6.22
 
@@ -24,6 +24,7 @@ Added new CLR hosting logic to the C++ connector which provides better support f
 
 * **ComValue.SetValueFromGenericInstance()**  
 Added a helper to the ComValue object to allow creating of Generic Values. Since generic values and objects are not allowed over COM this is one option to assign and retrieve generic values.
+
 
 ### Version 6.19
 
