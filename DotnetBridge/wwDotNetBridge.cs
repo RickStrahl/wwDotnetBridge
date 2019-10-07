@@ -1867,7 +1867,7 @@ Windows Version          : {GetWindowsVersion(WindowsVersionModes.Full)}";
                 res =  $@"wwDotnetBridge Version  : {Assembly.GetExecutingAssembly().GetName().Version}
 wwDotnetBridge Location : {GetType().Assembly.Location}
 .NET Core Version       : {Environment.Version}
-.NET Core Version (Full): {rt}
+.NET Core Version (Full): {rt} 
 Windows Version         : {GetWindowsVersion(WindowsVersionModes.Full)}";
             }
 

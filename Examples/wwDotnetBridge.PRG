@@ -1848,7 +1848,7 @@ ELSE
    lcOutput = ""
 ENDIF
 
-lcBasePath = lcOutput + "dotnet\shared\Microsoft.NETCore.App\"
+lcBasePath = ADDBS(lcOutput) + "dotnet\shared\Microsoft.NETCore.App\"
 
 IF !EMPTY(lcVersion)
    IF DIRECTORY(lcVersion)
@@ -1868,9 +1868,6 @@ IF lnFolders < 1
 ENDIF
 
 ASORT(laFolders,1,ALEN(laFolders,1),0)
-
-
-
 
 lcVersion = JUSTFNAME(laFolders[ALEN(laFolders,1),1])
 

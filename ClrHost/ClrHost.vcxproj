@@ -158,12 +158,12 @@
       <ImportLibrary>
       </ImportLibrary>
       <DelayLoadDLLs>mscoree.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
-      <OutputFile>$(SolutionDir)Distribution\ClrHost.dll</OutputFile>
+      <OutputFile>$(SolutionDir)Examples\ClrHost.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\WebConnection\VisualStudio\C++\smtp\wwsmtp\CoreClrHost.cpp" />
     <ClCompile Include="ClrHost.cpp" />
+    <ClCompile Include="CoreClrHost.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ClrHost.rc" />
@@ -172,7 +172,7 @@
     <None Include="ClrHost.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\WebConnection\VisualStudio\C++\smtp\wwsmtp\coreclrhost.h" />
+    <ClInclude Include="coreclrhost.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
