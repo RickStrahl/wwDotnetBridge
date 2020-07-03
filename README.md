@@ -3,16 +3,16 @@
 
 wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro all without having to register components via COM.
 
-wwDotnetBridge also provides a host of support featuress to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections, and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
+wwDotnetBridge also provides a host of support featuress to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access value types, static or generic members and types. wwDotnetBridge can automatically convert some problem types and provides wrappers that allow access to most unsupported features. There's also a powerful `ComArray` class that makes it easy to interact and manipulate .NET arrays and collections, and a `ComValue` class that lets you assign and pass .NET values without ever passing the native .NET value into FoxPro.
 
 #### wwDotnetBridge and .NET Versions
-> The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
+> The current version of wwDotnetBridge is compiled for .NET 4.5 and later and works with:
 >
 > * .NET 4.5.2 or later
 > * Windows 7 and newer
 > * Windows Server 2008 R2 and newer
 >
-> For support of Windows XP, Server 2003 and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008. Note that you can use the new version just fine for loading .NET 1.1, 2.0 and 4.0 compiled assemblies.
+> For support of Windows XP, Server 2003, Vista and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008. Note that you can use the new version just fine for loading .NET 1.1, 2.0 and 4.0 compiled assemblies.
 
 ## Getting Started
 Typical steps for working with wwDotnetBridge are:
