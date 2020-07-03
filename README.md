@@ -1,9 +1,9 @@
 # wwDotnetBridge
 ### .NET Interop made easy for Visual FoxPro 9
 
-wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party **libraries**, or build and access your own .NET components from FoxPro all without having to register components via COM.
+wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro all without having to register components via COM.
 
-wwDotnetBridge also provides a host of tools to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections, and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
+wwDotnetBridge also provides a host of support featuress to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access Value, Static or Generic members and types. wwDotnetBridge can automatically convert some problem types, and provides wrapper types that allow access to most unsupported feature types. There's also a powerful ComArray class that makes it easy to interact and manipulate .NET arrays and collections, and a ComValue class that lets you assign and pass .NET values without ever touching FoxPro code.
 
 #### wwDotnetBridge and .NET Versions
 > The current version of wwDotnetBridge is compiled for .NET 4.5 and works with:
@@ -38,7 +38,7 @@ InitializeDotnetVersion("V4")
 ```
 
 > #### @icon-warning  Unable to load CLR Instance Errors
-> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, there might be a permissions problem access the wwDotnetBridge.dll. Please see [Unable to load CLR Instance](https://www.west-wind.com/webconnection/wwClient_docs/_3rf12jtma.htm) for more info on how to fix this issue.
+> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, there might be a permissions problem access the wwDotnetBridge.dll. Please see [Unable to load CLR Instance](https://client-tools.west-wind.com/docs/_3rf12jtma.htm) for more info on how to fix this issue.
 
 Then when you need to utilize wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
 
@@ -114,8 +114,8 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
 
 ## Documentation
-* [Home Page](http://west-wind.com/wwDotnetBridge.aspx)
-* [API Documentation](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
+* [Home Page](https://west-wind.com/wwDotnetBridge.aspx)
+* [API Documentation](https://client-tools.west-wind.com/docs/_24n1cfw3a.htm)
 * [White Paper](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
 * [Change Log](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
 
@@ -129,7 +129,7 @@ This library consists of 3 components (all provided in source):
 > #### Make sure DLLs can be found!
 > Make sure CrlHost.dll (or wwIpstuff.dll for [commercial West Wind tools](https://west-wind.com/WestwindClientTools.aspx)) and wwDotnetBridge are accessible via the FoxPro path. Ideally you'll want to have these DLLs in your current executing path of the application - typically the root folder of the application.
 
-If you're using FoxPro you can simply use the wwDotnetBridge.prg class to load an assembly and fire away at it or access existing .NET components directly.
+If you're using FoxPro you can simply use the `wwDotnetBridge.prg` class to load an assembly and fire away at it or access existing .NET components directly.
 
 This example loads the OpenPop .NET library and accesses a POP3 mailbox to display messages waiting:
 
