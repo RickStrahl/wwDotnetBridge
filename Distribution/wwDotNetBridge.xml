@@ -175,6 +175,15 @@
             <param name="TypeName"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile_ThreeParms(System.String,System.String,System.Object,System.Object,System.Object)">
+            <summary>
+            Creates an instance from a file reference with a two parameter constructor
+            </summary>
+            <param name="assemblyFileName"></param>
+            <param name="typeName"></param>
+            <param name="parm1"></param>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceFromFile_Internal(System.String,System.String,System.Object[])">
             <summary>
             Routine that loads a class from an assembly file name specified.
@@ -208,14 +217,6 @@
             </summary>
             <param name="AssemblyFileName"></param>
             <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetTypeFromName(System.String)">
-            <summary>
-            Helper routine that looks up a type name and tries to retrieve the
-            full type reference in the actively executing assemblies.
-            </summary>
-            <param name="typeName"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethod_Internal(System.String,System.String,System.Object[])">
@@ -278,8 +279,8 @@
             into nested objects. Use this method to step over objects 
             that FoxPro can't directly access (like structs, generics etc.)
             </summary>
-            <param name="Instance"></param>
-            <param name="Property"></param>
+            <param name="instance"></param>
+            <param name="property"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.SetProperty(System.Object,System.String,System.Object)">
@@ -287,8 +288,8 @@
             Sets a property of a .NET object with a value
             </summary>
             <param name="Instance"></param>
-            <param name="Property"></param>
-            <param name="Value"></param>
+            <param name="property"></param>
+            <param name="value"></param>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.SetPropertyEx(System.Object,System.String,System.Object)">
             <summary>
@@ -418,6 +419,14 @@
             <param name="index"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDictionaryItem(System.Collections.IDictionary,System.Object)">
+            <summary>
+            Returns a dictionary item from a dictionary object by passing in a key.
+            </summary>
+            <param name="dictionary"></param>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.SetArrayItem(System.Object,System.String,System.Int32,System.Object)">
             <summary>
             Sets an array element to a given value. Assumes the array is big
@@ -481,6 +490,22 @@
             All names are for .NET 2.0 Runtime at the moment
             </summary>
             <param name="AssemblyName"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetType(System.Object)">
+            <summary>
+            Returns a type reference of a .NET type (or FoxPro or COM object
+            which is pretty much useless as it only returns the COM wrapper type)
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetTypeFromName(System.String)">
+            <summary>
+            Helper routine that looks up a type name and tries to retrieve the
+            full type reference in the actively executing assemblies.
+            </summary>
+            <param name="typeName"></param>
+            <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDotnetVersion(System.Boolean)">
             <summary> 
@@ -665,153 +690,6 @@
             Binding Flags constant to be reused for all Reflection access methods.
             </summary>
         </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.GetProperty(System.Object,System.String)">
-            <summary>
-            Retrieve a property value from an object dynamically. This is a simple version
-            that uses Reflection calls directly. It doesn't support indexers.
-            </summary>
-            <param name="instance">Object to make the call on</param>
-            <param name="property">Property to retrieve</param>
-            <returns>Object - cast to proper type</returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.GetField(System.Object,System.String)">
-            <summary>
-            Retrieve a field dynamically from an object. This is a simple implementation that's
-            straight Reflection and doesn't support indexers.
-            </summary>
-            <param name="Object">Object to retreve Field from</param>
-            <param name="Property">name of the field to retrieve</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyInternal(System.Object,System.String)">
-            <summary>
-            Parses Properties and Fields including Array and Collection references.
-            Used internally for the 'Ex' Reflection methods.
-            </summary>
-            <param name="Parent"></param>
-            <param name="Property"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.SetPropertyInternal(System.Object,System.String,System.Object)">
-            <summary>
-            Parses Properties and Fields including Array and Collection references.
-            </summary>
-            <param name="Parent"></param>
-            <param name="Property"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyEx(System.Object,System.String)">
-            <summary>
-            Returns a property or field value using a base object and sub members including . syntax.
-            For example, you can access: oCustomer.oData.Company with (this,"oCustomer.oData.Company")
-            This method also supports indexers in the Property value such as:
-            Customer.DataSet.Tables["Customers"].Rows[0]
-            </summary>
-            <param name="Parent">Parent object to 'start' parsing from. Typically this will be the Page.</param>
-            <param name="Property">The property to retrieve. Example: 'Customer.Entity.Company'</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyInfoEx(System.Object,System.String)">
-            <summary>
-            Returns a PropertyInfo object for a given dynamically accessed property
-            
-            Property selection can be specified using . syntax ("Address.Street" or "DataTable[0].Rows[1]") hence the 'Ex' name for this function.
-            </summary>
-            <param name="Parent"></param>
-            <param name="Property"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyInfoInternal(System.Object,System.String)">
-            <summary>
-            Returns a PropertyInfo structure from an extended Property reference
-            </summary>
-            <param name="Parent"></param>
-            <param name="Property"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.SetProperty(System.Object,System.String,System.Object)">
-            <summary>
-            Sets the property on an object. This is a simple method that uses straight Reflection 
-            and doesn't support indexers.
-            </summary>
-            <param name="obj">Object to set property on</param>
-            <param name="property">Name of the property to set</param>
-            <param name="value">value to set it to</param>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.SetField(System.Object,System.String,System.Object)">
-            <summary>
-            Sets the field on an object. This is a simple method that uses straight Reflection 
-            and doesn't support indexers.
-            </summary>
-            <param name="obj">Object to set property on</param>
-            <param name="property">Name of the field to set</param>
-            <param name="value">value to set it to</param>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.SetPropertyEx(System.Object,System.String,System.Object)">
-            <summary>
-            Sets a value on an object. Supports . syntax for named properties
-            (ie. Customer.Entity.Company) as well as indexers.
-            </summary>
-            <param name="Object ParentParent">
-            Object to set the property on.
-            </param>
-            <param name="String PropertyProperty">
-            Property to set. Can be an object hierarchy with . syntax and can 
-            include indexers. Examples: Customer.Entity.Company, 
-            Customer.DataSet.Tables["Customers"].Rows[0]
-            </param>
-            <param name="Object ValueValue">
-            Value to set the property to
-            </param>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethod(System.Object,System.String,System.Type[],System.Object[])">
-            <summary>
-            Calls a method on an object dynamically. This version requires explicit
-            specification of the parameter type signatures.
-            </summary>
-            <param name="instance">Instance of object to call method on</param>
-            <param name="method">The method to call as a stringToTypedValue</param>
-            <param name="parameterTypes">Specify each of the types for each parameter passed. 
-            You can also pass null, but you may get errors for ambiguous methods signatures
-            when null parameters are passed</param>
-            <param name="parms">any variable number of parameters.</param>        
-            <returns>object</returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethod(System.Object,System.String,System.Object[])">
-            <summary>
-            Calls a method on an object dynamically. 
-            
-            This version doesn't require specific parameter signatures to be passed. 
-            Instead parameter types are inferred based on types passed. Note that if 
-            you pass a null parameter, type inferrance cannot occur and if overloads
-            exist the call may fail. if so use the more detailed overload of this method.
-            </summary> 
-            <param name="instance">Instance of object to call method on</param>
-            <param name="method">The method to call as a stringToTypedValue</param>
-            <param name="parameterTypes">Specify each of the types for each parameter passed. 
-            You can also pass null, but you may get errors for ambiguous methods signatures
-            when null parameters are passed</param>
-            <param name="parms">any variable number of parameters.</param>        
-            <returns>object</returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.CallStaticMethod(System.String,System.String,System.Object[])">
-            <summary>
-            Invokes a static method
-            </summary>
-            <param name="typeName"></param>
-            <param name="method"></param>
-            <param name="parms"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethodEx(System.Object,System.String,System.Object[])">
-            <summary>
-            Calls a method on an object with extended . syntax (object: this Method: Entity.CalculateOrderTotal)
-            </summary>
-            <param name="parent"></param>
-            <param name="method"></param>
-            <param name="params"></param>
-            <returns></returns>
-        </member>
         <member name="M:Westwind.WebConnection.ReflectionUtils.CreateInstanceFromType(System.Type,System.Object[])">
             <summary>
             Creates an instance from a type by calling the parameterless constructor.
@@ -833,13 +711,27 @@
             <param name="args"></param>
             <returns></returns>
         </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.GetTypeFromName(System.String)">
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetTypeFromName(System.String,System.String)">
             <summary>
             Helper routine that looks up a type name and tries to retrieve the
-            full type reference in the actively executing assemblies.
+            full type reference using GetType() and if not found looking 
+            in the actively executing assemblies and optionally loading
+            the specified assembly name.
+            </summary>
+            <param name="typeName">type to load</param>
+            <param name="assemblyName">
+            Optional assembly name to load from if type cannot be loaded initially. 
+            Use for lazy loading of assemblies without taking a type dependency.
+            </param>
+            <returns>null</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetTypeFromName(System.String)">
+            <summary>
+            Overload for backwards compatibility which only tries to load
+            assemblies that are already loaded in memory.
             </summary>
             <param name="typeName"></param>
-            <returns></returns>
+            <returns></returns>        
         </member>
         <member name="M:Westwind.WebConnection.ReflectionUtils.CreateComInstance(System.String)">
             <summary>
@@ -849,16 +741,13 @@
             <param name="progId"></param>
             <returns></returns>
         </member>
-        <member name="M:Westwind.WebConnection.ReflectionUtils.TypedValueToString(System.Object,System.Globalization.CultureInfo,System.String)">
+        <member name="M:Westwind.WebConnection.ReflectionUtils.LoadAssembly(System.String)">
             <summary>
-            Converts a type to string if possible. This method supports an optional culture generically on any value.
-            It calls the ToString() method on common types and uses a type converter on all other objects
-            if available
+            Try to load an assembly into the application's app domain.
+            Loads by name first then checks for filename
             </summary>
-            <param name="rawValue">The Value or Object to convert to a string</param>
-            <param name="culture">Culture for numeric and DateTime values</param>
-            <param name="unsupportedReturn">Return string for unsupported types</param>
-            <returns>string</returns>
+            <param name="assemblyName">Assembly name or full path</param>
+            <returns>null on failure</returns>
         </member>
         <member name="M:Westwind.WebConnection.ReflectionUtils.StringToTypedValue(System.String,System.Type,System.Globalization.CultureInfo)">
             <summary>
@@ -892,11 +781,178 @@
             <param name="culture">Culture applied to conversion</param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.TypedValueToString(System.Object,System.Globalization.CultureInfo,System.String)">
+            <summary>
+            Converts a type to string if possible. This method supports an optional culture generically on any value.
+            It calls the ToString() method on common types and uses a type converter on all other objects
+            if available
+            </summary>
+            <param name="rawValue">The Value or Object to convert to a string</param>
+            <param name="culture">Culture for numeric and DateTime values</param>
+            <param name="unsupportedReturn">Return string for unsupported types</param>
+            <returns>string</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethod(System.Object,System.String,System.Type[],System.Object[])">
+            <summary>
+            Calls a method on an object dynamically. This version requires explicit
+            specification of the parameter type signatures.
+            </summary>
+            <param name="instance">Instance of object to call method on</param>
+            <param name="method">The method to call as a stringToTypedValue</param>
+            <param name="parameterTypes">Specify each of the types for each parameter passed. 
+            You can also pass null, but you may get errors for ambiguous methods signatures
+            when null parameters are passed</param>
+            <param name="parms">any variable number of parameters.</param>        
+            <returns>object</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethod(System.Object,System.String,System.Object[])">
+            <summary>
+            Calls a method on an object dynamically. 
+            
+            This version doesn't require specific parameter signatures to be passed. 
+            Instead parameter types are inferred based on types passed. Note that if 
+            you pass a null parameter, type inferrance cannot occur and if overloads
+            exist the call may fail. if so use the more detailed overload of this method.
+            </summary> 
+            <param name="instance">Instance of object to call method on</param>
+            <param name="method">The method to call as a stringToTypedValue</param>
+            <param name="parameterTypes">Specify each of the types for each parameter passed. 
+            You can also pass null, but you may get errors for ambiguous methods signatures
+            when null parameters are passed</param>
+            <param name="parms">any variable number of parameters.</param>        
+            <returns>object</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.InvokeEvent(System.Object,System.String,System.Object[])">
+            <summary>
+            Allows invoking an event from an external classes where direct access
+            is not allowed (due to 'Can only assign to left hand side of operation')
+            </summary>
+            <param name="instance">Instance of the object hosting the event</param>
+            <param name="eventName">Name of the event to invoke</param>
+            <param name="parameters">Optional parameters to the event handler to be invoked</param>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetProperty(System.Object,System.String)">
+            <summary>
+            Retrieve a property value from an object dynamically. This is a simple version
+            that uses Reflection calls directly. It doesn't support indexers.
+            </summary>
+            <param name="instance">Object to make the call on</param>
+            <param name="property">Property to retrieve</param>
+            <returns>Object - cast to proper type</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyInternal(System.Object,System.String)">
+            <summary>
+            Parses Properties and Fields including Array and Collection references.
+            Used internally for the 'Ex' Reflection methods.
+            </summary>
+            <param name="Parent"></param>
+            <param name="Property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyInfoInternal(System.Object,System.String)">
+            <summary>
+            Returns a PropertyInfo structure from an extended Property reference
+            </summary>
+            <param name="Parent"></param>
+            <param name="Property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetField(System.Object,System.String)">
+            <summary>
+            Retrieve a field dynamically from an object. This is a simple implementation that's
+            straight Reflection and doesn't support indexers.
+            </summary>
+            <param name="Object">Object to retreve Field from</param>
+            <param name="Property">name of the field to retrieve</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetProperty(System.Object,System.String,System.Object)">
+            <summary>
+            Sets the property on an object. This is a simple method that uses straight Reflection 
+            and doesn't support indexers.
+            </summary>
+            <param name="obj">Object to set property on</param>
+            <param name="property">Name of the property to set</param>
+            <param name="value">value to set it to</param>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetPropertyInternal(System.Object,System.String,System.Object)">
+            <summary>
+            Parses Properties and Fields including Array and Collection references.
+            </summary>
+            <param name="Parent"></param>
+            <param name="Property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetField(System.Object,System.String,System.Object)">
+            <summary>
+            Sets the field on an object. This is a simple method that uses straight Reflection 
+            and doesn't support indexers.
+            </summary>
+            <param name="obj">Object to set property on</param>
+            <param name="property">Name of the field to set</param>
+            <param name="value">value to set it to</param>
+        </member>
         <member name="M:Westwind.WebConnection.ReflectionUtils.GetEnumList(System.Type,System.Boolean)">
             <summary>
             Returns a List of KeyValuePair object
             </summary>
             <param name="enumeration"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallMethodEx(System.Object,System.String,System.Object[])">
+            <summary>
+            Calls a method on an object with extended . syntax (object: this Method: Entity.CalculateOrderTotal)
+            </summary>
+            <param name="parent"></param>
+            <param name="method"></param>
+            <param name="params"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyEx(System.Object,System.String)">
+            <summary>
+            Returns a property or field value using a base object and sub members including . syntax.
+            For example, you can access: oCustomer.oData.Company with (this,"oCustomer.oData.Company")
+            This method also supports indexers in the Property value such as:
+            Customer.DataSet.Tables["Customers"].Rows[0]
+            </summary>
+            <param name="Parent">Parent object to 'start' parsing from. Typically this will be the Page.</param>
+            <param name="Property">The property to retrieve. Example: 'Customer.Entity.Company'</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.GetPropertyInfoEx(System.Object,System.String)">
+            <summary>
+            Returns a PropertyInfo object for a given dynamically accessed property
+            
+            Property selection can be specified using . syntax ("Address.Street" or "DataTable[0].Rows[1]") hence the 'Ex' name for this function.
+            </summary>
+            <param name="Parent"></param>
+            <param name="Property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.SetPropertyEx(System.Object,System.String,System.Object)">
+            <summary>
+            Sets a value on an object. Supports . syntax for named properties
+            (ie. Customer.Entity.Company) as well as indexers.
+            </summary>
+            <param name="Object ParentParent">
+            Object to set the property on.
+            </param>
+            <param name="String PropertyProperty">
+            Property to set. Can be an object hierarchy with . syntax and can 
+            include indexers. Examples: Customer.Entity.Company, 
+            Customer.DataSet.Tables["Customers"].Rows[0]
+            </param>
+            <param name="Object ValueValue">
+            Value to set the property to
+            </param>
+        </member>
+        <member name="M:Westwind.WebConnection.ReflectionUtils.CallStaticMethod(System.String,System.String,System.Object[])">
+            <summary>
+            Invokes a static method
+            </summary>
+            <param name="typeName"></param>
+            <param name="method"></param>
+            <param name="parms"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.ReflectionUtils.GetStaticProperty(System.String,System.String)">
@@ -936,7 +992,7 @@
             <summary>
             Sets the property on an object.
             </summary>
-            <param name="Object">Object to set property on</param>
+            <param name="inst">Object to set property on</param>
             <param name="Property">Name of the property to set</param>
             <param name="Value">value to set it to</param>
         </member>
@@ -967,6 +1023,7 @@
             on a COM object
             </summary>
             <param name="params"></param>
+            <param name="instance"></param>
             1st - Method name, 2nd - 1st parameter, 3rd - 2nd parm etc.
             <returns></returns>
         </member>
@@ -1586,6 +1643,16 @@
             SetXXX methods. It's of type object but 
             set to the appropriate .NET subtype.
             </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.ComValue.GetValue">
+            <summary>
+            Returns the value fixed up for FoxPro.
+            
+            Note: if the result would return a ComValue this call
+            returns the actual raw value which may fail due type
+            conflicts. Done to prevent needless nesting.
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.ComValue.GetTypeName">
             <summary>

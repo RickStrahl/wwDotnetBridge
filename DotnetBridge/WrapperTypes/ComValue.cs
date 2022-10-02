@@ -32,10 +32,21 @@ namespace Westwind.WebConnection
         private object _Value = null;
 
 
+        /// <summary>
+        /// Returns the value fixed up for FoxPro.
+        /// 
+        /// Note: if the result would return a ComValue this call
+        /// returns the actual raw value which may fail due type
+        /// conflicts. Done to prevent needless nesting.
+        /// </summary>
+        /// <returns></returns>
         public object GetValue()
         {
-            var bridge = new wwDotNetBridge();
-            return bridge.GetProperty(this,"Value");
+            var val = wwDotNetBridge.FixupReturnValue(Value);
+            if(val is ComValue)
+                return Value;   // avoid inception scenario
+
+            return val;
         }
 
         /// <summary>
@@ -212,12 +223,10 @@ namespace Westwind.WebConnection
         /// </summary>
         public void SetValue(object value)
         {
-            object obj = this;
-            wwDotNetBridge bridge = new wwDotNetBridge();
-            bridge.SetProperty(obj,"Value",value);
+            // can't use loBridge.SetValue() because it will fix up ComValue assignment
+            object val = wwDotNetBridge.FixupParameter(value);
+            ReflectionUtils.SetPropertyCom(this, "Value", val);
         }
-
-
 
         /// <summary>
         /// Sets the Value property from a property retrieved from .NET

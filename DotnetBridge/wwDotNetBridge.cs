@@ -44,6 +44,8 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using System.Runtime.CompilerServices;
+
 
 #if WestwindProduct
 using Newtonsoft.Json;
@@ -93,14 +95,12 @@ namespace Westwind.WebConnection
                     {
                         // support for all SSL/TLS protocols
                         ServicePointManager.SecurityProtocol =
-                            SecurityProtocolType.Ssl3 |
-                            SecurityProtocolType.Tls |
                             SecurityProtocolType.Tls11 |
-                            SecurityProtocolType.Tls12;
+                            SecurityProtocolType.Tls12 |
+                            SecurityProtocolType.Tls;
                     }
 
                     _firstLoad = false;
-
                 }
             }
         }
@@ -249,6 +249,14 @@ namespace Westwind.WebConnection
         {
             SetError();
 
+            if (args != null && args.Length > 0)
+            {
+                for (int i = 0; i < args.Length; i++)
+                {
+                    args[i] = FixupParameter(args[i]);
+                }
+            }
+
             object instance = null;
             Type type = null;
             try
@@ -295,11 +303,18 @@ namespace Westwind.WebConnection
             object instance = null;
             try
             {
-                if (args == null)
+                if (args == null || args.Length == 0)
                     instance = AppDomain.CurrentDomain.CreateInstanceAndUnwrap(AssemblyName, TypeName);
                 else
+                {
+                    for (int i = 0; i < args.Length; i++)
+                    {
+                        args[i] = FixupParameter(args[i]);
+                    }
                     instance = AppDomain.CurrentDomain.CreateInstanceAndUnwrap(AssemblyName, TypeName, false,
                         BindingFlags.Default, null, args, null, null);
+                }
+                    
             }
             catch (TargetInvocationException ex)
             {
@@ -472,7 +487,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object CreateAssemblyInstanceFromFile_OneParm(string AssemblyFileName, string TypeName, object Parm1)
         {
-            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[1] {Parm1});
+            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, Parm1);
         }
 
         /// <summary>
@@ -484,7 +499,19 @@ namespace Westwind.WebConnection
         public object CreateAssemblyInstanceFromFile_TwoParms(string AssemblyFileName, string TypeName, object Parm1,
             object Parm2)
         {
-            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, new Object[2] {Parm1, Parm2});
+            return CreateInstanceFromFile_Internal(AssemblyFileName, TypeName, Parm1, Parm2);
+        }
+
+        /// <summary>
+        /// Creates an instance from a file reference with a two parameter constructor
+        /// </summary>
+        /// <param name="assemblyFileName"></param>
+        /// <param name="typeName"></param>
+        /// <param name="parm1"></param>
+        /// <returns></returns>
+        public object CreateAssemblyInstanceFromFile_ThreeParms(string assemblyFileName, string typeName, object parm1, object parm2, object parm3)
+        {
+            return CreateInstanceFromFile_Internal(assemblyFileName, typeName, parm1, parm2, parm3);
         }
 
 
@@ -499,14 +526,20 @@ namespace Westwind.WebConnection
             ErrorMessage = string.Empty;
             LastException = null;
 
-            object server = null;
+            object instance = null;
 
+            if (args != null && args.Length > 0)
+            {
+                for (var index = 0; index < args.Length; index++)
+                    args[index] = FixupParameter(args[index]);
+            }
+            
             try
             {
                 if (args == null)
-                    server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName);
+                    instance = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName);
                 else
-                    server = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName, false,
+                    instance = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(AssemblyFileName, TypeName, false,
                         BindingFlags.Default, null, args, null, null);
             }
             catch (Exception ex)
@@ -523,7 +556,7 @@ namespace Westwind.WebConnection
                 return null;
             }
 
-            return server;
+            return FixupReturnValue(instance);
         }
 
 
@@ -562,37 +595,6 @@ namespace Westwind.WebConnection
             object Parm2)
         {
             return CreateInstance_Internal(AssemblyFileName, TypeName, Parm1, Parm2);
-        }
-
-
-        public Type GetType(object value)
-        {
-            if (value == null)
-                return null;
-
-            return value.GetType();
-        }
-
-        /// <summary>
-        /// Helper routine that looks up a type name and tries to retrieve the
-        /// full type reference in the actively executing assemblies.
-        /// </summary>
-        /// <param name="typeName"></param>
-        /// <returns></returns>
-        public Type GetTypeFromName(string typeName)
-        {
-            if (string.IsNullOrEmpty(typeName))
-                return null;
-
-            Type type = null;
-            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                type = ass.GetType(typeName, false);
-                if (type != null)
-                    break;
-            }
-
-            return type;
         }
 
         #endregion
@@ -717,7 +719,12 @@ namespace Westwind.WebConnection
             for (int i = 0; i < ar.Length; i++)
             {
                 if (args[i] is ComValue)
-                    ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
+                {
+                    if(ar[i] is ComValue)
+                        ((ComValue) args[i]).Value = ((ComValue) ar[i]).Value;
+                    else
+                        ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
+                }
             }
 
             return FixupReturnValue(Result);
@@ -921,6 +928,10 @@ namespace Westwind.WebConnection
 
         internal object InvokeMethod_Internal(object instance, string method, params object[] args)
         {
+            var fixedInstance = instance;
+            if (instance is ComValue)
+                fixedInstance = ((ComValue) instance).Value;
+
             SetError();
 
             object[] ar;
@@ -939,9 +950,9 @@ namespace Westwind.WebConnection
             try
             {
                 if (method.Contains(".") || method.Contains("["))
-                    result = ReflectionUtils.CallMethodEx(instance, method, ar);
+                    result = ReflectionUtils.CallMethodEx(fixedInstance, method, ar);
                 else
-                    result = ReflectionUtils.CallMethodCom(instance, method, ar);
+                    result = ReflectionUtils.CallMethodCom(fixedInstance, method, ar);
             }
             catch (Exception ex)
             {
@@ -953,7 +964,12 @@ namespace Westwind.WebConnection
             for (int i = 0; i < ar.Length; i++)
             {
                 if (args[i] is ComValue)
-                    ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
+                {
+                    if(ar[i] is ComValue)
+                        ((ComValue) args[i]).Value = ((ComValue) ar[i]).Value;
+                    else
+                        ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
+                }
             }
 
             return FixupReturnValue(result);
@@ -961,17 +977,22 @@ namespace Westwind.WebConnection
 
 
 
-        protected object InvokeMethod_InternalWithObjectArray(object Instance, string Method, object[] args)
+        protected object InvokeMethod_InternalWithObjectArray(object instance, string method, object[] args)
         {
+
+            var fixedInstance = instance;
+            if (fixedInstance is ComValue)
+                fixedInstance = ((ComValue) instance).Value;
+
             SetError();
             object result;
 
             try
             {
-                if (Method.Contains(".") || Method.Contains("["))
-                    result = ReflectionUtils.CallMethodEx(Instance, Method, args);
+                if (method.Contains(".") || method.Contains("["))
+                    result = ReflectionUtils.CallMethodEx(fixedInstance, method, args);
                 else
-                    result = ReflectionUtils.CallMethodCom(Instance, Method, args);
+                    result = ReflectionUtils.CallMethodCom(fixedInstance, method, args);
             }
             catch (Exception ex)
             {
@@ -979,21 +1000,39 @@ namespace Westwind.WebConnection
                 throw ex.GetBaseException();
             }
 
+            // Update ComValue parameters to support ByRef Parameters
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] is ComValue)
+                {
+                    if(args[i] is ComValue)
+                        ((ComValue) args[i]).Value = ((ComValue) args[i]).Value;
+                    else
+                        ((ComValue) args[i]).Value = FixupReturnValue(args[i]);
+                }
+            }
+
             return FixupReturnValue(result);
         }
 
 
-        public object GetProperty(object Instance, string Property)
+        public object GetProperty(object instance, string property)
         {
             LastException = null;
             try
             {
+                object fixedInstance = null;
+                if (instance is ComValue)
+                    fixedInstance = ((ComValue) instance).Value;
+                else 
+                    fixedInstance = instance;
+
                 object val;
 
-                if (Property.Contains(".") || Property.Contains("["))
-                    val = ReflectionUtils.GetPropertyEx(Instance, Property);
+                if (property.Contains(".") || property.Contains("["))
+                    val = ReflectionUtils.GetPropertyEx(fixedInstance, property);
                 else
-                    val = ReflectionUtils.GetPropertyCom(Instance, Property);  // this is more reliable in that it handles value conversions
+                    val = ReflectionUtils.GetPropertyCom(fixedInstance, property);  // this is more reliable in that it handles value conversions
 
                 val = FixupReturnValue(val);
                 return val;
@@ -1011,15 +1050,19 @@ namespace Westwind.WebConnection
         /// into nested objects. Use this method to step over objects 
         /// that FoxPro can't directly access (like structs, generics etc.)
         /// </summary>
-        /// <param name="Instance"></param>
-        /// <param name="Property"></param>
+        /// <param name="instance"></param>
+        /// <param name="property"></param>
         /// <returns></returns>
-        public object GetPropertyEx(object Instance, string Property)
+        public object GetPropertyEx(object instance, string property)
         {
+            var fixedInstance = instance;
+            if (fixedInstance is ComValue)
+                fixedInstance = ((ComValue) fixedInstance).Value;
+
             LastException = null;
             try
             {
-                object val = ReflectionUtils.GetPropertyEx(Instance, Property);
+                object val = ReflectionUtils.GetPropertyEx(fixedInstance, property);
                 val = FixupReturnValue(val);
                 return val;
             }
@@ -1034,22 +1077,27 @@ namespace Westwind.WebConnection
         /// Sets a property of a .NET object with a value
         /// </summary>
         /// <param name="Instance"></param>
-        /// <param name="Property"></param>
-        /// <param name="Value"></param>
-        public void SetProperty(object Instance, string Property, object Value)
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        public void SetProperty(object instance, string property, object value)
         {
+
+            var fixedInstance = instance;
+            if (fixedInstance is ComValue)
+                fixedInstance = ((ComValue) fixedInstance).Value;
+
             LastException = null;
 
-            if (Value is DBNull)
-                Value = null;
+            if (value is DBNull)
+                value = null;
 
-            Value = FixupParameter(Value);
+            value = FixupParameter(value);
             try
             {
-                if (Property.Contains(".") || Property.Contains("["))
-                    ReflectionUtils.SetPropertyEx(Instance, Property, Value);
+                if (property.Contains(".") || property.Contains("["))
+                    ReflectionUtils.SetPropertyEx(fixedInstance, property, value);
                 else
-                    ReflectionUtils.SetPropertyCom(Instance, Property, Value);
+                    ReflectionUtils.SetPropertyCom(fixedInstance, property, value);
             }
             catch (Exception ex)
             {
@@ -1069,8 +1117,13 @@ namespace Westwind.WebConnection
         /// <param name="Instance"></param>
         /// <param name="Property"></param>
         /// <param name="Value"></param>
-        public void SetPropertyEx(object Instance, string Property, object Value)
+        public void SetPropertyEx(object instance, string Property, object Value)
         {
+
+            var fixedInstance = instance;
+            if (fixedInstance is ComValue)
+                fixedInstance = ((ComValue) fixedInstance).Value;
+
             LastException = null;
             try
             {
@@ -1078,7 +1131,7 @@ namespace Westwind.WebConnection
                     Value = null;
 
                 Value = FixupParameter(Value);
-                ReflectionUtils.SetPropertyEx(Instance, Property, Value);
+                ReflectionUtils.SetPropertyEx(fixedInstance, Property, Value);
             }
             catch (Exception ex)
             {
@@ -1173,6 +1226,78 @@ namespace Westwind.WebConnection
 
             Task.Run(() => _InvokeMethodAsync(parms));
         }
+
+
+        public void InvokeTaskMethodAsync(
+            object callBack, 
+            object instance, 
+            string method,
+            params object[] parameters)
+        {
+            bool isStatic = instance is string;
+            if (callBack is DBNull)
+                callBack = null;
+            
+            Task result = null;
+            try
+            {
+                if (!isStatic)
+                {
+                    if (parameters == null || parameters.Length < 1)
+                        result = InvokeMethod_Internal(instance, method) as Task;
+                    else
+                        result = InvokeMethod_Internal(instance, method, parameters) as Task;
+                }
+                else
+                {
+                    if (parameters == null || parameters.Length < 1)
+                        result = InvokeStaticMethod_Internal(instance as string, method) as Task;
+                    else
+                        result = InvokeStaticMethod_Internal(instance as string, method, parameters) as Task;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (callBack != null)
+                {
+                    try
+                    {
+                        InvokeMethod_Internal(callBack, "onError", ex.Message, ex.GetBaseException(), method);
+                    }
+                    catch
+                    {
+                        // no error method - just eat it
+                        LastException = ex;
+                    }
+                }
+
+                return;
+            }
+
+            if (callBack != null)
+            {
+                try
+                {
+                    result.ContinueWith((r) =>
+                    {
+                        object res = null;
+                        var t = result.GetType();
+
+                        if (t.IsGenericType)
+                        {
+                            res = GetProperty(result, "Result");
+                        }
+                        InvokeMethod_Internal(callBack, "onCompleted", res, method);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    // no callback method - just eat it
+                    LastException = ex;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Internal handler method that actually makes the async call on a thread
@@ -1452,6 +1577,7 @@ namespace Westwind.WebConnection
             }
         }
 
+
         /// <summary>
         /// Returns an individual Array Item by its index
         /// </summary>
@@ -1474,6 +1600,20 @@ namespace Westwind.WebConnection
 
             return ar.GetValue(index);
         }
+        
+        
+        /// <summary>
+        /// Returns a dictionary item from a dictionary object by passing in a key.
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public object GetDictionaryItem(IDictionary dictionary, object key)
+        {
+            object result = dictionary[key];
+            return result;
+        }
+
 
         /// <summary>
         /// Sets an array element to a given value. Assumes the array is big
@@ -1610,23 +1750,14 @@ namespace Westwind.WebConnection
 
         public static object FixupParameter(object val)
         {
-            if (val == null)
+            if (val == null || val is DBNull)
                 return null;
-
-            // Fox nulls come in as DbNull values
-            if (val is DBNull)
-                return null;
-
+            
             Type type = val.GetType();
 
             // *** Fix up binary SafeArrays into byte[]
             if (type.Name == "Byte[*]")
                 return ConvertObjectToByteArray(val);
-
-            //if (type == typeof(long) || type == typeof(Int64))
-            //    return Convert.ToInt64(val);
-            //if (type == typeof(Single))
-            //    return Convert.ToSingle(val);
 
             // if we're dealing with ComValue parameter/value
             // just use it's Value property
@@ -1653,31 +1784,41 @@ namespace Westwind.WebConnection
             if (val == null)
                 return null;
 
-            // *** Need to figure out a solution for value types
-            Type type = val.GetType();
+            // special types to ignore and pass through
+            if (val is string)
+                return val;
 
-            
-            if (type == typeof(Guid))
+            if(val is int || 
+                val is bool || 
+                val is DateTime)
+                return val;
+
+            if (val is ComValue || 
+                val is Enum ||
+                val is byte[])
+                return val;
+
+            // special handled types
+            if (val is char)
+                return val.ToString();
+
+            if (val is long || val is Int64)
+                return Convert.ToDecimal(val);
+
+            if (val is Guid)
             {
                 ComValue guidValue = new ComValue();
                 guidValue.Value = (Guid) val;
                 return guidValue;
             }
 
-            // convert longs to Decimal so we can use larger than 32 bit nums
-            if (type == typeof(long) || type == typeof(Int64))
-            {
-                return Convert.ToDecimal(val);                
-            }
-            if (type == typeof(char))
-                return val.ToString();
-            if (type == typeof(byte[]))
-            {
-                // this ensures byte[] is not treated like an array (below)                
-                // but returned as binary data
-            }
+
+            // *** Need to figure out a solution for value types
+            Type type = val.GetType();
+            
+            
             // FoxPro can't deal with DBNull as it's a value type
-            else if (type == typeof(DBNull))
+            if (type == typeof(DBNull))
             {
                 val = null;
             }
@@ -1701,12 +1842,12 @@ namespace Westwind.WebConnection
                 t.ConfigureAwait(false);
                 return t;
             }
-            //else if (type.IsValueType)
-            //{
-            //    var comValue = new ComValue();
-            //    comValue.Value = val;
-            //    return comValue;
-            //}
+            else if (type.IsValueType && !type.IsPrimitive)
+            {
+                var comValue = new ComValue();
+                comValue.Value = val;
+                return comValue;
+            }
 
             return val;
         }
@@ -1790,6 +1931,48 @@ namespace Westwind.WebConnection
             return AssemblyName;
         }
 
+        /// <summary>
+        /// Returns a type reference of a .NET type (or FoxPro or COM object
+        /// which is pretty much useless as it only returns the COM wrapper type)
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public Type GetType(object value)
+        {
+            if (value == null)
+                return null;
+
+            object fixedValue = null;
+            if (value is ComValue)
+                fixedValue = ((ComValue) value).Value;
+            else
+                fixedValue = value;
+            
+            return fixedValue.GetType();
+        }
+
+        /// <summary>
+        /// Helper routine that looks up a type name and tries to retrieve the
+        /// full type reference in the actively executing assemblies.
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <returns></returns>
+        public Type GetTypeFromName(string typeName)
+        {
+            if (string.IsNullOrEmpty(typeName))
+                return null;
+
+            Type type = null;
+            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                type = ass.GetType(typeName, false);
+                if (type != null)
+                    break;
+            }
+
+            return type;
+        }
+
         #endregion
 
         #region Error Reporting
@@ -1867,7 +2050,7 @@ Windows Version          : {GetWindowsVersion(WindowsVersionModes.Full)}";
                 res =  $@"wwDotnetBridge Version  : {Assembly.GetExecutingAssembly().GetName().Version}
 wwDotnetBridge Location : {GetType().Assembly.Location}
 .NET Core Version       : {Environment.Version}
-.NET Core Version (Full): {rt} 
+.NET Core Version (Full): {rt}
 Windows Version         : {GetWindowsVersion(WindowsVersionModes.Full)}";
             }
 
@@ -2077,6 +2260,69 @@ Windows Version         : {GetWindowsVersion(WindowsVersionModes.Full)}";
                 SetError(ex, true);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Turns a date string into a JSON date string
+        /// </summary>
+        /// <param name="time">Time to JSON encode</param>
+        /// <param name="isUtc">if false time is adjusted to UTC before serializing to remove timezone info</param>
+        /// <remarks>
+        /// There are problems with dates from a FoxPro table passed over COM
+        /// into this function due to floating point rounding. Works fine with
+        /// explicitly defined dates.
+        /// </remarks>
+        /// <returns></returns>
+        public string ToJsonUtcDate(DateTime time, bool isUtc)
+        {
+            // fix rounding errors
+            int second = time.Second;
+            int minute = time.Minute;
+            int hour = time.Hour;
+            int millisecond = 0;
+            if (time.Millisecond > 500)
+            {
+                second = time.Second + 1;
+                if (second > 59)
+                {
+                    minute = minute + 1;
+                    second = 0;
+                }
+
+                if (minute > 59)
+                {
+                    hour = hour + 1;
+                    minute = 0;
+                }
+
+                if (hour > 23)
+                {
+                    hour = 23;
+                    minute = 59;
+                    second = 59;
+                    millisecond = 999;
+                }
+            }
+
+            // we need to fix the date because COM mucks up the milliseconds at times
+            var dt = new DateTime(time.Year, time.Month, time.Day, hour, minute, second, millisecond);
+
+            if (!isUtc)
+                dt = dt.ToUniversalTime();
+            var json = JsonConvert.SerializeObject(dt, wwJsonSerializer.jsonDateSettings);
+            return json;
+        }
+
+        /// <summary>
+        /// Returns the timezone offset of the local timezone
+        /// to UTC in minutes including Daylight savings for
+        /// the specific date.6
+        /// </summary>
+        /// <param name="localDate"></param>
+        /// <returns></returns>
+        public int GetLocalDateTimeOffset(DateTime localTime)
+        {
+            return Convert.ToInt32(new DateTimeOffset(localTime).Offset.TotalMinutes);
         }
 
         #endregion
