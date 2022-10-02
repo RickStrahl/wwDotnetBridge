@@ -2,7 +2,33 @@
 
 <small>[Latest Online Documentation](http://west-wind.com/webconnection/docs/_24n1cfw3a.htm)</small>
 
-### Version 7.09
+### Version 7.22
+
+* **[wwDotnetBridge.GetDictionaryItem()](https://webconnection.west-wind.com/docs/_6d81ciync.htm)**  
+Makes it much easier to retrieve an item from an `IDictionary` collection by key. Works with generic collections.
+
+* **wwDotnetCoreBridge .NET 6.0 Support**  
+We've updated wwDotnetCoreBridge - the version of wwDotnetBridge that works with .NET Core - so that it now works with .NET (Core) 6.0. This is in addition to support for .NET Core 5.0 and 3.1. This update fixes some issues due to framework changes in 6.0 so make sure to update `clrloader.dll` and `wwDotnetBridge.dll` for existing installs.
+
+* **wwDotnetBridge support for non-Property Indexers in GetPropertyEx()**  
+You can now access Indexed properties (`[0]` or `["name"]`) without requiring a property as part of the property name. So you can now do: `loBridge.GetValueEx(loDataRow,'["name"]')` for example.
+
+
+* **[wwDotnetBridge::ToString()](https://webconnection.west-wind.com/docs/_5ru0o08op.htm)**  
+Added a helper method to reliably return the result from .NET's internal `.ToString()` method. `ToString()` tends to be overloaded and so is not directly accessible on most via COM interop. This helper ensures it'll work on all .NET types.
+
+* **wwDotnetBridge Constructor Support for Structs**  
+Fix ability to instantiate .NET `struct` types which now are returned as `ComValue` instances.
+
+* **wwDotnetBridge Instances can now pass ComValue instances as Parameters**  
+You can now pass `ComValue` instances to `InvokeMethod()`, `SetProperty()` and `GetProperty()` so that you can invoke functionality on objects that are otherwise not accessible in FoxPro. When you pass `ComValue` for the `loInstance` parameter, wwDotnetBridge automatically uses the `Value` property.
+
+* **[New wwDotnetBridge.InvokeTaskMethodAsync() to call Async .NET Methods](https://webconnection.west-wind.com/docs/_5pj0xl2yp.htm)**  
+Added a new method to make it easier to call `async` .NET methods that return `Task` or `Task<T>` results. This method takes a callback handler object reference that is called on completion or failure of the method call. Similar to `InvokeMethodAsync()` which calls non-async methods asynchronously but natively intercepts the `Task` result and fires events on completion.
+
+
+### Version 7.09.
+
 
 * **Add improved Support for Task**  
 When using intrinsic methods to get/set/call values `Task<T>` is now fixed up with `ConfigureAwait()` to ensure you can access the `Result` property of the Task to wait for completion.
