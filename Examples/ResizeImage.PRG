@@ -9,12 +9,16 @@
 ***  * Explicitly Invoke methods
 CLEAR
 
+SET STEP ON 
+
+
 *** Only for demo
 SET PROCEDURE TO wwUtils ADDITIVE
 
 do wwDotNetBridge
 LOCAL loBridge as wwDotNetBridge
-loBridge = GetwwDotnetBridge("V4")
+loBridge = GetwwDotnetBridge()
+
 
 *** Load a .NET assembly from the GAC - use Reflector 
 *** to inspect the full name on the DLL

@@ -3,8 +3,8 @@ do wwDotNetBridge
 
 ? GetDomainFromIpAddress("127.0.0.1")
 ? GetDomainFromIpAddress("::1")
-? GetDomainFromIpAddress("209.216.162.15")
-? GetDomainFromIpAddress("209.216.162.16")
+* ? GetDomainFromIpAddress("209.216.162.15")
+? GetDomainFromIpAddress("149.28.15.235")
 RETURN
 
 

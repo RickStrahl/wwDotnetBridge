@@ -27,6 +27,7 @@
 #define WINDOWS TRUE;
 
 #include "coreclrhost.h"
+#include <system_error>
 
 
 #define CORECLR_FILE_NAME "coreclr.dll"
@@ -40,7 +41,7 @@ unsigned int domainId = 0;
 HMODULE coreClr;
 int appDomainCounter = 0;
 
-typedef HRESULT(__stdcall* createWwDotnetBridgeHandler)(CComPtr<IUnknown>* ptr);
+typedef HRESULT(__stdcall* createWwDotnetBridgeHandler)(CComPtr<IDispatch>* ptr);
 createWwDotnetBridgeHandler createWwDotnetBridge;
 
 class HResultException
@@ -239,6 +240,8 @@ IDispatch* WINAPI CoreClrCreateInstanceFrom(char *runtimePath, char *version, ch
 			assemblyName.append(", Culture=neutral, PublicKeyToken=null");
 
 			coreclr_create_delegate_ptr createManagedDelegate = (coreclr_create_delegate_ptr)GetProcAddress(coreClr, "coreclr_create_delegate");
+
+			// this works!
 			hr = createManagedDelegate(
 				hostHandle,
 				domainId,
@@ -250,20 +253,20 @@ IDispatch* WINAPI CoreClrCreateInstanceFrom(char *runtimePath, char *version, ch
 		}
 		
 		// Now call the factory .NET method 
-		CComPtr<IUnknown> obj;		
-		hr = createWwDotnetBridge((CComPtr<IUnknown>*) & obj);
+
+		// this fails - HR Error: Not Supported
+		CComPtr<IDispatch> obj;		
+		hr = createWwDotnetBridge((CComPtr<IDispatch> *) &obj);
 		VerifyHResult(hr);
 
-		// Convert to dispatch object we can pass to FoxPro
-		CComPtr<IDispatch> disp;
-		hr = obj->QueryInterface(&disp);
-		VerifyHResult(hr);
-		
-		return disp;
+		return obj;
 	}
 	catch (HResultException ex) {		
 		ex.GetMessage(ErrorMessage);
 		*dwErrorSize = strlen(ErrorMessage);
+		return NULL;
+	}
+	catch(...) {		
 		return NULL;
 	}
 

@@ -9,7 +9,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#include "windows.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -52,7 +52,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 7,9,0,0
+ FILEVERSION 7,28,0,0
  PRODUCTVERSION 7,0,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
@@ -70,7 +70,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "West Wind Technologies"
             VALUE "FileDescription", "West Wind .NET Connector (Win32)"
-            VALUE "FileVersion", "7.9.0.0"
+            VALUE "FileVersion", "7.28.0.0"
             VALUE "InternalName", "wwDotNetBridge"
             VALUE "LegalCopyright", "© West Wind Technologies, 2010-2019"
             VALUE "OriginalFilename", "ClrHost.dll"

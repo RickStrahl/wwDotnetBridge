@@ -1,6 +1,9 @@
 #include <atlbase.h>
 #include <mscoree.h>
 #include <metahost.h> 
+#include <string.h>
+#include <string>
+#include <system_error>
 
 #import "mscorlib.tlb" raw_interfaces_only	no_smart_pointers high_property_prefixes("_get","_put","_putref") 
 
@@ -29,7 +32,7 @@ DWORD WINAPI SetClrVersion(char *version)
 class HresultException
 {
 	char const* const error;
-	HRESULT const hr;
+	HRESULT const hr;	
 
 public:
 	HresultException(char const* error) : error(error), hr(0) {}
@@ -40,11 +43,10 @@ public:
 		auto outputSize = strlen(errorMessage);
 		if (error) {
 			strcpy_s(errorMessage, outputSize, error);
-		} else {
-#pragma warning(push)
-#pragma warning(disable: 4996) // LoadStringRC is deprecated, but no alternative is suggested.
-			LoadStringRC(hr & 0xffff, (LPWSTR)errorMessage, outputSize / 2, 0);
-#pragma warning(pop)
+		}
+		else {
+			std::string message = std::system_category().message(hr);
+			strcpy(errorMessage, message.c_str());
 			sprintf_s((char *)errorMessage, outputSize, "%ws", (LPWSTR)errorMessage);
 		}
 		return strlen(errorMessage);
@@ -128,12 +130,16 @@ IDispatch* WINAPI ClrCreateInstance(char *AssemblyName, char *className, char *E
 	try {
 		if (!spDefAppDomain)
 			ClrLoad();
+
 		CComPtr<_ObjectHandle> spObjectHandle;
 		VerifyHresult(spDefAppDomain->CreateInstance(_bstr_t(AssemblyName), _bstr_t(className), &spObjectHandle));
+
 		CComVariant VntUnwrapped;
+		
 		VerifyHresult(spObjectHandle->Unwrap(&VntUnwrapped));
 		return VntUnwrapped.pdispVal;
-	} catch (HresultException ex) {
+	}
+	catch (HresultException ex) {
 		*dwErrorSize = ex.GetMessage(ErrorMessage);
 		return NULL;
 	}
@@ -145,12 +151,16 @@ IDispatch* WINAPI ClrCreateInstanceFrom(char *AssemblyFileName, char *className,
 	try {
 		if (!spDefAppDomain)
 			ClrLoad();
+
 		CComPtr<_ObjectHandle> spObjectHandle;
 		VerifyHresult(spDefAppDomain->CreateInstanceFrom(_bstr_t(AssemblyFileName), _bstr_t(className), &spObjectHandle));
+
 		CComVariant VntUnwrapped;
 		VerifyHresult(spObjectHandle->Unwrap(&VntUnwrapped));
+
 		return VntUnwrapped.pdispVal;
-	} catch (HresultException ex) {
+	}
+	catch (HresultException ex) {
 		*dwErrorSize = ex.GetMessage(ErrorMessage);
 		return NULL;
 	}
