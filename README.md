@@ -337,6 +337,7 @@ Sunil required a number of custom integrations into their FoxPro product that re
 Want to sponsor this project, need customization or want make a donation to show your support? You can contact me directly at rstrahl@west-wind.com or you can also make a donation online via PayPal.
 
 * [Make a donation for wwDotnetBridge using PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
+* [Make Donation or Sponsor via GitHub]()
 * [Make a donation for wwDotnetBridge using our Web Store](http://store.west-wind.com/product/donation)
 * [Purchase a license for West Wind Internet and Client Tools](http://store.west-wind.com/product/wwclient50/)
 
