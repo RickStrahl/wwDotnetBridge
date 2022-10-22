@@ -13,7 +13,6 @@ We've updated wwDotnetCoreBridge - the version of wwDotnetBridge that works with
 * **wwDotnetBridge support for non-Property Indexers in GetPropertyEx()**  
 You can now access Indexed properties (`[0]` or `["name"]`) without requiring a property as part of the property name. So you can now do: `loBridge.GetValueEx(loDataRow,'["name"]')` for example.
 
-
 * **[wwDotnetBridge::ToString()](https://webconnection.west-wind.com/docs/_5ru0o08op.htm)**  
 Added a helper method to reliably return the result from .NET's internal `.ToString()` method. `ToString()` tends to be overloaded and so is not directly accessible on most via COM interop. This helper ensures it'll work on all .NET types.
 

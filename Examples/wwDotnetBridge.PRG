@@ -188,7 +188,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
    	    DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
 		
 		#IF IS_WESTWIND
-			DeleteFile(FULLPATH("Newtosoft.Json.dll") + ":Zone.Identifier")
+			DeleteFile(FULLPATH("Newtonsoft.Json.dll") + ":Zone.Identifier")
 			DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
 			DeleteFile(FULLPATH("Renci.SshNet.dll") + ":Zone.Identifier")
 		#ENDIF
@@ -1881,13 +1881,13 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
 	ELSE	
 		*** Remove the Zone Identifier to 'Unblock'
-	    DECLARE INTEGER DeleteFile IN WIN32API STRING		  			  			
-   	    DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
+	    DECLARE INTEGER DeleteFile  IN WIN32API AS dnb_DeleteFile STRING 
+   	    dnb_DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
 		
 		#IF IS_WESTWIND
-			DeleteFile(FULLPATH("Newtosoft.Json.dll") + ":Zone.Identifier")
-			DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
-			DeleteFile(FULLPATH("Renci.SshNet.dll") + ":Zone.Identifier")
+		    dnb_DeleteFile(FULLPATH("Newtonsoft.Json.dll") + ":Zone.Identifier")
+		    dnb_DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
+		    dnb_DeleteFile(FULLPATH("Renci.SshNet.dll") + ":Zone.Identifier")
 		#ENDIF
 		
 		LOCAL ARRAY laVersion[1]
@@ -2030,3 +2030,46 @@ ENDFUNC
 
 ENDDEFINE
 *EOC wwDotnetCoreBridge 
+
+
+
+
+************************************************************************
+*  GetwwDotnetCoreBridge
+****************************************
+***  Function: Factory class to feed a reusable and stored instance
+***            of the wwDotNetCoreBridge class. 
+***    Assume: Depends on wwutils.prg
+***      Pass:
+***    Return: 
+************************************************************************
+FUNCTION GetwwDotNetCoreBridge(lcVersion)
+IF VARTYPE(__DOTNETCOREBRIDGE) != "O"
+   IF EMPTY(lcVersion)       
+		lcVersion = ""
+   ENDIF
+
+   PUBLIC __DOTNETCOREBRIDGE
+   __DOTNETCOREBRIDGE = CREATEOBJECT("wwDotNetCoreBridge",lcVersion)
+   IF VARTYPE(__DOTNETCOREBRIDGE) # "O"
+      RETURN NULL
+   ENDIF
+ENDIF
+RETURN __DOTNETCOREBRIDGE
+ENDFUNC
+
+************************************************************************
+*  InitializeDotnetCoreVersion()
+****************************************
+***  Function: Explicit method that simply creates a wwDotnetCoreBridge
+***            instance. Call this method at the beginning of your
+***            app to force the .NET Runtime version that will be
+***            used throughout the entire application.
+***    Assume: Call this method in your application startup
+***      Pass: Optional: "5.0.1" or "<runtime path>"
+***    Return: wwDotnetCoreBridge instance 
+***            (you don't have to do anything with it)
+************************************************************************
+FUNCTION InitializeDotnetCoreVersion(lcVersion)
+RETURN GetwwDotnetCoreBridge(lcVersion)
+ENDFUNC

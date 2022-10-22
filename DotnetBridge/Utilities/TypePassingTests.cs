@@ -4,6 +4,8 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using System.Data;
+using System.Web.UI.WebControls;
 
 namespace Westwind.WebConnection
 {
@@ -22,8 +24,12 @@ namespace Westwind.WebConnection
 
         public string HelloWorld(string name)
         {
-            Thread.Sleep(2000);
             return "Hello world " + name;
+        }
+
+        private string PrivateHelloWorld(string name)
+        {
+            return "Hello " + name;
         }
 
         public static string HelloWorldStatic(string name)
@@ -55,9 +61,37 @@ namespace Westwind.WebConnection
 
 
 
+
         public string GetValues(string inputString, decimal inputDecimal)
         {
             return inputString + " " + inputDecimal.ToString();
+        }
+
+
+        public DataSet GetDataSet()
+        {
+            var dataSet = new DataSet();
+
+            var dataTable = new DataTable();
+            dataTable.Columns.Add("name",typeof(string));
+            dataTable.Columns.Add("company",typeof(string));
+            dataTable.Columns.Add("entered",typeof(DateTime));
+
+            var dataRow = dataTable.NewRow();
+
+            dataRow["name"] = "rick";
+            dataRow["company"] = "West Wind";
+            dataRow["Entered"] = DateTime.Now;
+            dataTable.Rows.Add(dataRow);
+
+            dataRow = dataTable.NewRow();
+
+            dataRow["name"] = "Markus";
+            dataRow["company"] = "EPS Software";
+            dataRow["Entered"] = DateTime.Now.AddDays(1);
+            dataSet.Tables.Add(dataTable);
+
+            return dataSet;
         }
 
         public Int16 PassInt16(Int16 val)
@@ -96,10 +130,61 @@ namespace Westwind.WebConnection
             return numbers;
         }
 
+
+        /// <summary>
+        /// Should return as decimal
+        /// </summary>
+        /// <returns></returns>
         public long ReturnLong()
         {
             // 1000 trillion
             return 1_000_000_000_000_001; 
+        }
+
+
+        public float ReturnFloat()
+        {
+            return 1.43123F;
+        }
+
+
+        public Single ReturnSingle()
+        {
+            return 1.43123F;
+        }
+
+        public Double ReturnDouble()
+        {
+            return 1.4333333123123F;
+        }
+
+        public List<TestCustomer> GetGenericList()
+        {
+            var list = new List<TestCustomer>();
+
+            list.Add(new TestCustomer() { Company = "West Wind"});
+            list.Add(new TestCustomer() { Company = "East Wind" });
+
+            return list;
+        }
+
+        public int SetGenericList(List<TestCustomer> list)
+        {
+            return list.Count;
+        }
+
+        public Dictionary<string, TestCustomer> GetDictionary()
+        {
+            var list = new Dictionary<string, TestCustomer>();
+            list.Add("Item1", new TestCustomer() { Company = "West Wind" });
+            list.Add("Item2",new TestCustomer() { Company = "East Wind" });
+
+            return list;
+        }
+
+        public int SetDictionary(Dictionary<string,TestCustomer> list)
+        {
+            return list.Count;
         }
 
         public char PassChar(char value)
@@ -107,7 +192,12 @@ namespace Westwind.WebConnection
             return value;
         }
 
-
+        /// <summary>
+        /// This should be returned as a ComValue object
+        /// </summary>
+        /// <param name="intVal"></param>
+        /// <param name="stringVal"></param>
+        /// <returns></returns>
         public StructValue ReturnStruct(int intVal, string stringVal)
         {
             return new StructValue
@@ -116,6 +206,8 @@ namespace Westwind.WebConnection
                 StringValue = stringVal
             };
         }
+
+
 
         public static StructValue ReturnStructStatic(int intVal, string stringVal)
         {
@@ -218,6 +310,7 @@ namespace Westwind.WebConnection
         }
 
 
+
     }
 
 
@@ -232,10 +325,22 @@ namespace Westwind.WebConnection
         public decimal Number { get; set; }
         public TestAddress Address { get; set; }
 
+        public TestItem[] Items { get; set; } = 
+        {
+            new TestItem {Key = "Item1", Value = "Value 1"}, 
+            new TestItem {Key = "Item2", Value = "Value 2"}
+        };
+        
         public TestCustomer()
         {
             Address = new TestAddress();
         }
+    }
+
+    public class TestItem
+    {
+        public string Key { get; set; }
+        public string Value {get; set; }
     }
 
     [ComVisible(true)]

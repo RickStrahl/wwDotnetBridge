@@ -5,6 +5,52 @@ loBridge = GetwwDotnetBridge()
 
 ? loBridge.GetDotnetVersion()
 
+
+loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
+loList = loNet.GetGenericList()
+
+
+*** Work with a List<T> 
+? "*** Retrieve a List<T> and Update"
+loList = loBridge.InvokeMethod(loNet,"GetGenericList")
+? loBridge.ToString(loList)
+? loList.Count
+
+loCust =  loList.Item(0)
+? loCust.Company
+loCust.Company = loCust.Company + " " + TIME()
+
+loCust = loList.CreateItem()
+? loCust
+loCust.Company = "North Wind Traders"
+loList.AddItem(loCust)
+? lolist.Count
+
+? loBridge.InvokeMethod(loNet, "SetGenericList", loList)  && should be 3 
+
+
+*** Work with Dictionary<string, TestCustomer>
+? "*** Retrieve a dictionary and Update"
+
+loList = loBridge.InvokeMethod(loNet,"GetDictionary")
+? loBridge.ToString(loList)
+? loList.Count  &&
+
+loCust =  loList.Item("Item1")
+? loCust.Company
+loCust.Company = loCust.Company + " " + TIME()
+
+loCust = loList.CreateItem()
+? loCust
+loCust.Company = "North Wind Traders"
+loList.AddDictionaryItem("Item3", loCust)
+? lolist.Count
+
+? loBridge.InvokeMethod(loNet, "SetDictionary", loList)  && should be 3 
+
+RETURN
+
+
 loValue = loBridge.CreateComValue()
 
 loValue.SetValueFromSystemConvert("ToInt32",22)
@@ -186,6 +232,65 @@ loComValue.SetChar("R")
 loComValue = loBridge.CreateComValue()
 loComValue.SetChar(51)
 ? loBridge.InvokeMethod(loNet,"PassChar",loComValue)
+
+*** Create Array On Instance
+loCust = loBridge.CreateInstance("Westwind.WebConnection.TestCustomer")
+? loCust             && Make sure you have what you think (Object)
+? loCust.ToString()  && Make sure you have what you think 
+? loBridge.ToString(loCust)  && for special types (structs, generics etc.) you have to use loBridge.ToString(loCust)
+
+*** Clear out items that exist
+loBridge.SetProperty(loCust,"Items",null)
+? loCust.Items
+
+? loBridge.Createarrayoninstance(loCust,"Items",2)
+? loBridge.cErrorMsg
+
+
+loItems = loBridge.GetProperty(loCust,"Items")
+? loItems.Count
+
+
+*** Work with a List<T> 
+? "*** Retrieve a List<T> and Update"
+loList = loBridge.InvokeMethod(loNet,"GetGenericList")
+? loBridge.ToString(loList)
+? loList.Count
+
+loCust =  loList.Item(0)
+? loCust.Company
+loCust.Company = loCust.Company + " " + TIME()
+
+loCust = loList.CreateItem()
+? loCust
+loCust.Company = "North Wind Traders"
+loList.AddItem(loCust)
+? lolist.Count
+
+? loBridge.InvokeMethod(loNet, "SetGenericList", loList)  && should be 3 
+
+
+*** Work with Dictionary<string, TestCustomer>
+? "*** Retrieve a dictionary and Update"
+
+loList = loBridge.InvokeMethod(loNet,"GetDictionary")
+? loBridge.ToString(loList)
+? loList.Count  &&
+
+loCust =  loList.Item("Item1")
+? loCust.Company
+loCust.Company = loCust.Company + " " + TIME()
+
+loCust = loList.CreateItem()
+? loCust
+loCust.Company = "North Wind Traders"
+loList.AddDictionaryItem("Item3", loCust)
+? lolist.Count
+
+loItem =  loList.Item(0)
+? loItem
+
+
 
 
 RETURN

@@ -85,7 +85,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public static string Replicate(string input, int charCount)
         {
-            return new StringBuilder().Insert(0, "input", charCount).ToString();
+            return new StringBuilder().Insert(0, input, charCount).ToString();
         }
 
         /// <summary>

@@ -240,8 +240,8 @@
             <summary>
             Invokes a method with no parameters
             </summary>
-            <param name="Instance"></param>
-            <param name="Method"></param>
+            <param name="instance"></param>
+            <param name="method"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethodWithParameterArray(System.Object,System.String,System.Object[])">
@@ -258,9 +258,9 @@
             <summary>
             Invokes a method with one parameter
             </summary> 
-            <param name="Instance"></param>
-            <param name="Method"></param>
-            <param name="Parm1"></param>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parm1"></param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod_TwoParms(System.Object,System.String,System.Object,System.Object)">
@@ -387,7 +387,7 @@
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayFromInstance(System.Object)">
             <summary>
-            Creates an array from a specific instance of a COM object
+            Creates a ComArray instance from an Array, List, Collection or Dicitionary
             </summary>
             <param name="instance"></param>
             <returns></returns>
@@ -536,6 +536,20 @@
             Waits until an event is raised, or returns immediately if a queued event is available.
             </summary>
             <returns>The next event, or null if this subscriber has been disposed.</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.TypePassingTests.ReturnLong">
+            <summary>
+            Should return as decimal
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.TypePassingTests.ReturnStruct(System.Int32,System.String)">
+            <summary>
+            This should be returned as a ComValue object
+            </summary>
+            <param name="intVal"></param>
+            <param name="stringVal"></param>
+            <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.TypePassingTests.PassEnumArray(System.Windows.Forms.MessageBoxButtons[])">
             <summary>
@@ -1440,17 +1454,27 @@
         </member>
         <member name="T:Westwind.WebConnection.ComArray">
             <summary>
-            COM Wrapper for an array that is assigned as variable.
-            This instance allows Visual FoxPro to manipulate the array
-            using the wwDotNetBridge Array functions that are require
-            a parent object.
+            COM Wrapper for Arrays, IList and IDictionary collections that are not 
+            directly or easily accessible in FoxPro. Provides members like `Count`, 
+            `Item()` for index or key retrieval, `AddItem()`, `AddDictionaryItem()`, 
+            `RemoveItem()`, `Clear()` to provide common collection operations more 
+            naturally in FoxPro abstracted for the different types of collections 
+            available in .NET (Arrays, Lists, Hash tables, Dictionaries).
             
-            When passed to a method that requires an array the instance
-            member is passed as the actual parameter.
+            Internally stores an instance of the collection so the collection is never 
+            actually passed to FoxPro. Instead this class acts as a proxy to the 
+            collection which is stored in the `.Instance` property.
             
-            Note: You should always use wwDotNetBridge.CreateInstance
-            to create an instance of this array from Fox code otherwise
-            there's no instance set.
+            This instance allows Visual FoxPro to manipulate the collection by directly
+             accessing array, list or dictionary values by index or key (depending on 
+            list or collection), adding, removing and clearing items, creating array, 
+            list and dictionary instances and assigning and picking up these  values 
+            from existing objects.
+            
+            This class is also internally used to capture collections that are returned
+             from method calls or Properties via `InvokeMethod()` and `GetProperty()` 
+            and can be used to pass collections to .NET which otherwise would not be 
+            possible over COM.
             </summary>
         </member>
         <member name="P:Westwind.WebConnection.ComArray.Instance">
@@ -1473,29 +1497,113 @@
         </member>
         <member name="M:Westwind.WebConnection.ComArray.#ctor(System.Object)">
             <summary>
-            Creates a new COM Array from an existing array instance
+            Creates a new COM Array instance from an existing collection instance
             </summary>
             <param name="instance"></param>
         </member>
-        <member name="M:Westwind.WebConnection.ComArray.CreateEmptyArray(System.String)">
+        <member name="M:Westwind.WebConnection.ComArray.Item(System.Object)">
+             <summary>
+             Returns an item by indexOrKey from an IList collection. This works on:
+            
+             * Array   (int)
+             * Array List  (int)
+             * IList       (int)
+             * ICollection  (any type)
+             * HashSet      (any type)
+             * IDictionary  (key type)
+            
+             You can specify either an integer for list types or any type for
+             collections. int keys are 0 based.
+             </summary>
+             <param name="indexOrKey">int 0 based key for lists or any value for collections/dicionaries</param>
+             <returns>matching item or null</returns>
+             <exception cref="T:System.ArgumentException">Invalid index or key type</exception>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.AddItem(System.Object)">
             <summary>
-            Creates a .NET array instance with 0 items on this ComArray instance
+            Adds an item to the internal list, array or single item collection.
+            
+            The list or collection has to exist or an exception is thrown.
             </summary>
-            <param name="arrayTypeName"></param>
+            <param name="item">an instance of the item to add.</param>
+            <returns>true or false</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.Add(System.Object)">
+            <summary>
+            Adds an item to the internal list or collection/dictionary.
+            
+            The list or collection has to exist or an exception is thrown.
+            </summary>
+            <param name="item">an instance of the item to add.</param>
+            <returns>true or false</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.AddDictionaryItem(System.Object,System.Object)">
+            <summary>
+            Adds an item to the dictionary by key and value.
+            
+            **The list or collection has to exist or an exception is thrown.**
+            </summary>
+            <param name="key">Dictionary key used to look up this item.</param>
+            <param name="value">an instance of the item to add.</param>
+            <returns>true or false</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.SetItem(System.Object,System.Object)">
+            <summary>
+            Updates a value to an existing collection or list item
+            by int index for lists, or a key or value for dictionaries/collections
+            </summary>
+            <param name="indexOrKey">int 0 based index or any type for key on collections/dictionaries</param>
+            <param name="value"></param>
+            <returns>true or false</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.RemoveItem(System.Object)">
+             <summary>
+             Removes an item from the collection.
+            
+             Depending on the item is a List style item (Array, List, HashSet, simple Collections)
+             or a Key Value type collection (Dictionary or custom key value collections like StringCollection),
+             you specify an index (lists), value (Hash tables/collections), or a key (Dictionary).
+             </summary>
+             <param name="indexOrKey">0 based list index or value for a Hash table, or  a key to a collection/dictionary</param>
+             <returns>true or false</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.Remove(System.Object)">
+             <summary>
+             Removes an item from the collection.
+            
+             Depending on the item is a List style item (Array, List, HashSet, simple Collections)
+             or a Key Value type collection (Dictionary or custom key value collections like StringCollection),
+             you specify an index (lists), value (Hash tables/collections), or a key (Dictionary).
+             </summary>
+             <param name="indexOrKey">0 based list index or value for a Hash table, or  a key to a collection/dictionary</param>
+             <returns>true or false</returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.Clear">
+            <summary>
+            Clears out the collection's content.
+            </summary>
             <returns></returns>
         </member>
-        <member name="M:Westwind.WebConnection.ComArray.Create(System.String)">
+        <member name="M:Westwind.WebConnection.ComArray.CreateItem">
             <summary>
-            Deprecated: Don't use
+            Creates an instance of the collection's data member type without
+            actually adding it to the array. This is useful to
+            quickly create empty objects that can be populated in FoxPro
+            without specifying the full typename each time resulting in
+            cleaner code in FoxPro. 
+            
+            **Assumes that the collection `Instance` is set or null is returned**
+            
+            Arrays must have at least 1 item, while generic lists can
+            deduce from the Generic Type parameters.
             </summary>
-            <param name="arrayTypeName"></param>
-            <returns></returns>        
+            <returns>Item created or null, or if no items or unable to create (or object</returns>
         </member>
         <member name="M:Westwind.WebConnection.ComArray.CreateArray(System.String,System.Int32)">
             <summary>
             Creates a new array instance with size number
             of items pre-set. Elements are unassigned but
-            array is dimensioned.
+            array is dimensioned. Use 0 for an empty array.
             
             Use SetItem() to assign values to each array element
             </summary>
@@ -1503,9 +1611,24 @@
             <param name="size">Size of array to create</param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.ComArray.CreateList(System.String)">
+            <summary>
+            Creates an empty List of T.
+            </summary>
+            <param name="listTypeName">.NET Type of the items in the List</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.CreateDictionary(System.String,System.String)">
+            <summary>
+            Creates an empty Dictionary  with specified key value types
+            </summary>
+            <param name="keyTypeName">.NET Typename of the Key</param>
+            <param name="valueTypeName">.NET Typename of the collection Data items</param>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.ComArray.AssignFrom(System.Object,System.String)">
             <summary>
-            Assigns a .NET array to this COM wrapper. Has to be passed
+            Assigns a .NET collect to this ComArray Instance. Has to be passed
             as a base instance (ie. parent instance of the array) and
             the name of the array because once the array hits VFP code
             it's already been converted into a VFP array so only internal
@@ -1523,81 +1646,28 @@
             <param name="arrayPropertyName"></param>
             <returns></returns>
         </member>
-        <member name="M:Westwind.WebConnection.ComArray.CreateItem">
-            <summary>
-            Creates an instance of the array's member type without
-            actually adding it to the array. This is useful to
-            more easily create members without having to specify
-            the full type signature each time.
-            
-            Assumes that the array exists already so that the 
-            item type can be inferred. The type is inferred from
-            the arrays instance using GetElementType().
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ComArray.CreateItemExplicit">
-            <summary>
-            Creates an instance of the array's member type without
-            actually adding it to the array. This is useful to
-            more easily create members without having to specify
-            the full type signature each time.
-            
-            This version works of the actual elements in the array
-            instance rather than using the 'official' element type.
-            Looks at the first element in the array and uses its type.
-            
-            Assumes that the array exists already so that the 
-            item type can be inferred.
-            </summary>
-            <param name="forceElementType">If true looks at the first element and uses that as the type to create.
-            Use this option if the actual element type is of type object when the array was automatically generated
-            such as when FromEnumerable() was called.
-            </param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ComArray.Item(System.Int32)">
-            <summary>
-            Returns an item from the array.
-            </summary>
-            <param name="index">0 based array index to retrieve</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ComArray.SetItem(System.Int32,System.Object)">
-            <summary>
-            Assigns a value to an array element that already exists.
-            </summary>
-            <param name="index"></param>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ComArray.AddItem(System.Object)">
-            <summary>
-            Adds an item to the internal array instance.
-            
-            Array should exist before adding items.
-            </summary>
-            <param name="item">an instance of the item to add.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ComArray.RemoveItem(System.Int32)">
-            <summary>
-            Removes an item from the array.
-            </summary>
-            <param name="index">0 based index of item to remove</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.ComArray.Clear">
-            <summary>
-            Clears out the array contents
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:Westwind.WebConnection.ComArray.FromEnumerable(System.Collections.IEnumerable)">
-            <summary>
-            Creates an instance from an enumerable
-            </summary>
-            <param name="items"></param>
+             <summary>
+             Creates a copied array instance from an enumerable.
+            
+             If enumerables aren't bound to a concrete list/collection
+             and retrieved one at a time, there's no way to return it to
+             FoxPro unless it's materialized into some sort of list.
+            
+             This method makes a copy of the enumerable and allows you to
+             iterate over it.
+             <remarks>
+             You can update existing items in the array, but you cannot
+             add/remove/clear items and affect the underlying enumerable.
+             If the type is truly Enumerated it won't support updating
+             either, so this is not really a restriction imposed here.
+            
+             If the underlying enumerable is a concrete list or collection 
+             type you should be able to use the relevant Add/Remove/Clear
+             methods directly without requiring this method to make a copy.
+             </remarks>
+             </summary>
+             <param name="items"></param>
         </member>
         <member name="T:Westwind.WebConnection.ComGuid">
             <summary>
@@ -1869,7 +1939,7 @@
             from the .NET Core Runtime Host which requires a static method
             </summary>
         </member>
-        <member name="M:Westwind.WebConnection.wwDotnetBridgeFactory.Ping">
+        <member name="M:Westwind.WebConnection.wwDotnetBridgeFactory.Ping(System.String@)">
             <summary>
             Test method that returns an integer value of 10 for testing
             </summary>

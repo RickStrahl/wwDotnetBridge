@@ -10,7 +10,11 @@ DO wwDotNetBridge
 
 *** Create instance of wwDotnetBridge
 LOCAL loBridge as wwDotNetBridge
-loBridge = CreateObject("wwDotNetBridge")
+loBridge = GetwwDotnetBridge()  && CreateObject("wwDotNetBridge")
+
+* loBridge = GetwwDotnetCoreBridge()  && CreateObject("wwDotnetCoreBridge")
+
+? loBridge.GetDotnetVersion()
 
 *** Create an instance of 509Store
 loStore = loBridge.CreateInstance("System.Security.Cryptography.X509Certificates.X509Store")

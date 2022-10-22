@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Westwind.WebConnection;
 
-namespace Westwind.WebConnection.Tests
+namespace wwDotnetBridge.Tests
 {
     /// <summary>
     /// Tests FoxPro interop.

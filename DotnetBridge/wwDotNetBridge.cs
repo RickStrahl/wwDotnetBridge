@@ -801,12 +801,12 @@ namespace Westwind.WebConnection
         /// <summary>
         /// Invokes a method with no parameters
         /// </summary>
-        /// <param name="Instance"></param>
-        /// <param name="Method"></param>
+        /// <param name="instance"></param>
+        /// <param name="method"></param>
         /// <returns></returns>
-        public object InvokeMethod(object Instance, string Method)
+        public object InvokeMethod(object instance, string method)
         {
-            return InvokeMethod_Internal(Instance, Method);
+            return InvokeMethod_Internal(instance, method);
         }
 
 
@@ -827,13 +827,13 @@ namespace Westwind.WebConnection
         /// <summary>
         /// Invokes a method with one parameter
         /// </summary> 
-        /// <param name="Instance"></param>
-        /// <param name="Method"></param>
-        /// <param name="Parm1"></param>
+        /// <param name="instance"></param>
+        /// <param name="method"></param>
+        /// <param name="parm1"></param>
         /// <returns></returns>
-        public object InvokeMethod_OneParm(object Instance, string Method, object Parm1)
+        public object InvokeMethod_OneParm(object instance, string method, object parm1)
         {
-            return InvokeMethod_Internal(Instance, Method, Parm1);
+            return InvokeMethod_Internal(instance, method, parm1);
         }
 
         /// <summary>
@@ -898,12 +898,12 @@ namespace Westwind.WebConnection
                 Parm9, Parm10);
         }
 
-        public object InvokeMethod_ElevenParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
-            object Parm4, object Parm5, object Parm6, object Parm7, object Parm8, object Parm9, object Parm10,
-            object Parm11)
+        public object InvokeMethod_ElevenParms(object instance, string method, object parm1, object Parm2, object parm3,
+            object parm4, object parm5, object parm6, object parm7, object parm8, object parm9, object parm10,
+            object parm11)
         {
-            return InvokeMethod_Internal(Instance, Method, Parm1, Parm2, Parm3, Parm4, Parm5, Parm6, Parm7, Parm8,
-                Parm9, Parm10, Parm11);
+            return InvokeMethod_Internal(instance, method, parm1, Parm2, parm3, parm4, parm5, parm6, parm7, parm8,
+                parm9, parm10, parm11);
         }
 
         public object InvokeMethod_TwelveParms(object Instance, string Method, object Parm1, object Parm2, object Parm3,
@@ -914,16 +914,16 @@ namespace Westwind.WebConnection
                 Parm9, Parm10, Parm11, Parm12);
         }
 
-        public object InvokeMethod_ParameterArray(object Instance, string Method, object ParameterArray)
+        public object InvokeMethod_ParameterArray(object instance, string method, object parameterArray)
         {
-            ComArray ParmArray = ParameterArray as ComArray;
+            ComArray ParmArray = parameterArray as ComArray;
             for (int i = 0; i < ParmArray.Count; i++)
             {
                 Array ar = ParmArray.Instance as Array;
                 ar.SetValue(FixupParameter(ar.GetValue(i)), i);
             }
 
-            return InvokeMethod_InternalWithObjectArray(Instance, Method, ParmArray.Instance as object[]);
+            return InvokeMethod_InternalWithObjectArray(instance, method, ParmArray.Instance as object[]);
         }
 
         internal object InvokeMethod_Internal(object instance, string method, params object[] args)
@@ -1466,29 +1466,14 @@ namespace Westwind.WebConnection
         {
             SetError();
 
-            Type type = null;
-            type = ReflectionUtils.GetTypeFromName(arrayTypeString);
-
-            if (type == null)
-            {
-                SetError("Invalid type for array: " + arrayTypeString);
-                return null;
-            }
-
             ComArray comArray = new ComArray();
-
-            // *** Create instance and assign
-            Array ar = Array.CreateInstance(type, 0);
-
-            // *** assign the item passed in
-            //ar.SetValue(item, 0);
-            comArray.Instance = ar;
-
+            comArray.CreateArray(arrayTypeString, 0);
+            
             return comArray;
         }
 
         /// <summary>
-        /// Creates an array from a specific instance of a COM object
+        /// Creates a ComArray instance from an Array, List, Collection or Dicitionary
         /// </summary>
         /// <param name="instance"></param>
         /// <returns></returns>
@@ -1822,17 +1807,9 @@ namespace Westwind.WebConnection
             {
                 val = null;
             }
-            else if (type.IsArray)
+            else if (type.IsArray || val is IList || val is ICollection || val is IDictionary)
             {
-                ComArray comArray = new ComArray();
-                comArray.Instance = val as Array;
-                return comArray;
-            }
-            else if (type.IsGenericType && val is IList )
-            {
-                var enumerable = val as IEnumerable;
-                ComArray comArray = new ComArray();
-                comArray.FromEnumerable(enumerable);
+                ComArray comArray = new ComArray(val);
                 return comArray;
             }
             else if (type == typeof(Task) || type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
@@ -2033,7 +2010,7 @@ namespace Westwind.WebConnection
         {
             bool isDotnetCore = false;
             var rt = GetStaticProperty("System.Runtime.InteropServices.RuntimeInformation", "FrameworkDescription");
-            if (rt != null && Environment.Version.Major < 4)
+            if (rt != null && Environment.Version.Major != 4)
                 isDotnetCore = true;
 
             string res = null;
