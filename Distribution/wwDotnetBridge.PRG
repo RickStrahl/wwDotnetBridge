@@ -1745,7 +1745,9 @@ FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)
 this.oBridge = loBridge
 this.oHandler = loHandler
 this.oPrefix = lcPrefix
-this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource)
+Private handler
+handler = m.loHandler
+this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource, m.lcPrefix, _Vfp)
 this.HandleNextEvent()
 ENDFUNC
 
