@@ -1946,7 +1946,7 @@ ENDFUNC
 ***  Function: Unloads the CLR and AppDomain
 ***    Assume: Don't call this unless you want to explicity force
 ***            the AppDomain to be unloaded and a new one to be spun
-***            up. Generally a single domain shoudl be sufficient.
+***            up. Generally a single domain should be sufficient.
 ***      Pass:
 ***    Return:
 ************************************************************************
