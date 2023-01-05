@@ -30,7 +30,7 @@ namespace Westwind.WebConnection
             foreach (var ev in source.GetType().GetEvents())
             {
                 // handler is a PRIVATE variable defined in EventSubscription.Setup().
-                Boolean hasMethod = vfp?.Eval($"PEMSTATUS(m.handler, '{prefix}{ev.Name}', 5)");
+                Boolean hasMethod = vfp?.Eval($"PEMSTATUS(m.handler, '{prefix}{ev.Name}', 5)") ?? true;
                 if (!hasMethod)
                     continue;
 
