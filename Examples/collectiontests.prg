@@ -53,9 +53,10 @@ loCust = loList.CreateItem()
 ? loCust
 loCust.Company = "North Wind Traders"
 loList.AddDictionaryItem("Item3", loCust)
+loBridge.InvokeMethod(loList,"Add","Item 4",loCust)
 ? lolist.Count
 
-? loBridge.InvokeMethod(loNet, "SetDictionary", loList)  && should be 3 
+? loBridge.InvokeMethod(loNet, "SetDictionary", loList)  && should be 4
 
 *** Get the raw Generic list - can't access this
 *!*	? "-- Enumerate dictionary:"
