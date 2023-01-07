@@ -86,20 +86,65 @@ namespace Westwind.WebConnection
 
         /// <summary>
         /// Returns an item by indexOrKey from an IList collection. This works on:
-        ///
+        /// 
         /// * Array   (int)
         /// * Array List  (int)
         /// * IList       (int)
         /// * ICollection  (any type)
         /// * HashSet      (any type)
-        /// * IDictionary  (key type)
-        ///
-        /// You can specify either an integer for list types or any type for
+        /// * IDictionary  (key type) (or int for index)
+        /// 
+        /// You can specify either an integer for list types or any type for 
         /// collections. int keys are 0 based.
+        /// <seealso>Class ComArray</seealso>
         /// </summary>
-        /// <param name="indexOrKey">int 0 based key for lists or any value for collections/dicionaries</param>
         /// <returns>matching item or null</returns>
-        /// <exception cref="ArgumentException">Invalid index or key type</exception>
+        /// <example>
+        /// ```foxpro
+        /// *** Access generic list through indirect access through Proxy and get 
+        /// ComArray
+        /// loList = loBridge.InvokeMethod(loNet,&quot;GetGenericList&quot;)
+        /// ? loBridge.ToString(loList)   &&amp; System.Collections.Generic.List...
+        /// ? loList.Count &&amp; 2
+        /// 
+        /// *** Grab an item by index
+        /// loCust =  loList.Item(0)
+        /// ? loCust.Company
+        /// 
+        /// *** Iterate the list
+        /// FOR lnX = 0 TO loList.Count -1
+        ///    loItem = lolist.Item(lnX)
+        ///    ? loItem.Company
+        /// ENDFOR
+        /// ```
+        /// 
+        /// ```foxpro
+        /// *** Retrieve a generic dictionary
+        /// loList = loBridge.InvokeMethod(loNet,&quot;GetDictionary&quot;)
+        /// ? loList.Count  &&amp;  2
+        /// 
+        /// *** Return Item by Key
+        /// loCust =  loList.Item(&quot;Item1&quot;)   &&amp; Retrieve item by Key
+        /// ? loCust.Company
+        /// 
+        /// *** This works as long as the key type is not int
+        /// loCust =  loList.Item(0)   &&amp; Retrieve item by Index
+        /// ? loCust.Company
+        /// 
+        /// *** This allows iterating a dictionary
+        /// FOR lnX = 0 TO loList.Count -1
+        ///    loItem = lolist.Item(lnX)
+        ///    ? loItem.Company
+        /// ENDFOR
+        /// ```
+        /// 
+        /// </example>
+        /// <remarks>
+        /// Dictionaries can use 	an `int` value to return a value out of the 
+        /// collection by its index **if the key type is not of `System.Int`. This is a
+        ///  special case and allows you to iterate a dictionary which otherwise would 
+        /// not be possible.
+        /// </remarks>
         public object Item(object indexOrKey)
         {
             if (Instance == null)
@@ -124,23 +169,39 @@ namespace Westwind.WebConnection
                 catch
                 { }
             }
+
             if (Instance is IDictionary)
             {
-               
                 var list = (IDictionary)Instance;
+                object val = null;
                 try
                 {
-                    object val = list[indexOrKey];
-                    if (val == null)
-                        return null;
-
-                    wwDotNetBridge.FixupReturnValue(val);
-
-                    return val;
+                   val = list[indexOrKey];
                 }
                 catch
-                { }
+                {
+                }
+
+				// Check for int key if the generic type is NOT int and return based on index
+                if (val == null && indexOrKey is int && Instance.GetType().GenericTypeArguments[0] != typeof(int))
+                {
+                    int idx = (int)indexOrKey;
+                    int counter = 0;
+                    foreach (var item in list.Values)
+                    {
+                        if (idx == counter)
+                            return item;
+                        counter++;
+                    }
+                }
+
+                if (val == null) return null;
+
+                val = wwDotNetBridge.FixupReturnValue(val);
+
+                return val;
             }
+
             if (Instance is IEnumerable)
             {
                 var list = Instance as IEnumerable;
@@ -153,6 +214,19 @@ namespace Westwind.WebConnection
                         return item;
                 }
 
+                // if an int was passed do a lookup to allow iteration
+                if (indexOrKey is int)
+                {
+                    int idx = (int)indexOrKey;
+                    int counter = 0;
+                    foreach (var item in list)
+                    {
+                        if (idx == counter)
+                            return item;
+                        counter++;
+                    }
+                }
+                
                 return null;
             }
 
@@ -170,7 +244,6 @@ namespace Westwind.WebConnection
         {
             item = wwDotNetBridge.FixupParameter(item);
 
-          
             if (Instance is Array)
             {
                 Array ar = Instance as Array;
