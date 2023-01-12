@@ -2045,6 +2045,7 @@ ASORT(laVersions,1,ALEN(laVersions,1),1)
 
 lcFullVersion = laVersions[1,2]
 RETURN lcBasePath + lcFullVersion + "\"
+ENDFUNC
 
 ENDDEFINE
 *EOC wwDotnetCoreBridge 
