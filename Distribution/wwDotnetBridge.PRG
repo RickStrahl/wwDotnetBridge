@@ -2038,15 +2038,12 @@ FOR lnX = 1 TO lnFolders
      lcAdjusted = lcAdjusted + "." + PADL(INT(VAL(laParts[4])),3,'0') 
    ENDIF	   
    laVersions[lnx, 1] = lcAdjusted
-   laVersions[lnx, 2] = lcVersion   
-   
-   ? lcAdjusted + " " + lcVersion
+   laVersions[lnx, 2] = lcVersion      
 ENDFOR
 
 ASORT(laVersions,1,ALEN(laVersions,1),1)
 
 lcFullVersion = laVersions[1,2]
-? lcFullVersion
 RETURN lcBasePath + lcFullVersion + "\"
 
 ENDDEFINE
