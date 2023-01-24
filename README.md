@@ -8,7 +8,7 @@ wwDotnetBridge also provides a host of support featuress to make it possible to 
 #### wwDotnetBridge and .NET Versions
 > The current version of wwDotnetBridge is compiled for .NET 4.5 and later and works with:
 >
-> * .NET 4.5.2 or later
+> * .NET 4.6.2 or later
 > * Windows 7 and newer
 > * Windows Server 2008 R2 and newer
 >
@@ -33,12 +33,12 @@ Somewhere in the startup of your application call `InitializeDotnetVersion()`:
 *** Load dependencies and add to Procedure stack
 *** Make sure wwDotnetBridge.prg wwDotnetBridge.dll ClrHost.dll 
 *** are in your FoxPro path
-DO wwDotnetBridge
-InitializeDotnetVersion("V4") 
+DO wwDotnetBridge              && Load library
+InitializeDotnetVersion()      && Initialize .NET Runtime
 ```
 
-> #### @icon-warning  Unable to load CLR Instance Errors
-> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, there might be a permissions problem access the wwDotnetBridge.dll. Please see [Unable to load CLR Instance](https://client-tools.west-wind.com/docs/_3rf12jtma.htm) for more info on how to fix this issue.
+> #### Unable to load CLR Instance Errors
+> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, there might be a permissions problem access the wwDotnetBridge.dll. Please see [Unable to load CLR Instance](https://client-tools.west-wind.com/docs/_3rf12jtma.htm) for more info on how to fix this issue. Recent versions will attempt to automatically unblock the dll if permissions allow.
 
 Then when you need to utilize wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
 
