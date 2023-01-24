@@ -31,7 +31,7 @@ Somewhere in the startup of your application call `InitializeDotnetVersion()`:
 
 ```foxpro
 *** Load dependencies and add to Procedure stack
-*** Make sure wwDotnetBridge.prg wwDotnetBridge.dll wwIPStuff.dll 
+*** Make sure wwDotnetBridge.prg wwDotnetBridge.dll ClrHost.dll 
 *** are in your FoxPro path
 DO wwDotnetBridge
 InitializeDotnetVersion("V4") 
