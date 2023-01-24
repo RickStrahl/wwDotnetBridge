@@ -23,12 +23,14 @@ Typical steps for working with wwDotnetBridge are:
 * Initialize the .NET Runtime during Startup
 * Instantiate a wwDotnetBridge instance
 * Use `.CreateInstance()` to create .NET Objects
-* Use direct property and method access to call methods and access properties
-* Use `.GetProperty()`, `.SetProperty()` and `.InvokeMethod()`   
-for unsupported .NET types
+* Use direct property and method access to call 
+instance methods and access properties
+* Use `.GetProperty()`, `.SetProperty()` and `.InvokeMethod()`    
+to indirectly access problem types in .NET
+* Use Static versions of the intrinsic functions
 
 ### Initialize the .NET Runtime
-Although not strictly required it's a good idea to initialize the .NET Runtime during application startup. This ensures that you're loading a specific version of .NET (the latest typically) and another component can't load something different.
+Although not strictly required it's a good idea to initialize the .NET Runtime during application startup. This ensures that you're loading a specific version of .NET and another component can't load something different. Only one version of a given .NET Runtime can run be loaded and first load wins.
 
 Somewhere in the startup of your application call `InitializeDotnetVersion()`:
 
@@ -43,7 +45,7 @@ InitializeDotnetVersion()      && Initialize .NET Runtime
 > #### Unable to load CLR Instance Errors
 > If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, there might be a permissions problem access the wwDotnetBridge.dll. Please see [Unable to load CLR Instance](https://client-tools.west-wind.com/docs/_3rf12jtma.htm) for more info on how to fix this issue. Recent versions will attempt to automatically unblock the dll if permissions allow.
 
-Then when you need to utilize wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
+Then when you need to access wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
 
 ```foxpro
 *** Create or get cached instance of wwdotnetbridge
@@ -109,10 +111,9 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * Support for many natively unsupported .NET types and values
 * Access Static members, Value/Struct types, Generics, Binary, Guids, DbNulls
 * Automatically fix up problematic .NET Types on method returns
-* Provides easy Array access with ComArray helper class
-* ComValue class to store results and parameters in .NET
-* ComValue helps with problem .NET type conversions
-* ComArray allows easy creation, updating and managing of Enumerable types
+* Provides easy Array, List and Collection access via ComArray wrapper
+* ComValue helper can store results and parameters in .NET
+* ComValue works around .NET and COM type conversions issues
 * Multi-threading library built-in 
 * wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
 
@@ -339,10 +340,10 @@ Sunil required a number of custom integrations into their FoxPro product that re
 ### Want to be a Sponsor?
 Want to sponsor this project, need customization or want make a donation to show your support? You can contact me directly at rstrahl@west-wind.com or you can also make a donation online via PayPal.
 
+* [Sponsor this GitHub account](https://github.com/sponsors/RickStrahl)
 * [Make a donation for wwDotnetBridge using PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
-* [Make Donation or Sponsor via GitHub]()
 * [Make a donation for wwDotnetBridge using our Web Store](http://store.west-wind.com/product/donation)
-* [Purchase a license for West Wind Internet and Client Tools](http://store.west-wind.com/product/wwclient50/)
+* [Purchase a license for West Wind Internet and Client Tools](http://store.west-wind.com/product/wwclient70/)
 
 
 ## License
