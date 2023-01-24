@@ -722,9 +722,19 @@ namespace Westwind.WebConnection
                 {
                     if(ar[i] is ComValue)
                         ((ComValue) args[i]).Value = ((ComValue) ar[i]).Value;
+                    
                     else
                         ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
                 }
+                else if (args[i] is ComArray)
+                {
+                    if (ar[i] is ComArray)
+                        ((ComArray)args[i]).Instance = ((ComArray)ar[i]).Instance;
+
+                    else
+                        ((ComArray)args[i]).Instance = FixupReturnValue(ar[i]);
+                }
+                
             }
 
             return FixupReturnValue(Result);
@@ -928,10 +938,8 @@ namespace Westwind.WebConnection
 
         internal object InvokeMethod_Internal(object instance, string method, params object[] args)
         {
-            var fixedInstance = instance;
-            if (instance is ComValue)
-                fixedInstance = ((ComValue) instance).Value;
-
+            var fixedInstance = FixupParameter(instance);
+            
             SetError();
 
             object[] ar;
@@ -970,6 +978,13 @@ namespace Westwind.WebConnection
                     else
                         ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
                 }
+                if (args[i] is ComArray)
+                {
+                    if (ar[i] is ComArray)
+                        ((ComArray)args[i]).Instance = ((ComArray)ar[i]).Instance;
+                    else
+                        ((ComArray)args[i]).Instance = FixupReturnValue(ar[i]);
+                }
             }
 
             return FixupReturnValue(result);
@@ -980,11 +995,22 @@ namespace Westwind.WebConnection
         protected object InvokeMethod_InternalWithObjectArray(object instance, string method, object[] args)
         {
 
-            var fixedInstance = instance;
-            if (fixedInstance is ComValue)
-                fixedInstance = ((ComValue) instance).Value;
+            var fixedInstance = FixupParameter(instance);
 
             SetError();
+
+            object[] ar;
+            if (args == null || args.Length == 0)
+                ar = new object[0];
+            else
+            {
+                ar = new object[args.Length];
+                for (int i = 0; i < args.Length; i++)
+                {
+                    ar[i] = FixupParameter(args[i]);
+                }
+            }
+
             object result;
 
             try
@@ -1005,10 +1031,17 @@ namespace Westwind.WebConnection
             {
                 if (args[i] is ComValue)
                 {
-                    if(args[i] is ComValue)
-                        ((ComValue) args[i]).Value = ((ComValue) args[i]).Value;
+                    if(ar[i] is ComValue)
+                        ((ComValue) args[i]).Value = ((ComValue) ar[i]).Value;
                     else
-                        ((ComValue) args[i]).Value = FixupReturnValue(args[i]);
+                        ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
+                }
+                if (args[i] is ComArray)
+                {
+                    if (ar[i] is ComArray)
+                        ((ComArray)args[i]).Instance= ((ComArray)ar[i]).Instance;
+                    else
+                        ((ComArray)args[i]).Instance = FixupReturnValue(ar[i]);
                 }
             }
 
@@ -1021,12 +1054,8 @@ namespace Westwind.WebConnection
             LastException = null;
             try
             {
-                object fixedInstance = null;
-                if (instance is ComValue)
-                    fixedInstance = ((ComValue) instance).Value;
-                else 
-                    fixedInstance = instance;
-
+                object fixedInstance = FixupParameter(instance);
+                
                 object val;
 
                 if (property.Contains(".") || property.Contains("["))
@@ -1055,9 +1084,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public object GetPropertyEx(object instance, string property)
         {
-            var fixedInstance = instance;
-            if (fixedInstance is ComValue)
-                fixedInstance = ((ComValue) fixedInstance).Value;
+            var fixedInstance = FixupParameter(instance);
 
             LastException = null;
             try
@@ -1082,9 +1109,7 @@ namespace Westwind.WebConnection
         public void SetProperty(object instance, string property, object value)
         {
 
-            var fixedInstance = instance;
-            if (fixedInstance is ComValue)
-                fixedInstance = ((ComValue) fixedInstance).Value;
+            var fixedInstance = FixupParameter(instance);
 
             LastException = null;
 
@@ -1120,9 +1145,7 @@ namespace Westwind.WebConnection
         public void SetPropertyEx(object instance, string Property, object Value)
         {
 
-            var fixedInstance = instance;
-            if (fixedInstance is ComValue)
-                fixedInstance = ((ComValue) fixedInstance).Value;
+            var fixedInstance = FixupParameter(instance);
 
             LastException = null;
             try
@@ -1748,10 +1771,10 @@ namespace Westwind.WebConnection
             // just use it's Value property
             if (type == typeof(ComValue))
                 return ((ComValue) val).Value;
+            if (type == typeof(ComArray))
+                return ((ComArray)val).Instance;
             if (type == typeof(ComGuid))
                 return ((ComGuid) val).Guid;
-            if (type == typeof(ComArray))
-                return ((ComArray) val).Instance;
 
             return val;
         }
@@ -1778,7 +1801,8 @@ namespace Westwind.WebConnection
                 val is DateTime)
                 return val;
 
-            if (val is ComValue || 
+            if (val is ComValue ||
+                val is ComArray ||
                 val is Enum ||
                 val is byte[])
                 return val;
@@ -1919,12 +1943,7 @@ namespace Westwind.WebConnection
             if (value == null)
                 return null;
 
-            object fixedValue = null;
-            if (value is ComValue)
-                fixedValue = ((ComValue) value).Value;
-            else
-                fixedValue = value;
-            
+            object fixedValue = FixupParameter(value);
             return fixedValue.GetType();
         }
 

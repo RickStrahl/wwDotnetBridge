@@ -9,7 +9,7 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
 
 	*** Other dependencies
-	* .NET Runtime 2.0 or later
+	* .NET Runtime 4.0+ or .NET Core 3.1+
 
 	*** DLLs
 	* wwIpStuff.dll
@@ -19,7 +19,7 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 	#DEFINE WWC_CLR_HOSTDLL clrhost.dll
 
 	*** Other dependencies
-	* .NET Runtime 2.0 or later
+	* .NET Runtime 4.0+ or .NET Core 3.1+
 
 	*** DLLs
 	* clrhost.dll
@@ -1972,7 +1972,10 @@ ENDFUNC
 ***    Return: Runtime Folder path or empty string
 ************************************************************************
 FUNCTION GetDotnetCoreRuntimeFolder(lcVersion)
-LOCAL lcFolder, lcFolderName, lnX, lnIndex
+LOCAL lcFolder, lnFolderId, lnResult, lcOutput, lcFolderName, lnX, lnIndex
+LOCAL lcVersion, lnParts, lcBasePath
+LOCAL laParts[1], laFolders[1,4], laVersions[1,1]
+
 
 IF !EMPTY(lcVersion) AND DIRECTORY(lcVersion)
 	RETURN ADDBS(lcVersion)
@@ -1990,42 +1993,58 @@ ELSE
    lcOutput = ""
 ENDIF
 
+IF EMPTY(lcVersion)
+  lcVersion = ""
+ENDIF
+
 lcBasePath = ADDBS(lcOutput) + "dotnet\shared\Microsoft.NETCore.App\"
 
 IF !EMPTY(lcVersion)
+   *** Check for exact folder match
    IF DIRECTORY(lcVersion)
       RETURN ADDBS(lcFolder)
    ENDIF
    
+   *** Check for exact version match
    IF DIRECTORY(lcBasePath + lcVersion)
       RETURN lcBasePath + lcVersion + "\"
-   ENDIF
-        
+   ENDIF        
 ENDIF
 
-LOCAL laFolders[1]
-lnFolders = ADIR(laFolders,lcBasePath + "*.*","D")
+*** We have to determine the highest matching version for partial version supplied
+*** We capture folder names and pad out version parts in order to sort properly
+*** then pick the highest value
+lnFolders = ADIR(laFolders,lcBasePath + lcVersion + "*.*","D")
 IF lnFolders < 1
    RETURN ""
 ENDIF
 
+*** Reformat folders with left padding to 3 characters and find the largest version
+DIMENSION laVersions[lnFolders,2]
 
-ASORT(laFolders,1,ALEN(laFolders,1),0)
+FOR lnX = 1 TO lnFolders
+   lcVersion = laFolders[lnX,1]
+   DIMENSION laParts[1]
+   lnParts= ALINES(laParts, lcVersion, 1, '.')
+   lcAdjusted = PADL(INT(VAL(laParts[1])),3,'0')
+   IF(lnParts > 1)
+	   lcAdjusted = lcAdjusted + "." + PADL(INT(VAL(laParts[2])),3,'0') 
+   ENDIF	   
+   IF(lnParts > 2)
+	   lcAdjusted = lcAdjusted + "." + PADL(INT(VAL(laParts[3])),3,'0') 
+   ENDIF	   
+   IF(lnParts > 3)
+     lcAdjusted = lcAdjusted + "." + PADL(INT(VAL(laParts[4])),3,'0') 
+   ENDIF	   
+   laVersions[lnx, 1] = lcAdjusted
+   laVersions[lnx, 2] = lcVersion      
+ENDFOR
 
-*** If a partial version was supplied
-IF !EMPTY(lcVersion)
-   lnIndex = ASCAN(laFolders,lcVersion,1)
-   IF (lnIndex > 0)
-      RETURN lcBasePath + laFolders[lnIndex] + "\" 
-   ENDIF
-ENDIF
+ASORT(laVersions,1,ALEN(laVersions,1),1)
 
-*** Find the highest version
-lcVersion = JUSTFNAME(laFolders[ALEN(laFolders,1),1])
-
-RETURN lcBasePath + lcVersion + "\"
+lcFullVersion = laVersions[1,2]
+RETURN lcBasePath + lcFullVersion + "\"
 ENDFUNC
-*   FindDotnetCoreRuntime
 
 ENDDEFINE
 *EOC wwDotnetCoreBridge 

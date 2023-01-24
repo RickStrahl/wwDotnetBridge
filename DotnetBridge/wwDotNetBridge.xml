@@ -1501,24 +1501,7 @@
             </summary>
             <param name="instance"></param>
         </member>
-        <member name="M:Westwind.WebConnection.ComArray.Item(System.Object)">
-             <summary>
-             Returns an item by indexOrKey from an IList collection. This works on:
-            
-             * Array   (int)
-             * Array List  (int)
-             * IList       (int)
-             * ICollection  (any type)
-             * HashSet      (any type)
-             * IDictionary  (key type)
-            
-             You can specify either an integer for list types or any type for
-             collections. int keys are 0 based.
-             </summary>
-             <param name="indexOrKey">int 0 based key for lists or any value for collections/dicionaries</param>
-             <returns>matching item or null</returns>
-             <exception cref="T:System.ArgumentException">Invalid index or key type</exception>
-        </member>
+        <!-- Badly formed XML comment ignored for member "M:Westwind.WebConnection.ComArray.Item(System.Object)" -->
         <member name="M:Westwind.WebConnection.ComArray.AddItem(System.Object)">
             <summary>
             Adds an item to the internal list, array or single item collection.

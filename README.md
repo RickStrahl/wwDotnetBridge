@@ -1,18 +1,21 @@
 # wwDotnetBridge
 ### .NET Interop made easy for Visual FoxPro 9
 
-wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them without requiring explicit COM registration of .NET components, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access both free or commercial 3rd party libraries, or build and access your own .NET components from FoxPro all without having to register components via COM.
+wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them *without requiring explicit COM registration of .NET components*, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access  system and free or commercial 3rd party libraries, or build and access your own .NET components and call them from FoxPro all without requiring COM registration.
 
-wwDotnetBridge also provides a host of support featuress to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, cannot access value types, static or generic members and types. wwDotnetBridge can automatically convert some problem types and provides wrappers that allow access to most unsupported features. There's also a powerful `ComArray` class that makes it easy to interact and manipulate .NET arrays and collections, and a `ComValue` class that lets you assign and pass .NET values without ever passing the native .NET value into FoxPro.
+wwDotnetBridge also provides a host of support features to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, value types, static or generic members and types. 
+
+wwDotnetBridge can automatically convert some problem types and provides wrappers that allow access to most unsupported features. There's also a powerful `ComArray` class that makes it easy to interact and manipulate .NET arrays, lists and collections, and a `ComValue` class that lets you assign, access and pass .NET values without ever passing the native .NET value into FoxPro which allows you to access types that COM simply cannot directly access.
 
 #### wwDotnetBridge and .NET Versions
-> The current version of wwDotnetBridge is compiled for .NET 4.5 and later and works with:
+> There are two versions of wwDotnetBridge, one for .NET Framework (1.0 - 4.8) and one for .NET Core (.NET Core 5.0+). 
+> 
+> Supported Platforms are:
 >
-> * .NET 4.5.2 or later
+> * .NET 4.6.2 Runtime or later  <small>*(.NET Framework - wwDotnetBridge)*</small>
+> * .NET Core 5.0 Runtime and later <small>*(32 bit .NET Core - wwDotnetCoreBridge)*</small>
 > * Windows 7 and newer
 > * Windows Server 2008 R2 and newer
->
-> For support of Windows XP, Server 2003, Vista and 2008 **you have to use [Version 6.0 of wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** which the last version that was compiled with **.NET 4.0** that can run XP, Vista, Server2003/2008. Note that you can use the new version just fine for loading .NET 1.1, 2.0 and 4.0 compiled assemblies.
 
 ## Getting Started
 Typical steps for working with wwDotnetBridge are:
@@ -20,27 +23,29 @@ Typical steps for working with wwDotnetBridge are:
 * Initialize the .NET Runtime during Startup
 * Instantiate a wwDotnetBridge instance
 * Use `.CreateInstance()` to create .NET Objects
-* Use direct property and method access to call methods and access properties
-* Use `.GetProperty()`, `.SetProperty()` and `.InvokeMethod()`   
-for unsupported .NET types
+* Use direct property and method access to call 
+instance methods and access properties
+* Use `.GetProperty()`, `.SetProperty()` and `.InvokeMethod()`    
+to indirectly access problem types in .NET
+* Use Static versions of the intrinsic functions
 
 ### Initialize the .NET Runtime
-Although not strictly required it's a good idea to initialize the .NET Runtime during application startup. This ensures that you're loading a specific version of .NET (the latest typically) and another component can't load something different.
+Although not strictly required it's a good idea to initialize the .NET Runtime during application startup. This ensures that you're loading a specific version of .NET and another component can't load something different. Only one version of a given .NET Runtime can run be loaded and first load wins.
 
 Somewhere in the startup of your application call `InitializeDotnetVersion()`:
 
 ```foxpro
 *** Load dependencies and add to Procedure stack
-*** Make sure wwDotnetBridge.prg wwDotnetBridge.dll wwIPStuff.dll 
+*** Make sure wwDotnetBridge.prg wwDotnetBridge.dll ClrHost.dll 
 *** are in your FoxPro path
-DO wwDotnetBridge
-InitializeDotnetVersion("V4") 
+DO wwDotnetBridge              && Load library
+InitializeDotnetVersion()      && Initialize .NET Runtime
 ```
 
-> #### @icon-warning  Unable to load CLR Instance Errors
-> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, there might be a permissions problem access the wwDotnetBridge.dll. Please see [Unable to load CLR Instance](https://client-tools.west-wind.com/docs/_3rf12jtma.htm) for more info on how to fix this issue.
+> #### Unable to load CLR Instance Errors
+> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, there might be a permissions problem access the wwDotnetBridge.dll. Please see [Unable to load CLR Instance](https://client-tools.west-wind.com/docs/_3rf12jtma.htm) for more info on how to fix this issue. Recent versions will attempt to automatically unblock the dll if permissions allow.
 
-Then when you need to utilize wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
+Then when you need to access wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
 
 ```foxpro
 *** Create or get cached instance of wwdotnetbridge
@@ -106,10 +111,9 @@ wwDotnetBridge provides the following enhancements over plain COM Interop:
 * Support for many natively unsupported .NET types and values
 * Access Static members, Value/Struct types, Generics, Binary, Guids, DbNulls
 * Automatically fix up problematic .NET Types on method returns
-* Provides easy Array access with ComArray helper class
-* ComValue class to store results and parameters in .NET
-* ComValue helps with problem .NET type conversions
-* ComArray allows easy creation, updating and managing of Enumerable types
+* Provides easy Array, List and Collection access via ComArray wrapper
+* ComValue helper can store results and parameters in .NET
+* ComValue works around .NET and COM type conversions issues
 * Multi-threading library built-in 
 * wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
 
@@ -336,10 +340,10 @@ Sunil required a number of custom integrations into their FoxPro product that re
 ### Want to be a Sponsor?
 Want to sponsor this project, need customization or want make a donation to show your support? You can contact me directly at rstrahl@west-wind.com or you can also make a donation online via PayPal.
 
+* [Sponsor this GitHub account](https://github.com/sponsors/RickStrahl)
 * [Make a donation for wwDotnetBridge using PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
-* [Make Donation or Sponsor via GitHub]()
 * [Make a donation for wwDotnetBridge using our Web Store](http://store.west-wind.com/product/donation)
-* [Purchase a license for West Wind Internet and Client Tools](http://store.west-wind.com/product/wwclient50/)
+* [Purchase a license for West Wind Internet and Client Tools](http://store.west-wind.com/product/wwclient70/)
 
 
 ## License
@@ -354,4 +358,4 @@ The above copyright notice and this permission notice shall be included in all c
 ### NO WARRANTY
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>
+<small>&copy; 2012-2023 Rick Strahl, West Wind Technologies</small>
