@@ -13,7 +13,7 @@ wwDotnetBridge can automatically convert some problem types and provides wrapper
 > Supported Platforms are:
 >
 > * .NET 4.6.2 Runtime or later  <small>*(.NET Framework - wwDotnetBridge)*</small>
-> * .NET Core 5.0 Runtime and later <small>*(.NET Core - wwDotnetCoreBridge)*</small>
+> * .NET Core 5.0 Runtime and later <small>*(32 bit .NET Core - wwDotnetCoreBridge)*</small>
 > * Windows 7 and newer
 > * Windows Server 2008 R2 and newer
 
