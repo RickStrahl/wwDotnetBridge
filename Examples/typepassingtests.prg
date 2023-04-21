@@ -7,6 +7,8 @@ loBridge = GetwwDotnetBridge()
 
 
 loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
+? loBridge.cErRORMSG
+
 loList = loNet.GetGenericList()
 
 
@@ -48,7 +50,6 @@ loList.AddDictionaryItem("Item3", loCust)
 
 ? loBridge.InvokeMethod(loNet, "SetDictionary", loList)  && should be 3 
 
-RETURN
 
 
 loValue = loBridge.CreateComValue()
@@ -63,14 +64,12 @@ loValue.SetValueFromSystemConvert("ToUInt64","23")
 ? loValue.GetTypeName()  && System.UInt64
 
 *** Long - Max Length
-LOCAL loNet as Westwind.WebConnection.TypePassingTests
 loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
 
 ? loBridge.InvokeMethod(loNet,"ReturnLong")
 
 
 
-LOCAL loNet as Westwind.WebConnection.TypePassingTests
 loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
 
 
@@ -287,10 +286,36 @@ loCust.Company = "North Wind Traders"
 loList.AddDictionaryItem("Item3", loCust)
 ? lolist.Count
 
-loItem =  loList.Item(0)
-? loItem
+? loBridge.InvokeMethod(loNet, "SetDictionary", loList)  && should be 3 
 
+
+*** Async Calls
+? "*** Task Async Calls - Complete and Error Events return results"
+loTestCallbacks = CREATEOBJECT("TestCallbacks")
+loBridge.InvokeTaskMethodAsync(loTestCallbacks, loNet,"AddAsync",2,5)
+
+WAIT WINDOW TIMEOUT 1
+
+loBridge.InvokeTaskMethodAsync(loTestCallbacks, loNet, "ThrowErrorAsync")
 
 
 
 RETURN
+
+
+*************************************************************
+DEFINE CLASS TestCallbacks AS AsyncCallbackEvents
+*************************************************************
+
+FUNCTION OnCompleted(lvResult, lcMethod)
+? "Completed: " + TRANSFORM(lvResult)
+ENDFUNC
+
+FUNCTION OnError(lcMessage, loException, lcMethod)
+? "Error: " + lcMessage
+ENDFUNC
+
+
+
+ENDDEFINE
+*EOC TestCallbacks 

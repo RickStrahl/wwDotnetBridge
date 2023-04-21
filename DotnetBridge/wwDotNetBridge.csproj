@@ -38,17 +38,6 @@
 		<DefineConstants>NETFULL</DefineConstants>
 	</PropertyGroup>
 
-	
-
-	<ItemGroup>		
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="SSH.NET" version="2020.0.2" />
-	</ItemGroup>
-
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">		
-		
-	</ItemGroup>
-
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
 		<Reference Include="mscorlib" />

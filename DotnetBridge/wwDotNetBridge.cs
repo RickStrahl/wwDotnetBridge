@@ -1285,7 +1285,9 @@ namespace Westwind.WebConnection
                 {
                     try
                     {
-                        InvokeMethod_Internal(callBack, "onError", ex.Message, ex.GetBaseException(), method);
+                        var ex2 = WrapException(ex);
+                        InvokeMethod_Internal(callBack, "onError", ex2.Message, ex2, method);
+                        return;
                     }
                     catch
                     {
@@ -1303,22 +1305,83 @@ namespace Westwind.WebConnection
                 {
                     result.ContinueWith((r) =>
                     {
-                        object res = null;
+                       
                         var t = result.GetType();
 
-                        if (t.IsGenericType)
+                        try
                         {
-                            res = GetProperty(result, "Result");
+                            
+                            if (t.IsGenericType)
+                            {
+                                object res = null;
+                                try
+                                {
+                                    res = GetProperty(result, "Result");
+                                    InvokeMethod_Internal(callBack, "onCompleted", res, method);
+                                    return;
+                                }
+                                catch
+                                {
+                                    res = "INVALIDRESULT";
+                                }
+                                if (res is "INVALIDRESULT")
+                                {
+                                    try
+                                    {
+                                        res = GetProperty(result, "Exception");
+                                        if (res != null)
+                                        {
+                                            LastException = res as Exception;
+                                            if (LastException != null)
+                                            { 
+                                                var ex = WrapException(LastException);
+                                                InvokeMethod_Internal(callBack, "onError", ex.Message, ex, method);
+                                            }
+                                        }
+                                    }
+                                    catch(Exception ex2) 
+                                    {
+                                        ex2 = WrapException(ex2);
+                                        InvokeMethod_Internal(callBack, "onError", ex2.Message, ex2, method);
+                                    }
+                                }
+                            }
                         }
-                        InvokeMethod_Internal(callBack, "onCompleted", res, method);
+                        catch (Exception ex)
+                        {
+                            ex = WrapException(LastException);
+                            InvokeMethod_Internal(callBack, "onError", ex.Message, ex, method);
+                        }
                     });
                 }
                 catch (Exception ex)
                 {
-                    // no callback method - just eat it
-                    LastException = ex;
+                    // no OnError callback or callback has failed -
+                    // just eat the exception and set LastError
+                    LastException = ex.GetBaseException();
                 }
             }
+
+            return;
+        }
+
+        /// <summary>
+        /// Wraps an exception into a new Exception to avoid potential problems
+        /// with [ComVisible(false)] on .NET Core or with custom exceptions
+        ///
+        /// This ensures that exceptions can be passed to FoxPro in Task scenarios
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="baseExcepection"></param>
+        /// <returns></returns>
+        private Exception WrapException(Exception ex, bool baseExcepection = true)
+        {
+            if (baseExcepection)
+                ex = ex.GetBaseException();
+
+            // Create a new Exception in case there's a problem with [ComVisible]
+            var ex2 = new Exception(ex.Message, ex.InnerException);
+            return ex2;
         }
 
 

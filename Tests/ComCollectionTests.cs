@@ -157,15 +157,16 @@ namespace wwDotnetBridge.Test
         [TestMethod]
         public void GetDictionaryKeyTest()
         {
-            var list = new Dictionary<string, decimal>();
-            list.Add("Item1", 1M);
-            list.Add("Item2", 2M);
+            var list = new Dictionary<string, int>();
+            list.Add("Item1", 1);
+            list.Add("Item2", 2);
 
             var collection = new ComArray();
             collection.Instance = list;
 
+            var resultObj = collection.Item("Item1");
 
-            Assert.AreEqual(collection.Item("Item1"), 1M);
+            Assert.AreEqual( resultObj, 1);
         }
 
         [TestMethod]
@@ -197,16 +198,19 @@ namespace wwDotnetBridge.Test
         [TestMethod]
         public void AddDictionaryKeyTest()
         {
-            var list = new Dictionary<string, decimal>();
-            list.Add("Item1", 1M);
-            list.Add("Item2", 2M);
+            var list = new Dictionary<string,int>();
+            list.Add("Item1", 1);
+            list.Add("Item2", 2);
 
 
             var collection = new ComArray();
             collection.Instance = list;
-            collection.AddDictionaryItem("Item3", 3M);
+            collection.AddDictionaryItem("Item3", 3);
 
-            Assert.AreEqual(collection.Item("Item3"), 3M);
+
+            //collection.Item("Item3");
+
+            Assert.AreEqual(collection.Item("Item3"), 3);
         }
 
 

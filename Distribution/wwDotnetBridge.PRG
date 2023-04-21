@@ -9,7 +9,7 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
 
 	*** Other dependencies
-	* .NET Runtime 4.0+ or .NET Core 3.1+
+	* .NET Runtime 4.0+ or .NET Core 5+
 
 	*** DLLs
 	* wwIpStuff.dll
@@ -19,7 +19,7 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 	#DEFINE WWC_CLR_HOSTDLL clrhost.dll
 
 	*** Other dependencies
-	* .NET Runtime 4.0+ or .NET Core 3.1+
+	* .NET Runtime 4.0+ or .NET Core 5+
 
 	*** DLLs
 	* clrhost.dll
@@ -2012,6 +2012,11 @@ IF !EMPTY(lcVersion)
    ENDIF        
 ENDIF
 
+
+*** Strip out v prefix
+lcVersion = STRTRAN(TRIM(lcVersion), "v","",-1,-1,1)
+
+
 *** We have to determine the highest matching version for partial version supplied
 *** We capture folder names and pad out version parts in order to sort properly
 *** then pick the highest value
@@ -2038,7 +2043,7 @@ FOR lnX = 1 TO lnFolders
      lcAdjusted = lcAdjusted + "." + PADL(INT(VAL(laParts[4])),3,'0') 
    ENDIF	   
    laVersions[lnx, 1] = lcAdjusted
-   laVersions[lnx, 2] = lcVersion      
+   laVersions[lnx, 2] = lcVersion
 ENDFOR
 
 ASORT(laVersions,1,ALEN(laVersions,1),1)

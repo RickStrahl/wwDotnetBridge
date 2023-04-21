@@ -1,10 +1,13 @@
-﻿using System;
+﻿#if NETFULL
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using System.Data;
+using System.Threading.Tasks;
 using System.Web.UI.WebControls;
 
 namespace Westwind.WebConnection
@@ -182,9 +185,9 @@ namespace Westwind.WebConnection
             return list;
         }
 
-        public int SetDictionary(Dictionary<string,TestCustomer> list)
+        public int SetDictionary(Dictionary<string,TestCustomer> dict)
         {
-            return list.Count;
+            return dict.Count;
         }
 
         public char PassChar(char value)
@@ -310,6 +313,19 @@ namespace Westwind.WebConnection
         }
 
 
+        public async Task<int> AddAsync(int num1, int num2)
+        {
+            await Task.Delay(1000);
+            return num1 + num2;
+        }
+
+        public async Task<int> ThrowErrorAsync()
+        {
+            await Task.Delay(1000);
+
+            throw new Exception("Throwing Copper - Asynchronously. Should cause an exception in async code");
+
+        }
 
     }
 
@@ -334,6 +350,11 @@ namespace Westwind.WebConnection
         public TestCustomer()
         {
             Address = new TestAddress();
+        }
+
+        public override string ToString()
+        {
+            return $"{Name} {Company}";
         }
     }
 
@@ -364,3 +385,4 @@ namespace Westwind.WebConnection
     }
 
 }
+#endif

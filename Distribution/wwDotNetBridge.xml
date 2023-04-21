@@ -1,530 +1,9 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>wwDotNetBridge</name>
+        <name>wwDotnetBridge</name>
     </assembly>
     <members>
-        <member name="T:Westwind.WebConnection.wwDotNetBridge">
-            <summary>
-            The wwDotNetBridge class provides a host of COM support functions for Visual FoxPro.
-            It allows you to host the .NET runtime without relying on COM interop to load types,
-            rather it acts as a proxy for instantiation and other tasks. 
-            
-            This library can be used itself to load .NET and types, or you can use it as a helper
-            with COM interop in which case you have to instantiate it as a COM object and call
-            its methods directly rather than using the FoxPro helper class.
-            </summary>
-        </member>
-        <member name="P:Westwind.WebConnection.wwDotNetBridge.ErrorMessage">
-            <summary>
-            Returns error information if the call fails
-            </summary>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.LoadAssembly(System.String)">
-            <summary>
-            Loads an assembly into the AppDomain by its fully qualified assembly name
-            </summary>
-            <param name="AssemblyName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.LoadAssemblyFrom(System.String)">
-            <summary>
-            Loads an assembly into the AppDomain by a fully qualified assembly path
-            </summary>
-            <param name="AssemblyFileName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance(System.String)">
-            <summary>
-            Creates a type reference from a given type name if the
-            assembly is already loaded.
-            </summary>
-            <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_OneParm(System.String,System.Object)">
-            <summary>
-            Creates a type reference from a given type name if the
-            assembly is already loaded.
-            </summary>        
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_TwoParms(System.String,System.Object,System.Object)">
-            <summary>
-            Creates a type reference from a given type name if the
-            assembly is already loaded.
-            </summary>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_ThreeParms(System.String,System.Object,System.Object,System.Object)">
-            <summary>
-            Creates a type reference from a given type name if the
-            assembly is already loaded.
-            </summary>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_Internal(System.String,System.Object[])">
-            <summary>
-            Creates an instance of a class  based on its type name. Assumes that the type's
-            assembly is already loaded.
-            
-            Note this will be a little slower than the versions that work with assembly
-            name specified because this code has to search for the type first rather
-            than directly activating it.
-            </summary>
-            <param name="TypeName"></param>
-            <param name="args"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_Internal(System.String,System.String,System.Object[])">
-            <summary>
-            Routine that loads an assembly by its 'application assembly name' - unsigned
-            assemblies must be visible via the .NET path (current path or BIN dir) and
-            GAC assemblies must be referenced by their full assembly name.
-            </summary>
-            <param name="AssemblyName"></param>
-            <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType(System.Object,System.String,System.String)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_OneParm(System.Object,System.String,System.String,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <param name="parm1"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_TwoParms(System.Object,System.String,System.String,System.Object,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <param name="parm1"></param>
-            <param name="parm2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_ThreeParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <param name="parm1"></param>
-            <param name="parm2"></param>
-            <param name="parm3"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_FourParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>
-            <param name="parm1"></param>
-            <param name="parm2"></param>
-            <param name="parm3"></param>
-            <param name="parm4"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_FiveParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object,System.Object,System.Object)">
-            <summary>
-            Creates an instance of a type on an existing property of another type
-            </summary>
-            <param name="instance">Parent Instance that contains the property to set</param>
-            <param name="property">The property on the parent instance to set</param>
-            <param name="TypeName">Full name of the type to create</param>/// <param name="parm1"></param>
-            <param name="parm2"></param>
-            <param name="parm3"></param>
-            <param name="parm4"></param>
-            <param name="parm5"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile(System.String,System.String)">
-            <summary>
-            Creates an instance from a file reference with a parameterless constructor
-            </summary>
-            <param name="AssemblyFileName"></param>
-            <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile_OneParm(System.String,System.String,System.Object)">
-            <summary>
-            Creates an instance from a file reference with a 1 parameter constructor
-            </summary>
-            <param name="AssemblyFileName"></param>
-            <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile_TwoParms(System.String,System.String,System.Object,System.Object)">
-            <summary>
-            Creates an instance from a file reference with a two parameter constructor
-            </summary>
-            <param name="AssemblyFileName"></param>
-            <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile_ThreeParms(System.String,System.String,System.Object,System.Object,System.Object)">
-            <summary>
-            Creates an instance from a file reference with a two parameter constructor
-            </summary>
-            <param name="assemblyFileName"></param>
-            <param name="typeName"></param>
-            <param name="parm1"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceFromFile_Internal(System.String,System.String,System.Object[])">
-            <summary>
-            Routine that loads a class from an assembly file name specified.
-            </summary>
-            <param name="AssemblyFileName"></param>
-            <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstance(System.String,System.String)">
-            <summary>
-            Creates a new instance from a file file based assembly refence. Requires full
-            filename including extension and path.
-            </summary>
-            <param name="AssemblyFileName"></param>
-            <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstance_OneParm(System.String,System.String,System.Object)">
-            <summary>
-            Creates a new instance from a file file based assembly refence. Requires full
-            filename including extension and path.
-            </summary>
-            <param name="AssemblyFileName"></param>
-            <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstance_TwoParms(System.String,System.String,System.Object,System.Object)">
-            <summary>
-            Creates a new instance from a file file based assembly refence. Requires full
-            filename including extension and path.
-            </summary>
-            <param name="AssemblyFileName"></param>
-            <param name="TypeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethod_Internal(System.String,System.String,System.Object[])">
-            <summary>
-            Invokes a static method
-            </summary>
-            <param name="TypeName"></param>
-            <param name="Method"></param>
-            <param name="args"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetStaticProperty(System.String,System.String)">
-            <summary>
-            Retrieves a value from  a static property by specifying a type full name and property
-            </summary>
-            <param name="TypeName">Full type name (namespace.class)</param>
-            <param name="Property">Property to get value from</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod(System.Object,System.String)">
-            <summary>
-            Invokes a method with no parameters
-            </summary>
-            <param name="instance"></param>
-            <param name="method"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethodWithParameterArray(System.Object,System.String,System.Object[])">
-            <summary>
-            Invokes a method with an explicit array of parameters
-            Allows for any number of parameters to be passed.
-            </summary>
-            <param name="instance"></param>
-            <param name="method"></param>
-            <param name="parms"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod_OneParm(System.Object,System.String,System.Object)">
-            <summary>
-            Invokes a method with one parameter
-            </summary> 
-            <param name="instance"></param>
-            <param name="method"></param>
-            <param name="parm1"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod_TwoParms(System.Object,System.String,System.Object,System.Object)">
-            <summary>
-            Invokes a method with two parameters
-            </summary>
-            <param name="Instance"></param>
-            <param name="Method"></param>
-            <param name="Parm1"></param>
-            <param name="Parm2"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetPropertyEx(System.Object,System.String)">
-            <summary>
-            Returns a property value by allowing . syntax to drill
-            into nested objects. Use this method to step over objects 
-            that FoxPro can't directly access (like structs, generics etc.)
-            </summary>
-            <param name="instance"></param>
-            <param name="property"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetProperty(System.Object,System.String,System.Object)">
-            <summary>
-            Sets a property of a .NET object with a value
-            </summary>
-            <param name="Instance"></param>
-            <param name="property"></param>
-            <param name="value"></param>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetPropertyEx(System.Object,System.String,System.Object)">
-            <summary>
-            Sets a property of a .NET object with a value using extended syntax.
-            
-            This method supports '.' syntax so you can use "Property.ChildProperty"
-            to walk the object hierarchy in the string property parameter. 
-            
-            This method also supports accessing of Array/Collection indexers (Item[1])
-            </summary>
-            <param name="Instance"></param>
-            <param name="Property"></param>
-            <param name="Value"></param>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetEnumString(System.String,System.Object)">
-            <summary>
-            Returns the name of an enum field given an enum value
-            passed. Pass in the name of the enum type
-            </summary>
-            <param name="EnumTypeName"></param>
-            <param name="Value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethodAsync(System.Object,System.String,System.String,System.Object[])">
-            <summary>
-            Invokes a method on asynchronously and fires OnCompleted and OnError
-            events on a passed in callback object.
-            </summary>
-            <param name="callBack">
-            A callback object that has to have two methods:
-            OnCompleted(lvResult, lcMethod)
-            OnError(lcErrorMsg,loException, lcMethod)        
-            </param>
-            <param name="instance"></param>
-            <param name="method"></param>
-            <param name="parameters"></param>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethodAsync(System.Object,System.Object,System.String,System.Object[])">
-            <summary>
-            Invokes a method on a new thread and fires OnCompleted and OnError
-            events on a passed in callback object.
-            </summary>
-            <param name="callBack">
-            A callback object that has to have two methods:
-            OnCompleted(lvResult, lcMethod)
-            OnError(lcErrorMsg,loException, lcMethod)        
-            </param>
-            <param name="instance"></param>
-            <param name="method"></param>
-            <param name="parameters"></param>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge._InvokeMethodAsync(System.Object)">
-            <summary>
-            Internal handler method that actually makes the async call on a thread
-            </summary>
-            <param name="parmList"></param>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayInstanceInternal(System.Object,System.String,System.Int32)">
-            <summary>
-            Creates an instance of an array on a given base object instance by name.
-            Array is created with 'empty' elements - ie. objects are null and value
-            types are set to their default() values.
-            </summary>
-            <param name="baseType"></param>
-            <param name="arrayProperty"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayOnInstance(System.Object,System.String,System.Int32)">
-            <summary>
-            Creates an array instance of a given type and size. Note the
-            elements of this array are null/default and need to be set explicitly
-            </summary>
-            <param name="baseType">Object instance on which to create the array</param>
-            <param name="arrayProperty">String property/field name of the array to create</param>
-            <param name="size">Size of the array to createArray</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayOnInstanceWithObject(System.Object,System.String,System.Object)">
-            <summary>
-            Creates a new array instance on a type of exactly 1 array item which is
-            assigned the item parameter passed in. 
-            </summary>
-            <param name="baseType"></param>
-            <param name="arrayProperty"></param>
-            <param name="item"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArray(System.String)">
-            <summary>
-            Creates an instance of an array
-            </summary>
-            <param name="arrayTypeString"></param>
-            <param name="item"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayFromInstance(System.Object)">
-            <summary>
-            Creates a ComArray instance from an Array, List, Collection or Dicitionary
-            </summary>
-            <param name="instance"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.AddArrayItem(System.Object,System.String,System.Object)">
-            <summary>
-            Used to add an item to an array by indirection to work around VFP's
-            inability to easily add array elements.
-            </summary>
-            <param name="baseObject">The object that has the Array property</param>
-            <param name="arrayObject">The array property name as a string</param>
-            <param name="item">The item to set it to. Should not be null.</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetIndexedProperty(System.Object,System.Int32)">
-            <summary>
-            Returns an indexed property Value
-            </summary>
-            <param name="baseList">List object</param>
-            <param name="index">Index into the list</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetArrayItem(System.Object,System.String,System.Int32)">
-            <summary>
-            Returns an individual Array Item by its index
-            </summary>
-            <param name="baseObject"></param>
-            <param name="arrayName"></param>
-            <param name="index"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDictionaryItem(System.Collections.IDictionary,System.Object)">
-            <summary>
-            Returns a dictionary item from a dictionary object by passing in a key.
-            </summary>
-            <param name="dictionary"></param>
-            <param name="key"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetArrayItem(System.Object,System.String,System.Int32,System.Object)">
-            <summary>
-            Sets an array element to a given value. Assumes the array is big
-            enough and the array item exists.
-            </summary>
-            <param name="baseObject">base object reference</param>
-            <param name="arrayName">Name of the array as a string</param>
-            <param name="index">The index of the item to set</param>
-            <param name="value">The value to set the array item to</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.RemoveArrayItem(System.Object,System.String,System.Int32)">
-            <summary>
-            Removes an item from a .NET array with indirection to work around VFP's
-            inability to manipulate .NET array elements.
-            </summary>
-            <param name="baseObject">The arrays parent object</param>
-            <param name="arrayObject">The array's name as a string</param>
-            <param name="Index">The index to of the item to delete. NOTE: 1 based!</param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.DataSetToXmlString(System.Data.DataSet,System.Boolean)">
-            <summary>
-            Returns an XML string from a .NET DataSet
-            </summary>
-            <param name="ds"></param>
-            <param name="includeSchema"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.XmlStringToDataSet(System.String)">
-            <summary>
-            Converts an Xml String created from a FoxPro Xml Adapter or CursorToXml
-            into a DataSet if possible.
-            </summary>
-            <param name="xml"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.FixupReturnValue(System.Object)">
-            <summary>
-            Fixes up a return value to return to FoxPro 
-            based on its type. Fixes up some values to
-            be type safe for FoxPro and others are returned
-            as wrappers (ComArray, ComGuid)
-            </summary>
-            <param name="val"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.ConvertObjectToByteArray(System.Object)">
-            <summary>
-            Converts an object to a byte array
-            </summary>
-            <param name="val"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.FixupAssemblyName(System.String)">
-            <summary>
-            Helper routine that automatically assigns default names to certain
-            'common' system assemblies so that we don't have to provide a full path
-            
-            NOTE: 
-            All names are for .NET 2.0 Runtime at the moment
-            </summary>
-            <param name="AssemblyName"></param>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetType(System.Object)">
-            <summary>
-            Returns a type reference of a .NET type (or FoxPro or COM object
-            which is pretty much useless as it only returns the COM wrapper type)
-            </summary>
-            <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetTypeFromName(System.String)">
-            <summary>
-            Helper routine that looks up a type name and tries to retrieve the
-            full type reference in the actively executing assemblies.
-            </summary>
-            <param name="typeName"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDotnetVersion(System.Boolean)">
-            <summary> 
-            Returns the .NET framework version installed on the machine
-            as a string  of 4.x.y version
-            </summary>
-            <remarks>Minimum version supported is 4.0</remarks>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetWindowsVersion(Westwind.WebConnection.WindowsVersionModes)">
-            <summary>
-            Returns Windows Version as a string
-            0 - Full: 10.0.17134.0 - Release: 1803
-            1 - Version only: 10.0.17134.0
-            2 - Release only: 1803
-            </summary>
-            <param name="mode"></param>
-            <returns></returns>
-        </member>
         <member name="T:Westwind.WebConnection.EventSubscriber">
             <summary>
             FoxPro interop access to .NET events. Handles all events of a source object for subsequent retrieval by a FoxPro client.
@@ -536,40 +15,6 @@
             Waits until an event is raised, or returns immediately if a queued event is available.
             </summary>
             <returns>The next event, or null if this subscriber has been disposed.</returns>
-        </member>
-        <member name="M:Westwind.WebConnection.TypePassingTests.ReturnLong">
-            <summary>
-            Should return as decimal
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.TypePassingTests.ReturnStruct(System.Int32,System.String)">
-            <summary>
-            This should be returned as a ComValue object
-            </summary>
-            <param name="intVal"></param>
-            <param name="stringVal"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.TypePassingTests.PassEnumArray(System.Windows.Forms.MessageBoxButtons[])">
-            <summary>
-            </summary>
-            <example>
-            LOCAL loArray as Westwind.WebConnection.ComArray
-            loArray = loBridge.Createarray("System.Windows.Forms.MessageBoxButtons")
-            loComValue = loBridge.CreateComValue()
-            loComValue.SetEnum("System.Windows.Forms.MessageBoxButtons.OK")
-            loArray.AddItem( loComValue) 
-            ? loBridge.InvokeMethod(loTest,"PassEnumArray",loArray)
-            </example>
-            <param name="buttons"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.TypePassingTests.Pass24Parameters(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
-            <summary>
-            Pass in 15 parameters and return the value of the last
-            </summary>
-            <returns></returns>
         </member>
         <member name="T:Westwind.WebConnection.FileUtils">
             <summary>
@@ -1452,6 +897,40 @@
             <param name="text">Input string (in object format)</param>
             <returns>true or false</returns>        
         </member>
+        <member name="M:Westwind.WebConnection.TypePassingTests.ReturnLong">
+            <summary>
+            Should return as decimal
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.TypePassingTests.ReturnStruct(System.Int32,System.String)">
+            <summary>
+            This should be returned as a ComValue object
+            </summary>
+            <param name="intVal"></param>
+            <param name="stringVal"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.TypePassingTests.PassEnumArray(System.Windows.Forms.MessageBoxButtons[])">
+            <summary>
+            </summary>
+            <example>
+            LOCAL loArray as Westwind.WebConnection.ComArray
+            loArray = loBridge.Createarray("System.Windows.Forms.MessageBoxButtons")
+            loComValue = loBridge.CreateComValue()
+            loComValue.SetEnum("System.Windows.Forms.MessageBoxButtons.OK")
+            loArray.AddItem( loComValue) 
+            ? loBridge.InvokeMethod(loTest,"PassEnumArray",loArray)
+            </example>
+            <param name="buttons"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.TypePassingTests.Pass24Parameters(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Pass in 15 parameters and return the value of the last
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:Westwind.WebConnection.ComArray">
             <summary>
             COM Wrapper for Arrays, IList and IDictionary collections that are not 
@@ -1914,6 +1393,538 @@
             <summary>
             Returns the string value of the embedded Value object
             </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Westwind.WebConnection.wwDotNetBridge">
+            <summary>
+            The wwDotNetBridge class provides a host of COM support functions for Visual FoxPro.
+            It allows you to host the .NET runtime without relying on COM interop to load types,
+            rather it acts as a proxy for instantiation and other tasks. 
+            
+            This library can be used itself to load .NET and types, or you can use it as a helper
+            with COM interop in which case you have to instantiate it as a COM object and call
+            its methods directly rather than using the FoxPro helper class.
+            </summary>
+        </member>
+        <member name="P:Westwind.WebConnection.wwDotNetBridge.ErrorMessage">
+            <summary>
+            Returns error information if the call fails
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.LoadAssembly(System.String)">
+            <summary>
+            Loads an assembly into the AppDomain by its fully qualified assembly name
+            </summary>
+            <param name="AssemblyName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.LoadAssemblyFrom(System.String)">
+            <summary>
+            Loads an assembly into the AppDomain by a fully qualified assembly path
+            </summary>
+            <param name="AssemblyFileName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance(System.String)">
+            <summary>
+            Creates a type reference from a given type name if the
+            assembly is already loaded.
+            </summary>
+            <param name="TypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_OneParm(System.String,System.Object)">
+            <summary>
+            Creates a type reference from a given type name if the
+            assembly is already loaded.
+            </summary>        
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_TwoParms(System.String,System.Object,System.Object)">
+            <summary>
+            Creates a type reference from a given type name if the
+            assembly is already loaded.
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_ThreeParms(System.String,System.Object,System.Object,System.Object)">
+            <summary>
+            Creates a type reference from a given type name if the
+            assembly is already loaded.
+            </summary>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_Internal(System.String,System.Object[])">
+            <summary>
+            Creates an instance of a class  based on its type name. Assumes that the type's
+            assembly is already loaded.
+            
+            Note this will be a little slower than the versions that work with assembly
+            name specified because this code has to search for the type first rather
+            than directly activating it.
+            </summary>
+            <param name="TypeName"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstance_Internal(System.String,System.String,System.Object[])">
+            <summary>
+            Routine that loads an assembly by its 'application assembly name' - unsigned
+            assemblies must be visible via the .NET path (current path or BIN dir) and
+            GAC assemblies must be referenced by their full assembly name.
+            </summary>
+            <param name="AssemblyName"></param>
+            <param name="TypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType(System.Object,System.String,System.String)">
+            <summary>
+            Creates an instance of a type on an existing property of another type
+            </summary>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_OneParm(System.Object,System.String,System.String,System.Object)">
+            <summary>
+            Creates an instance of a type on an existing property of another type
+            </summary>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
+            <param name="parm1"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_TwoParms(System.Object,System.String,System.String,System.Object,System.Object)">
+            <summary>
+            Creates an instance of a type on an existing property of another type
+            </summary>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
+            <param name="parm1"></param>
+            <param name="parm2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_ThreeParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object)">
+            <summary>
+            Creates an instance of a type on an existing property of another type
+            </summary>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
+            <param name="parm1"></param>
+            <param name="parm2"></param>
+            <param name="parm3"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_FourParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object,System.Object)">
+            <summary>
+            Creates an instance of a type on an existing property of another type
+            </summary>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>
+            <param name="parm1"></param>
+            <param name="parm2"></param>
+            <param name="parm3"></param>
+            <param name="parm4"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceOnType_FiveParms(System.Object,System.String,System.String,System.Object,System.Object,System.Object,System.Object,System.Object)">
+            <summary>
+            Creates an instance of a type on an existing property of another type
+            </summary>
+            <param name="instance">Parent Instance that contains the property to set</param>
+            <param name="property">The property on the parent instance to set</param>
+            <param name="TypeName">Full name of the type to create</param>/// <param name="parm1"></param>
+            <param name="parm2"></param>
+            <param name="parm3"></param>
+            <param name="parm4"></param>
+            <param name="parm5"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile(System.String,System.String)">
+            <summary>
+            Creates an instance from a file reference with a parameterless constructor
+            </summary>
+            <param name="AssemblyFileName"></param>
+            <param name="TypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile_OneParm(System.String,System.String,System.Object)">
+            <summary>
+            Creates an instance from a file reference with a 1 parameter constructor
+            </summary>
+            <param name="AssemblyFileName"></param>
+            <param name="TypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile_TwoParms(System.String,System.String,System.Object,System.Object)">
+            <summary>
+            Creates an instance from a file reference with a two parameter constructor
+            </summary>
+            <param name="AssemblyFileName"></param>
+            <param name="TypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile_ThreeParms(System.String,System.String,System.Object,System.Object,System.Object)">
+            <summary>
+            Creates an instance from a file reference with a two parameter constructor
+            </summary>
+            <param name="assemblyFileName"></param>
+            <param name="typeName"></param>
+            <param name="parm1"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateInstanceFromFile_Internal(System.String,System.String,System.Object[])">
+            <summary>
+            Routine that loads a class from an assembly file name specified.
+            </summary>
+            <param name="AssemblyFileName"></param>
+            <param name="TypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstance(System.String,System.String)">
+            <summary>
+            Creates a new instance from a file file based assembly refence. Requires full
+            filename including extension and path.
+            </summary>
+            <param name="AssemblyFileName"></param>
+            <param name="TypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstance_OneParm(System.String,System.String,System.Object)">
+            <summary>
+            Creates a new instance from a file file based assembly refence. Requires full
+            filename including extension and path.
+            </summary>
+            <param name="AssemblyFileName"></param>
+            <param name="TypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstance_TwoParms(System.String,System.String,System.Object,System.Object)">
+            <summary>
+            Creates a new instance from a file file based assembly refence. Requires full
+            filename including extension and path.
+            </summary>
+            <param name="AssemblyFileName"></param>
+            <param name="TypeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethod_Internal(System.String,System.String,System.Object[])">
+            <summary>
+            Invokes a static method
+            </summary>
+            <param name="TypeName"></param>
+            <param name="Method"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetStaticProperty(System.String,System.String)">
+            <summary>
+            Retrieves a value from  a static property by specifying a type full name and property
+            </summary>
+            <param name="TypeName">Full type name (namespace.class)</param>
+            <param name="Property">Property to get value from</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod(System.Object,System.String)">
+            <summary>
+            Invokes a method with no parameters
+            </summary>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethodWithParameterArray(System.Object,System.String,System.Object[])">
+            <summary>
+            Invokes a method with an explicit array of parameters
+            Allows for any number of parameters to be passed.
+            </summary>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parms"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod_OneParm(System.Object,System.String,System.Object)">
+            <summary>
+            Invokes a method with one parameter
+            </summary> 
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parm1"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethod_TwoParms(System.Object,System.String,System.Object,System.Object)">
+            <summary>
+            Invokes a method with two parameters
+            </summary>
+            <param name="Instance"></param>
+            <param name="Method"></param>
+            <param name="Parm1"></param>
+            <param name="Parm2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetPropertyEx(System.Object,System.String)">
+            <summary>
+            Returns a property value by allowing . syntax to drill
+            into nested objects. Use this method to step over objects 
+            that FoxPro can't directly access (like structs, generics etc.)
+            </summary>
+            <param name="instance"></param>
+            <param name="property"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetProperty(System.Object,System.String,System.Object)">
+            <summary>
+            Sets a property of a .NET object with a value
+            </summary>
+            <param name="Instance"></param>
+            <param name="property"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetPropertyEx(System.Object,System.String,System.Object)">
+            <summary>
+            Sets a property of a .NET object with a value using extended syntax.
+            
+            This method supports '.' syntax so you can use "Property.ChildProperty"
+            to walk the object hierarchy in the string property parameter. 
+            
+            This method also supports accessing of Array/Collection indexers (Item[1])
+            </summary>
+            <param name="Instance"></param>
+            <param name="Property"></param>
+            <param name="Value"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetEnumString(System.String,System.Object)">
+            <summary>
+            Returns the name of an enum field given an enum value
+            passed. Pass in the name of the enum type
+            </summary>
+            <param name="EnumTypeName"></param>
+            <param name="Value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeStaticMethodAsync(System.Object,System.String,System.String,System.Object[])">
+            <summary>
+            Invokes a method on asynchronously and fires OnCompleted and OnError
+            events on a passed in callback object.
+            </summary>
+            <param name="callBack">
+            A callback object that has to have two methods:
+            OnCompleted(lvResult, lcMethod)
+            OnError(lcErrorMsg,loException, lcMethod)        
+            </param>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.InvokeMethodAsync(System.Object,System.Object,System.String,System.Object[])">
+            <summary>
+            Invokes a method on a new thread and fires OnCompleted and OnError
+            events on a passed in callback object.
+            </summary>
+            <param name="callBack">
+            A callback object that has to have two methods:
+            OnCompleted(lvResult, lcMethod)
+            OnError(lcErrorMsg,loException, lcMethod)        
+            </param>
+            <param name="instance"></param>
+            <param name="method"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.WrapException(System.Exception,System.Boolean)">
+             <summary>
+             Wraps an exception into a new Exception to avoid potential problems
+             with [ComVisible(false)] on .NET Core or with custom exceptions
+            
+             This ensures that exceptions can be passed to FoxPro in Task scenarios
+             </summary>
+             <param name="ex"></param>
+             <param name="baseExcepection"></param>
+             <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge._InvokeMethodAsync(System.Object)">
+            <summary>
+            Internal handler method that actually makes the async call on a thread
+            </summary>
+            <param name="parmList"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayInstanceInternal(System.Object,System.String,System.Int32)">
+            <summary>
+            Creates an instance of an array on a given base object instance by name.
+            Array is created with 'empty' elements - ie. objects are null and value
+            types are set to their default() values.
+            </summary>
+            <param name="baseType"></param>
+            <param name="arrayProperty"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayOnInstance(System.Object,System.String,System.Int32)">
+            <summary>
+            Creates an array instance of a given type and size. Note the
+            elements of this array are null/default and need to be set explicitly
+            </summary>
+            <param name="baseType">Object instance on which to create the array</param>
+            <param name="arrayProperty">String property/field name of the array to create</param>
+            <param name="size">Size of the array to createArray</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayOnInstanceWithObject(System.Object,System.String,System.Object)">
+            <summary>
+            Creates a new array instance on a type of exactly 1 array item which is
+            assigned the item parameter passed in. 
+            </summary>
+            <param name="baseType"></param>
+            <param name="arrayProperty"></param>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArray(System.String)">
+            <summary>
+            Creates an instance of an array
+            </summary>
+            <param name="arrayTypeString"></param>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateArrayFromInstance(System.Object)">
+            <summary>
+            Creates a ComArray instance from an Array, List, Collection or Dicitionary
+            </summary>
+            <param name="instance"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.AddArrayItem(System.Object,System.String,System.Object)">
+            <summary>
+            Used to add an item to an array by indirection to work around VFP's
+            inability to easily add array elements.
+            </summary>
+            <param name="baseObject">The object that has the Array property</param>
+            <param name="arrayObject">The array property name as a string</param>
+            <param name="item">The item to set it to. Should not be null.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetIndexedProperty(System.Object,System.Int32)">
+            <summary>
+            Returns an indexed property Value
+            </summary>
+            <param name="baseList">List object</param>
+            <param name="index">Index into the list</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetArrayItem(System.Object,System.String,System.Int32)">
+            <summary>
+            Returns an individual Array Item by its index
+            </summary>
+            <param name="baseObject"></param>
+            <param name="arrayName"></param>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDictionaryItem(System.Collections.IDictionary,System.Object)">
+            <summary>
+            Returns a dictionary item from a dictionary object by passing in a key.
+            </summary>
+            <param name="dictionary"></param>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetArrayItem(System.Object,System.String,System.Int32,System.Object)">
+            <summary>
+            Sets an array element to a given value. Assumes the array is big
+            enough and the array item exists.
+            </summary>
+            <param name="baseObject">base object reference</param>
+            <param name="arrayName">Name of the array as a string</param>
+            <param name="index">The index of the item to set</param>
+            <param name="value">The value to set the array item to</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.RemoveArrayItem(System.Object,System.String,System.Int32)">
+            <summary>
+            Removes an item from a .NET array with indirection to work around VFP's
+            inability to manipulate .NET array elements.
+            </summary>
+            <param name="baseObject">The arrays parent object</param>
+            <param name="arrayObject">The array's name as a string</param>
+            <param name="Index">The index to of the item to delete. NOTE: 1 based!</param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.DataSetToXmlString(System.Data.DataSet,System.Boolean)">
+            <summary>
+            Returns an XML string from a .NET DataSet
+            </summary>
+            <param name="ds"></param>
+            <param name="includeSchema"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.XmlStringToDataSet(System.String)">
+            <summary>
+            Converts an Xml String created from a FoxPro Xml Adapter or CursorToXml
+            into a DataSet if possible.
+            </summary>
+            <param name="xml"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.FixupReturnValue(System.Object)">
+            <summary>
+            Fixes up a return value to return to FoxPro 
+            based on its type. Fixes up some values to
+            be type safe for FoxPro and others are returned
+            as wrappers (ComArray, ComGuid)
+            </summary>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.ConvertObjectToByteArray(System.Object)">
+            <summary>
+            Converts an object to a byte array
+            </summary>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.FixupAssemblyName(System.String)">
+            <summary>
+            Helper routine that automatically assigns default names to certain
+            'common' system assemblies so that we don't have to provide a full path
+            
+            NOTE: 
+            All names are for .NET 2.0 Runtime at the moment
+            </summary>
+            <param name="AssemblyName"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetType(System.Object)">
+            <summary>
+            Returns a type reference of a .NET type (or FoxPro or COM object
+            which is pretty much useless as it only returns the COM wrapper type)
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetTypeFromName(System.String)">
+            <summary>
+            Helper routine that looks up a type name and tries to retrieve the
+            full type reference in the actively executing assemblies.
+            </summary>
+            <param name="typeName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDotnetVersion(System.Boolean)">
+            <summary> 
+            Returns the .NET framework version installed on the machine
+            as a string  of 4.x.y version
+            </summary>
+            <remarks>Minimum version supported is 4.0</remarks>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetWindowsVersion(Westwind.WebConnection.WindowsVersionModes)">
+            <summary>
+            Returns Windows Version as a string
+            0 - Full: 10.0.17134.0 - Release: 1803
+            1 - Version only: 10.0.17134.0
+            2 - Release only: 1803
+            </summary>
+            <param name="mode"></param>
             <returns></returns>
         </member>
         <member name="T:Westwind.WebConnection.wwDotnetBridgeFactory">
