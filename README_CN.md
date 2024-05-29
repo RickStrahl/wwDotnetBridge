@@ -3,36 +3,52 @@
 
 翻译：xinjie 2018.05.10 - 2018.07.17
 
+修订：2024.05.29
+
 **鸣谢：[龙岩耐思](http://www.fjlynice.com/)**
 
 wwDotnetBridge 是一个小型库，旨在使**从 Visual FoxPro 调用 .NET 组件**变得容易。 通过提供一种简单的机制来加载 .NET 组件并在不需要 .NET 组件的明确 COM 注册的情况下调用它们，就可以轻松地将 .NET 功能添加到您的应用程序中。 与核心 .NET 框架组件交互，访问免费或商业第三方**库**，或者从 FoxPro 构建和访问您自己的 .NET 组件，而无需通过 COM 注册组件。
 
-wwDotnetBridge 还提供了大量工具，以便访问 FoxPro 和 COM 本身不支持的 .NET 类型功能。 例如，原生 COM 互操作无法访问具有多个构造函数的组件，无法访问Value，Static或Generic成员和类型。 wwDotnetBridge 可以自动转换一些问题类型，并提供允许访问大多数不受支持的要素类型的包装类型。 还有一个功能强大的ComArray 类，可以轻松交互和操作 .NET 数组和集合，还有一个 ComValue 类，可以让您分配和传递 .NET 值，而无需触及 FoxPro 代码。
+wwDotnetBridge 还提供了大量工具，以便访问 FoxPro 和 COM 本身不支持的 .NET 类型功能。 例如，原生 COM 互操作无法访问具有多个构造函数的组件，无法访问Value，Static或Generic成员和类型。 
+
+wwDotnetBridge 可以自动转换某些有问题的类型，并提供封装器，允许访问大多数不支持的功能。此外，还有一个功能强大的 `ComArray` 类，可让您轻松地交互和操作.NET数组、列表和集合，还有一个 `ComValue` 类，可让您赋值、访问和传递.NET值，而无需将本地.NET值传递到FoxPro，这就允许您访问 COM 无法直接访问的类型。
 
 #### wwDotnetBridge 和 .NET 版本
-> 当前版本的wwDotnetBridge是为.NET 4.5编译的，适用于：
+> 当前有两个版本的 wwDotnetBridge，一个用于 .NET Framework(1.0-4.8)，另一个用于 .NET Core(.NET Core 5.0+)。
 >
-> * .NET 4.5 或更高
+> 支持的平台包括：
+>
+> * .NET 4.62 或更高 <small>*(.NET Framework - wwDotnetBridge)*</small>
+> * .NET Core 5.0 运行时和更高的版本 <small>*(32 bit .NET Core - wwDotnetCoreBridge)*</small>
 > * Windows 7 或更高
 > * Windows Server 2008 R2 或更高
->
-> 要获得Windows XP，Server 2003和2008 的支持，**您必须使用[版本6.0的wwDotnetBridge](https://github.com/RickStrahl/wwDotnetBridge/releases/tag/v6.0)** ，该版本的最新版本 用 **.NET 4.0** 编译，可以运行XP，Vista，Server2003 / 2008。 请注意，您可以使用新版本来加载.NET 1.1,2.0和4.0编译程序集。
+
 
 ## 从这里开始
+使用 wwDotnetBridge 的典型步骤如下：
+
+* 在程序启动时初始化 .NET 运行时
+* 实例化 wwDotnetBridge
+* 使用 `.CreateInstance()` 创建一个 .NET 对象
+* 直接使用对象的属性和方法
+* 使用 `.GetProperty()`、`.SetProperty` 和 `.InvokeMethod()` 间接的访问在 VFP 中有问题的 .NET 类型
+* 使用固有函数的静态版本 
+
+### 初始化 .NET 运行时
+尽管这不是硬性规定，但是在应用程序启动时初始化 .NET Runtime 不失为一个好主意。这样可以确保您加载的是特定版本的 .NET，而其他组件无法加载不同的版本。一个给定的 .NET Runtime 只能加载一个版本，这取决于哪个版本先加载。
+
 在你的应用程序启动的某个地方调用`InitializeDotnetVersion()`
 
 ```foxpro
 *** 加载依赖关系并添加到过程堆栈
 *** 确保 wwDotnetBridge.prg wwDotnetBridge.dll wwIPStuff.dll
-*** 在您的 FoxPro 路径中
-DO wwDotnetBridge
-InitializeDotnetVersion("V4") 
+*** 在您的 FoxPro 搜索路径中
+DO wwDotnetBridge				&& 加载库
+InitializeDotnetVersion() 		&& 初始化 .NET 运行时
 ```
 
-这可以确保 wwDotnetBridge 加载您的 FoxPro 应用程序可以加载的指定**单一版本的.NET运行时**。
-
-> #### @icon-warning  无法加载CLR实例错误
-> 如果在创建wwDotnetBridge实例时收到<b>无法CLR实例</b>错误，则可能需要解除对 wwdotnetbridge.dll 的阻止或需要确保 wwdotnetbridge.dll 和wwipstuff.dll 位于您的 FoxPro 路径中。 请参阅[无法加载CLR实例](https://www.west-wind.com/webconnection/wwClient_docs/_3rf12jtma.htm)了解更多信息。
+> #### 无法加载CLR实例错误
+> 如果在创建wwDotnetBridge实例时收到<b>无法CLR实例</b>错误，则可能需要解除对 wwdotnetbridge.dll 的阻止或需要确保 wwdotnetbridge.dll 和 wwipstuff.dll 位于您的 FoxPro 搜索路径中。 请参阅[无法加载CLR实例](https://client-tools.west-wind.com/docs/_3rf12jtma.htm)了解更多信息。
 
 然后，当您需要利用 wwDotnetBridge 调用 `GetwwDotnetBridge()` 来获取缓存实例并使用它来访问 .NET 组件时：
 
@@ -59,10 +75,32 @@ loItem = loBridge.CreateInstance("Custom.Item")
 loItem.Sku = "NewSku"
 lnTotal = loItem.CalculateTotal()
 
-*** 间接访问不可访问的属性和方法
+*** 间接访问不可直接访问的属性和方法
+*** 不可访问的可能是 值类型、枚举、Generic类型、Long、Guid 等。
 lnFlagValue = loBridge.GetProperty(loItem,"Flag")
 lnFlagValue = loBridge.SetProperty(loItem,"Flag",5) 
 loBridge.InvokeMethod(loItem,"PassFlagValue",lnFlagValue)
+
+*** 访问静态属性和方法
+lcDomain = loBridge.GetStaticProperty("System.Environment","UserDomainName")
+llOnline = loBridge.InvokeStaticMethod("System.Net.NetworkInformation.NetworkInterface",;
+                                       "GetIsNetworkAvailable")
+
+*** 使用数组
+loComArray = loBridge.InvokeMethod(loItem,"GetDetailItems",lnPk)  && 返回数组对象
+FOR lnX = 1 to loComarray.Count
+     loLineItem = loComArray.Item[lnX]
+     ? loLineItem.Sku + " " + loLineItem.Descript
+ENDFOR     
+
+*** 传递数组
+loItems = loBridge.CreateArray("MyApp.LineItem")
+loItem = loBridige.CreateInstance("MyApp.LineItem")
+loItem.Sku = "XXXX"
+loItem.Descript = "New Item"
+loItems.AddItem(loItem)
+
+loBridge.InvokeMethod(loInvoice,"AddItems",loItems)
 ```
 
 ## 功能一览
@@ -77,18 +115,17 @@ wwDotnetBridge 通过简单的 COM 互操作提供了以下增强功能：
 * 支持许多原生不支持的 .NET 类型和值
 * 访问静态成员，值/结构类型，泛型，二进制，Guids，DbNulls
 * 在方法返回时自动修复有问题的 .NET 类型
-* 使用 ComArray 辅助类提供简单的数组访问
+* 使用 ComArray 辅助类提供简单的数组、列表和集合访问
 * ComValue 类在 .NET 中存储结果和参数
 * ComValue 可帮助解决 .NET 类型转换问题
-* ComArray 可以轻松创建，更新和管理 Enumerable 类型
 * 内置多线程库
 * wwDotnetBridge 还可以使用常规的 COM 互操作（不带运行时托管）
 
 ## 文档
 * [主页](http://west-wind.com/wwDotnetBridge.aspx)
-* [API 文档](https://www.west-wind.com/webconnection/wwClient_docs/_24n1cfw3a.htm)
-* [白皮书](https://github.com/vfp9/wwDotnetBridge/blob/master/%E5%9C%A8%20Visual%20FoxPro%20%E4%B8%AD%E4%BD%BF%E7%94%A8%20%20wwDotnetBridge%20%20%E8%B0%83%E7%94%A8%20NET%20%E7%BB%84%E4%BB%B6.pdf)
-* [更新历史](https://github.com/vfp9/wwDotnetBridge/blob/master/Changelog.md)
+* [API 文档](https://client-tools.west-wind.com/docs/_24n1cfw3a.htm)
+* [白皮书](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
+* [更新历史](Changelog.md)
 
 ## 它是如何工作的
 该库由3个组件组成（均在源代码中提供）：
@@ -98,9 +135,9 @@ wwDotnetBridge 通过简单的 COM 互操作提供了以下增强功能：
 * wwDotnetBridge.prg - FoxPro 前端到 .NET 代理
 
 > #### 确保可以找到DLL！
-> 确保CrlHost.dll（或 wwIpstuff.dll 用于[商业West Wind工具](https://west-wind.com/WestwindClientTools.aspx)）和 wwDotnetBridge 可通过FoxPro路径访问。 理想情况下，您需要将这些DLL放在应用程序的当前执行路径中 - 通常是应用程序的根文件夹。
+> 确保CrlHost.dll（或 wwIpstuff.dll 用于[商业West Wind工具](https://west-wind.com/WestwindClientTools.aspx)）和 wwDotnetBridge 可通过 FoxPro 路径访问。 理想情况下，您需要将这些DLL放在应用程序的当前执行路径中 - 通常是应用程序的根文件夹。
 
-如果你使用的是FoxPro，你可以简单地使用wwDotnetBridge.prg类来加载一个程序集并且直接启动它或者访问现有的.NET组件。
+如果你使用的是FoxPro，你可以简单地使用 `wwDotnetBridge.prg` 类来加载一个程序集并且直接启动它或者访问现有的.NET组件。
 
 此示例加载 OpenPop .NET 库并访问 POP3 邮箱以显示等待的消息：
 
@@ -140,14 +177,20 @@ FOR lnX = lnCount TO 1 STEP -1
    ENDIF
 ENDFOR
 ```
-该示例演示了一些简单的功能: 加载程序集, 创建. NET 类型实例, 然后直接或间接调用方法和访问属性。对于. NET 对象引用的许多方法和属性, 您可以直接访问成员, 但如果方法有重载, 如果方法或成员访问中涉及了泛型、枚举或值类型, 则某些成员不能直接通过 COM 调用。最好始终先尝试直接访问, 如果失败, 尝试使用对 wwDotnetBridge 实例的间接访问。
+该示例演示了一些简单的功能: 加载程序集, 创建. NET 类型实例, 然后直接或间接调用方法和访问属性。你可以调用静态方法和访问静态成员。
+
+对于. NET 对象引用的许多方法和属性, 您可以直接访问成员, 但如果方法有重载, 如果方法或成员访问中涉及了泛型、枚举或值类型, 则某些成员不能直接通过 COM 调用。最好始终先尝试直接访问, 如果失败, 尝试使用对 wwDotnetBridge 实例的间接访问。
 
 在这种情况下, 您可以使用间接引用来访问成员:
 
 * loBridge.InvokeMethod(instance,"Method",parm1,parm2..,parm15)
 * loBridge.GetProperty(instance,"Property")  
 * loBridge.SetProperty(instance,"Property",valueToSet)
-* GetPropertyEx(),SetPropertyEx,InvokeMethodEx() 支持成员的嵌套名称
+
+嵌套层次结构也可用于访问子属性或数组：
+
+* loBridge.GetProperty(instance,"Property.SubProperty")
+* loBridge.GetProperty(instance,"Property.ArrayProp[0]") 
 
 这些方法在内部使用Reflection来调用.NET代码，但是因为它们在.NET内部运行，所以它们可以执行本机COM互操作所不能做的许多事情，因为COM上的类型编组的限制以及FoxPro类型系统的不兼容性。
 
@@ -253,11 +296,35 @@ ENDFUNC
 ENDDEFINE
 ```
 
+## 事件
+
+不直接支持 .NET 委托和事件。如果.NET对象可作为注册的 COM 对象使用，则 COM 事件将转换为本地 FoxPro 事件；COM 事件绑定与wwDotNetBridge是分开的。
+
+wwDotNetBridge 支持另一种无需注册 COM 即可获取事件的方法。您可以通过调用 `wwDotNetBridge.SubscribeToEvents` 来订阅 .NET 对象的所有事件。您需要传递事件的源对象和处理程序对象。处理程序对象的类应为每个事件设置一个`On...`函数。
+
+这个示例创建了一个 `System.Net.Mail.SmtpClient` 对象并处理它的一个事件 `SendCompleted`:
+
+```foxpro
+LOCAL loSmtpClient, loSmtpHandler, loSmtpEventSubscription
+loSmtpClient = loBridge.CreateInstance("System.Net.Mail.SmtpClient")
+loSmtpHandler = CREATEOBJECT("MySmtpEventHandler")
+loSmtpEventSubscription = loBridge.SubscribeToEvents(loSmtpClient, loSmtpHandler)
+* 这里发送 email
+
+DEFINE CLASS MySmtpEventHandler as Custom
+PROCEDURE OnSendCompleted(loSender, loEventArgs)
+* 这里处理事件
+ENDPROC
+ENDDEFINE
+```
+
+如果不想再收到事件通知，请在订阅（此示例中为 `loSmtpEventSubscription`）上调用`Unsubscribe`。
+
 ## 项目赞助商
 以下人员/组织通过直接捐赠或付费开发为此项目提供赞助，作为使用这些工具的开发项目的一部分：
 
 ### West Wind Technologies
-wwDotnetBridge最初是为[West Wind Client Tools](http://west-wind.com/webconnection)和[West Wind Web Connection](http://west-wind.com/wconnect)开发的，它们继续包括 略微修改了wwDotnetBridge版本。 West Wind Technologies通过允许与.NET轻松集成并允许更多人访问这一有用功能，友好地开源wwDotnetBridge以扩展FoxPro的范围。
+wwDotnetBridge最初是为[West Wind Client Tools](http://west-wind.com/webconnection)和[West Wind Web Connection](http://west-wind.com/wconnect)开发的，它们继续包括略微修改了的 wwDotnetBridge 版本。 West Wind Technologies 通过允许与 .NET 轻松集成并允许更多人访问这一有用功能，友好地开源 wwDotnetBridge 以扩展 FoxPro 的应用范围。
 
 wwDotnetBridge更新最初是为两种商业产品开发的，在进行更改时，任何更改都会合并到此项目中。 商业版本还包括产品使用的一些附加功能，例如SMTP客户端，SFTP支持，加密和图像管理实用程序，通过.NET包装器。 如果您想要一个完全支持的wwDotnetBridge版本，或者想赞助wwDotnetBridge的进一步开发工作，您可以通过购买这些产品的许可证来证明您的支持。
 
@@ -269,17 +336,18 @@ wwDotnetBridge更新最初是为两种商业产品开发的，在进行更改时
 Craig offered 为这个项目提供了早期的支持和反馈,并且将其作为一个大项目的一部分投入了很多的时间。
 
 ### Bill Suthman - Monosynth
-Bill为该项目提供了相当大的捐赠，并为一系列改进和错误修复提供了宝贵的反馈。
+Bill 为该项目提供了相当大的捐赠，并为一系列改进和错误修复提供了宝贵的反馈。
 
 ### Sunil Rjamara  - WeatherTrend
-Sunil需要在他们的FoxPro产品中进行一些自定义集成，这导致发现了许多边缘案例，最终被集成到wwDotnetBridge中。 WeatherTrend捐赠了大量的工作时间来添加这些小功能。
+Sunil 需要在他们的 FoxPro 产品中进行一些自定义集成，这导致发现了许多边缘案例，最终被集成到 wwDotnetBridge 中。 WeatherTrend 捐赠了大量的工作时间来添加这些小功能。
 
 ### 想成为赞助商吗？
-想赞助这个项目，需要定制还是想捐款来展示你的支持？ 您可以直接通过strahl@west-wind.com与我联系，或者您也可以通过PayPal在线捐款。
+想赞助这个项目，需要定制还是想捐款来展示你的支持？ 您可以直接通过 strahl@west-wind.com 与我联系，或者您也可以通过 PayPal 在线捐款。
 
-* [使用PayPal为wwDotnetBridge捐款](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
-* [使用我们的网上商店为wwDotnetBridge捐款](http://store.west-wind.com/product/donation)
-* [购买West Wind Internet和Client Tools的许可证](http://store.west-wind.com/product/wwclient50/)
+* [捐赠这个项目](https://github.com/sponsors/RickStrahl)
+* [使用 PayPal 为 wwDotnetBridge 捐款](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3CY6HGRTHSV5Y)
+* [使用我们的网上商店为 wwDotnetBridge 捐款](http://store.west-wind.com/product/donation)
+* [购买West Wind Internet 和 Client Tools 的许可证](http://store.west-wind.com/product/wwclient50/)
 
 
 ## 许可证
@@ -294,4 +362,4 @@ Sunil需要在他们的FoxPro产品中进行一些自定义集成，这导致发
 ### 免责声明
 该软件是 "按原样" 提供的, 没有任何明示或隐含的保证, 包括但不限于适销性、特定用途的适用性和适用性的保证。在任何情况下, 作者或版权持有人不得对任何索赔、损害赔偿或其他责任承担责任, 无论是在合同、侵权行为或其他方面, 因软件或软件的使用或其他交易而产生的或与之相关的。
 
-<small>&copy; 2012-2018 Rick Strahl, West Wind Technologies</small>
+<small>&copy; 2012-2023 Rick Strahl, West Wind Technologies</small>
