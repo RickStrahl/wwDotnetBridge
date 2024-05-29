@@ -125,7 +125,7 @@ wwDotnetBridge 通过简单的 COM 互操作提供了以下增强功能：
 * [主页](http://west-wind.com/wwDotnetBridge.aspx)
 * [API 文档](https://client-tools.west-wind.com/docs/_24n1cfw3a.htm)
 * [白皮书(英文)](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
-* [白皮书(中文)](在 Visual FoxPro 中使用  wwDotnetBridge  调用 NET 组件.pdf)
+* [白皮书(中文)](在%20Visual%20FoxPro%20中使用%20%20wwDotnetBridge%20%20调用%20NET%20组件.pdf)
 * [更新历史(英文)](Changelog.md)
 
 ## 它是如何工作的
