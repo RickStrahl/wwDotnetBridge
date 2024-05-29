@@ -1,6 +1,9 @@
 using System;
 using System.IO;
+using System.IO.Compression;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Westwind.WebConnection
 {
@@ -84,7 +87,7 @@ namespace Westwind.WebConnection
 
         /// <summary>
         /// Returns a fully qualified path from a partial or relative
-        /// path.
+        /// path. Also fixes up case of the entire path **if the file exists**
         /// </summary>
         /// <param name="Path"></param>
         public static string GetFullPath(string path)
@@ -92,62 +95,194 @@ namespace Westwind.WebConnection
             if (string.IsNullOrEmpty(path))
                 return "";
 
-            return Path.GetFullPath(path);
+            path = Path.GetFullPath(path);
+
+            // Ensure we fix case
+            if (File.Exists(path))
+            {
+                StringBuilder builder = new StringBuilder(255);
+
+                // names with long extension can cause the short name to be actually larger than
+                // the long name.
+                GetShortPathName(path, builder, builder.Capacity);
+                string shortPath = builder.ToString();
+
+                GetLongPathName(shortPath, builder, builder.Capacity);
+                path = builder.ToString();
+            }
+
+            return path;
+        }
+        
+
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern uint GetLongPathName(string ShortPath, StringBuilder sb, int buffer);
+
+        [DllImport("kernel32.dll")]
+        static extern uint GetShortPathName(string longpath, StringBuilder sb, int buffer);
+        
+        /// <summary>
+        /// Returns a relative path string from a full path.
+        /// </summary>
+        /// <param name="FullPath">The path to convert. Can be either a file or a directory</param>
+        /// <param name="BasePath">The base path to truncate to and replace</param>
+        /// <returns>
+        /// Lower case string of the relative path. If path is a directory it's returned without a backslash at the end.
+        /// 
+        /// Examples of returned values:
+        ///  .\test.txt, ..\test.txt, ..\..\..\test.txt, ., ..
+        /// </returns>
+        /// <summary>
+        /// Returns a relative path string from a full path based on a base path
+        /// provided.
+        /// </summary>
+        /// <param name="fullPath">The path to convert. Can be either a file or a directory</param>
+        /// <param name="basePath">The base path on which relative processing is based. Should be a directory.</param>
+        /// <returns>
+        /// String of the relative path.
+        /// 
+        /// Examples of returned values:
+        ///  test.txt, ..\test.txt, ..\..\..\test.txt, ., .., subdir\test.txt
+        /// </returns>
+        public static string GetRelativePath(string fullPath, string basePath)
+        {
+            if (string.IsNullOrEmpty(fullPath))
+                return fullPath;
+
+            // get the full path from any partial paths
+            fullPath = Path.GetFullPath(fullPath);
+
+            // Ensure we fix case
+            if (File.Exists(fullPath))
+            {
+                StringBuilder builder = new StringBuilder(255);
+
+                // names with long extension can cause the short name to be actually larger than
+                // the long name.
+                GetShortPathName(fullPath, builder, builder.Capacity);
+                string path = builder.ToString();
+
+                uint result = GetLongPathName(path, builder, builder.Capacity);
+                fullPath = builder.ToString();
+            }
+
+            // ForceBasePath to a path
+            if (!basePath.EndsWith(value: "\\"))
+                basePath += "\\";
+
+#pragma warning disable CS0618
+            Uri baseUri = new Uri(uriString: basePath, dontEscape: true);
+            Uri fullUri = new Uri(uriString: fullPath, dontEscape: true);
+#pragma warning restore CS0618
+
+            Uri relativeUri = baseUri.MakeRelativeUri(uri: fullUri);
+
+            // Uri's use forward slashes so convert back to backward slahes
+            return relativeUri.ToString().Replace(oldValue: "/", newValue: "\\");
         }
 
-		/// <summary>
-		/// Returns a relative path string from a full path.
-		/// </summary>
-		/// <param name="FullPath">The path to convert. Can be either a file or a directory</param>
-		/// <param name="BasePath">The base path to truncate to and replace</param>
-		/// <returns>
-		/// Lower case string of the relative path. If path is a directory it's returned without a backslash at the end.
-		/// 
-		/// Examples of returned values:
-		///  .\test.txt, ..\test.txt, ..\..\..\test.txt, ., ..
-		/// </returns>
-		public static string GetRelativePath(string FullPath, string BasePath ) 
-		{
-			// *** Start by normalizing paths
-			FullPath = FullPath.ToLower();
-			BasePath = BasePath.ToLower();
 
-			if ( BasePath.EndsWith("\\") ) 
-				BasePath = BasePath.Substring(0,BasePath.Length-1);
-			if ( FullPath.EndsWith("\\") ) 
-				FullPath = FullPath.Substring(0,FullPath.Length-1);
+        /// <summary>
+        /// Returns a filename for a file to save
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="caption"></param>
+        /// <param name="title"></param>
+        /// <param name="defaultExtension">a default extension like png, txt, md etc.</param>
+        /// <param name="extensionFilter">"|Png Image (.png)|*.png|JPEG Image (.jpeg)|*.jpeg|Gif Image (.gif)|*.gif|Tiff Image (.tiff)|*.tiff|All Files (*.*)|*.*";</param>
+        /// <param name="promptOverwrite">If true prompts if file exists</param>
+        /// <returns>Filename or null</returns>
+        public static string SaveFileDialog(string folder, string title, 
+            string defaultExtension, string extensionFilter, bool promptOverwrite)
+        {
+            string file = null;
+            if (Path.HasExtension(folder))
+            {
+                file = folder;
+                folder = Path.GetDirectoryName(folder);                
+            }
 
-			// *** First check for full path
-			if ( (FullPath+"\\").IndexOf(BasePath + "\\") > -1) 
-				return  FullPath.Replace(BasePath,".");
+            var dialog = new SaveFileDialog();
+            dialog.RestoreDirectory = true;
+            dialog.InitialDirectory = folder;
+            if (!string.IsNullOrEmpty(file))
+                dialog.FileName = file;            
+            dialog.Title = title;
+            dialog.AddExtension = true;
+            dialog.DefaultExt = defaultExtension;
+            dialog.Filter = extensionFilter;
+            dialog.OverwritePrompt = promptOverwrite;
 
-			// *** Now parse backwards
-			string BackDirs = "";
-			string PartialPath = BasePath;
-			int Index = PartialPath.LastIndexOf("\\");
-			while (Index > 0) 
-			{
-				// *** Strip path step string to last backslash
-				PartialPath = PartialPath.Substring(0,Index );
-			
-				// *** Add another step backwards to our pass replacement
-				BackDirs = BackDirs + "..\\" ;
+            var result = dialog.ShowDialog();
+            if (result != DialogResult.OK)
+                return null;
 
-				// *** Check for a matching path
-				if ( FullPath.IndexOf(PartialPath) > -1 ) 
-				{
-					if ( FullPath == PartialPath )
-						// *** We're dealing with a full Directory match and need to replace it all
-						return FullPath.Replace(PartialPath,BackDirs.Substring(0,BackDirs.Length-1) );
-					else
-						// *** We're dealing with a file or a start path
-						return FullPath.Replace(PartialPath+ (FullPath == PartialPath ?  "" : "\\"),BackDirs);
-				}
-				Index = PartialPath.LastIndexOf("\\",PartialPath.Length-1);
-			}
+            return dialog.FileName;
+        }
 
-			return FullPath;
-		}
+
+        /// <summary>
+        /// Returns a filename for a file to open
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="caption"></param>
+        /// <param name="title"></param>        
+        /// <param name="extensionFilter">"|Png Image (.png)|*.png|JPEG Image (.jpeg)|*.jpeg|Gif Image (.gif)|*.gif|Tiff Image (.tiff)|*.tiff|All Files (*.*)|*.*";</param>
+        /// <param name="checkIfFileExists">If true requires that the selected file exists. Otherwise you can type a filename.</param>
+        /// <returns>Filename or null</returns>
+        public static string OpenFileDialog(string folder, string title,
+            string extensionFilter, bool checkIfFileExists)
+        {
+            string file = null;
+            if (Path.HasExtension(folder))
+            {
+                file = folder;
+                folder = Path.GetDirectoryName(folder);
+            }
+
+            var dialog = new OpenFileDialog();
+            dialog.RestoreDirectory = true;
+            dialog.InitialDirectory = folder;
+            if (!string.IsNullOrEmpty(file))
+                dialog.FileName = file;
+            dialog.Title = title;
+            dialog.AddExtension = true;            
+            dialog.Filter = extensionFilter;
+            dialog.CheckFileExists = checkIfFileExists;
+
+            var result = dialog.ShowDialog();
+            if (result != DialogResult.OK)
+                return null;
+
+            return dialog.FileName;
+        }
+
+        /// <summary>
+        /// Displays a folder browser dialog box
+        /// </summary>
+        /// <param name="startFolder"></param>
+        /// <param name="description"></param>
+        /// <returns></returns>
+        public static string OpenFolderDialog(string startFolder, string description)
+        {
+            if (description == string.Empty)
+                description = null;
+            if (string.IsNullOrEmpty(startFolder))
+                startFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            var dialog = new FolderBrowserDialog()
+            {
+                SelectedPath = startFolder,
+                Description = description,
+                ShowNewFolderButton = true
+            };
+            var dialogResult = dialog.ShowDialog();
+
+            if (dialogResult != DialogResult.OK)
+                return null;
+
+            return dialog.SelectedPath;
+        }
 
         /// <summary>
         /// Deletes files based on a file spec and a given timeout.
@@ -170,9 +305,54 @@ namespace Westwind.WebConnection
                 }
                 catch {}  // ignore locked files
             }
-        }        
-            
-		
+        }
+
+        /// <summary>
+        /// Zips a folder 
+        /// </summary>
+        /// <param name="outputZipFile"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public static bool ZipFolder(string outputZipFile, string folder, bool fast)
+        {
+            try
+            {
+                if (File.Exists(outputZipFile))
+                    File.Delete(outputZipFile);
+
+                ZipFile.CreateFromDirectory(folder, 
+                        outputZipFile, 
+                        fast ? CompressionLevel.Fastest :CompressionLevel.Optimal, 
+                        false);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Unzips a zip file to a destination folder.
+        /// </summary>
+        /// <param name="zipFile"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public static bool UnzipFolder(string zipFile, string folder)
+        {
+            try
+            {
+                ZipFile.ExtractToDirectory(zipFile, folder);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
     }
 
 }

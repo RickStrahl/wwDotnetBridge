@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-
 using System.Collections.Generic;
 using System.Collections;
 using System.Reflection;
@@ -8,17 +7,27 @@ using System.Reflection;
 namespace Westwind.WebConnection
 {
     /// <summary>
-    /// COM Wrapper for an array that is assigned as variable.
-    /// This instance allows Visual FoxPro to manipulate the array
-    /// using the wwDotNetBridge Array functions that are require
-    /// a parent object.
+    /// COM Wrapper for Arrays, IList and IDictionary collections that are not 
+    /// directly or easily accessible in FoxPro. Provides members like `Count`, 
+    /// `Item()` for index or key retrieval, `AddItem()`, `AddDictionaryItem()`, 
+    /// `RemoveItem()`, `Clear()` to provide common collection operations more 
+    /// naturally in FoxPro abstracted for the different types of collections 
+    /// available in .NET (Arrays, Lists, Hash tables, Dictionaries).
     /// 
-    /// When passed to a method that requires an array the instance
-    /// member is passed as the actual parameter.
+    /// Internally stores an instance of the collection so the collection is never 
+    /// actually passed to FoxPro. Instead this class acts as a proxy to the 
+    /// collection which is stored in the `.Instance` property.
     /// 
-    /// Note: You should always use wwDotNetBridge.CreateInstance
-    /// to create an instance of this array from Fox code otherwise
-    /// there's no instance set.
+    /// This instance allows Visual FoxPro to manipulate the collection by directly
+    ///  accessing array, list or dictionary values by index or key (depending on 
+    /// list or collection), adding, removing and clearing items, creating array, 
+    /// list and dictionary instances and assigning and picking up these  values 
+    /// from existing objects.
+    /// 
+    /// This class is also internally used to capture collections that are returned
+    ///  from method calls or Properties via `InvokeMethod()` and `GetProperty()` 
+    /// and can be used to pass collections to .NET which otherwise would not be 
+    /// possible over COM.
     /// </summary>
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.AutoDual)]
@@ -31,12 +40,7 @@ namespace Westwind.WebConnection
         /// calls made with InvokeMethod and explicit property
         /// assignments with Set/GetProperty.
         /// </summary>
-        public object Instance
-        {
-            get { return _Instance; }
-            set { _Instance = value; }
-        }
-        private object _Instance = null;
+        public object Instance  {get; set; }
 
         /// <summary>
         /// Returns the length of the .NET array contained in Instance
@@ -48,16 +52,18 @@ namespace Westwind.WebConnection
                 if (Instance == null)
                     return 0;
 
-                Array inst = Instance as Array;
-                if (inst == null)
-                    return 0;
+                // these two should capture all list/array/collection scenarios
+                if (Instance is ICollection)
+                    return ((ICollection) Instance).Count;
+                if (Instance is Array)
+                    return ((Array)Instance).Length;
 
-                return inst.Length;
+                // Try with Reflection - could fail with Exception
+                return (int) ReflectionUtils.GetProperty(Instance, "Count");
             }
 
         }
-		
-
+        
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -66,12 +72,12 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Creates a new COM Array from an existing array instance
+        /// Creates a new COM Array instance from an existing collection instance
         /// </summary>
         /// <param name="instance"></param>
         public ComArray(object instance)
         {
-            Instance = instance as Array;
+            Instance = instance;
 
             if (Instance == null)
                 throw new ArgumentException("This instance is not an Array");
@@ -79,29 +85,451 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Creates a .NET array instance with 0 items on this ComArray instance
+        /// Returns an item by indexOrKey from an IList collection. This works on:
+        /// 
+        /// * Array   (int)
+        /// * Array List  (int)
+        /// * IList       (int)
+        /// * ICollection  (any type)
+        /// * HashSet      (any type)
+        /// * IDictionary  (key type) (or int for index)
+        /// 
+        /// You can specify either an integer for list types or any type for 
+        /// collections. int keys are 0 based.
+        /// <seealso>Class ComArray</seealso>
         /// </summary>
-        /// <param name="arrayTypeName"></param>
-        /// <returns></returns>
-        public bool CreateEmptyArray(string arrayTypeName)
+        /// <returns>matching item or null</returns>
+        /// <example>
+        /// ```foxpro
+        /// *** Access generic list through indirect access through Proxy and get 
+        /// ComArray
+        /// loList = loBridge.InvokeMethod(loNet,&quot;GetGenericList&quot;)
+        /// ? loBridge.ToString(loList)   &&amp; System.Collections.Generic.List...
+        /// ? loList.Count &&amp; 2
+        /// 
+        /// *** Grab an item by index
+        /// loCust =  loList.Item(0)
+        /// ? loCust.Company
+        /// 
+        /// *** Iterate the list
+        /// FOR lnX = 0 TO loList.Count -1
+        ///    loItem = lolist.Item(lnX)
+        ///    ? loItem.Company
+        /// ENDFOR
+        /// ```
+        /// 
+        /// ```foxpro
+        /// *** Retrieve a generic dictionary
+        /// loList = loBridge.InvokeMethod(loNet,&quot;GetDictionary&quot;)
+        /// ? loList.Count  &&amp;  2
+        /// 
+        /// *** Return Item by Key
+        /// loCust =  loList.Item(&quot;Item1&quot;)   &&amp; Retrieve item by Key
+        /// ? loCust.Company
+        /// 
+        /// *** This works as long as the key type is not int
+        /// loCust =  loList.Item(0)   &&amp; Retrieve item by Index
+        /// ? loCust.Company
+        /// 
+        /// *** This allows iterating a dictionary
+        /// FOR lnX = 0 TO loList.Count -1
+        ///    loItem = lolist.Item(lnX)
+        ///    ? loItem.Company
+        /// ENDFOR
+        /// ```
+        /// 
+        /// </example>
+        /// <remarks>
+        /// Dictionaries can use 	an `int` value to return a value out of the 
+        /// collection by its index **if the key type is not of `System.Int`. This is a
+        ///  special case and allows you to iterate a dictionary which otherwise would 
+        /// not be possible.
+        /// </remarks>
+        public object Item(object indexOrKey)
         {
-            return CreateArray(arrayTypeName,0);
+            if (Instance == null)
+                return null;
+
+            if (Instance is IList)
+            {
+                if (!(indexOrKey is int))
+                    throw new ArgumentException("List requires an integer key for lookups");
+
+                var list = (IList)Instance;
+                try
+                {
+                    object val = list[(int) indexOrKey];
+                    if (val == null)
+                        return null;
+
+                    wwDotNetBridge.FixupReturnValue(val);
+
+                    return val;
+                }
+                catch
+                { }
+            }
+
+            if (Instance is IDictionary)
+            {
+                var list = (IDictionary)Instance;
+                object val = null;
+                try
+                {
+                   val = list[indexOrKey];
+                }
+                catch
+                {
+                }
+
+				// Check for int key if the generic type is NOT int and return based on index
+                if (val == null && indexOrKey is int && Instance.GetType().GenericTypeArguments[0] != typeof(int))
+                {
+                    int idx = (int)indexOrKey;
+                    int counter = 0;
+                    foreach (var item in list.Values)
+                    {
+                        if (idx == counter)
+                            return item;
+                        counter++;
+                    }
+                }
+
+                if (val == null) return null;
+
+                val = wwDotNetBridge.FixupReturnValue(val);
+
+                return val;
+            }
+
+            if (Instance is IEnumerable)
+            {
+                var list = Instance as IEnumerable;
+                if (list == null) 
+                    return null;
+
+                foreach (var item in list)
+                {
+                    if (item == indexOrKey)
+                        return item;
+                }
+
+                // if an int was passed do a lookup to allow iteration
+                if (indexOrKey is int)
+                {
+                    int idx = (int)indexOrKey;
+                    int counter = 0;
+                    foreach (var item in list)
+                    {
+                        if (idx == counter)
+                            return item;
+                        counter++;
+                    }
+                }
+                
+                return null;
+            }
+
+            return null;
         }
-        
+
         /// <summary>
-        /// Deprecated: Don't use
+        /// Adds an item to the internal list, array or single item collection.
+        /// 
+        /// The list or collection has to exist or an exception is thrown.
         /// </summary>
-        /// <param name="arrayTypeName"></param>
-        /// <returns></returns>        
-        public bool Create(string arrayTypeName)
+        /// <param name="item">an instance of the item to add.</param>
+        /// <returns>true or false</returns>
+        public bool AddItem(object item)
         {
-            return CreateArray(arrayTypeName,0);
+            item = wwDotNetBridge.FixupParameter(item);
+
+            if (Instance is Array)
+            {
+                Array ar = Instance as Array;
+
+                Type itemType = null;
+                if (item != null)
+                    itemType = item.GetType();
+                else if (ar != null)
+                    itemType = ar.GetType().GetElementType();
+                if (itemType == null)
+                    return false;
+                
+                // *** This may be ambigous - could mean no property or array exists and is null
+                if (ar == null)
+                {
+                    if (!CreateArray(itemType.FullName,0))
+                        return false;
+
+                    ar = Instance as Array;
+                }
+
+                int size = ar.GetLength(0);
+                Array copiedArray = Array.CreateInstance(ar.GetType().GetElementType(), size + 1);
+                ar.CopyTo(copiedArray, 0);
+
+                ar = copiedArray;
+                ar.SetValue(item, size);
+
+                Instance = ar;
+
+                return true;
+            }
+            if (Instance is IList)
+            {
+                var list = Instance as IList;
+                list.Add(item);
+                return true;
+            }
+
+            try
+            {
+                // force it - for special collections or HashSet<T>
+                ReflectionUtils.CallMethod(Instance, "Add", item);
+                return true;
+            }
+            catch
+            { }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Adds an item to the internal list or collection/dictionary.
+        /// 
+        /// The list or collection has to exist or an exception is thrown.
+        /// </summary>
+        /// <param name="item">an instance of the item to add.</param>
+        /// <returns>true or false</returns>
+        public bool Add(object item)
+        {
+            return AddItem(item);
+        }
+
+        /// <summary>
+        /// Adds an item to the dictionary by key and value.
+        /// 
+        /// **The list or collection has to exist or an exception is thrown.**
+        /// </summary>
+        /// <param name="key">Dictionary key used to look up this item.</param>
+        /// <param name="value">an instance of the item to add.</param>
+        /// <returns>true or false</returns>
+        public bool AddDictionaryItem(object key, object value)
+        {
+            if (!(Instance is IDictionary)) return false;
+
+            var list = (IDictionary)Instance;
+            list.Add(key, value);
+            return true;
+        }
+
+        /// <summary>
+        /// Updates a value to an existing collection or list item
+        /// by int index for lists, or a key or value for dictionaries/collections
+        /// </summary>
+        /// <param name="indexOrKey">int 0 based index or any type for key on collections/dictionaries</param>
+        /// <param name="value"></param>
+        /// <returns>true or false</returns>
+        public bool SetItem(object indexOrKey, object value)
+        {
+            value = wwDotNetBridge.FixupParameter(value);
+
+            if (Instance == null)
+                return false;
+
+            if (Instance is Array)
+            {
+                if (!(indexOrKey is int))
+                    throw new ArgumentException("Array indexOrKey has to be integer");
+
+                var list = Instance as Array;
+                list.SetValue(value, (int)indexOrKey);
+                return true;
+            }
+            if (Instance is IList)
+            {
+                if (!(indexOrKey is int))
+                    throw new ArgumentException("List indexOrKey has to be integer");
+
+                var list = Instance as IList;
+                list[(int) indexOrKey] = value;
+                return true;
+            }
+            if (Instance is IDictionary)
+            {
+                var list = Instance as IDictionary;
+                list[indexOrKey] = value;
+                return true;
+            }
+            
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes an item from the collection.
+        ///
+        /// Depending on the item is a List style item (Array, List, HashSet, simple Collections)
+        /// or a Key Value type collection (Dictionary or custom key value collections like StringCollection),
+        /// you specify an index (lists), value (Hash tables/collections), or a key (Dictionary).
+        /// </summary>
+        /// <param name="indexOrKey">0 based list index or value for a Hash table, or  a key to a collection/dictionary</param>
+        /// <returns>true or false</returns>
+        public bool RemoveItem(object indexOrKey)
+        {
+            // Remove by indexOrKey
+            if (Instance is IList)
+            {
+                var list = Instance as IList;
+                list.Remove(indexOrKey);
+                return true;
+            }
+            // Remove by key
+            if (Instance is IDictionary)
+            {
+                var list = Instance as IDictionary;
+                list.Remove(indexOrKey);
+                return true;
+            }
+
+            if (Instance is IDictionary)
+            {
+                var list = Instance as IDictionary;
+                list.Remove(indexOrKey);
+                return true;
+            }
+            if (Instance is Array)
+            {
+                if (!(indexOrKey is int))
+                    throw new ArgumentException("Array indexers to remove have to be of type int");
+
+                int idx = (int) indexOrKey;
+
+                // *** USe Reflection to get a reference to the array Property
+                Array ar = Instance as Array;
+                int arSize = ar.GetLength(0);
+
+                if (arSize < 1)
+                    return false;
+
+                Type arType = ar.GetType().GetElementType();
+
+                Array newArray = Array.CreateInstance(arType, arSize - 1);
+
+                // *** Manually copy the array
+                int newArrayCount = 0;
+                for (int i = 0; i < arSize; i++)
+                {
+                    if (i != idx)
+                    {
+                        newArray.SetValue(ar.GetValue(i), newArrayCount);
+                        newArrayCount++;
+                    }
+                }
+
+                Instance = newArray;
+                return true;
+            }
+
+            ReflectionUtils.CallMethod(Instance, "Remove", indexOrKey);
+            return true;
+        }
+
+        /// <summary>
+        /// Removes an item from the collection.
+        ///
+        /// Depending on the item is a List style item (Array, List, HashSet, simple Collections)
+        /// or a Key Value type collection (Dictionary or custom key value collections like StringCollection),
+        /// you specify an index (lists), value (Hash tables/collections), or a key (Dictionary).
+        /// </summary>
+        /// <param name="indexOrKey">0 based list index or value for a Hash table, or  a key to a collection/dictionary</param>
+        /// <returns>true or false</returns>
+        public bool Remove(object indexOrKey)
+        {
+            return RemoveItem(indexOrKey);
+        }
+
+        /// <summary>
+        /// Clears out the collection's content.
+        /// </summary>
+        /// <returns></returns>
+        public bool Clear()
+        {
+            if (Instance is Array)
+            {
+                Array ar = Instance as Array;
+                if (ar == null)
+                    return true;
+
+                if (ar.GetLength(0) < 1)
+                    return true;
+
+                var type = ar.GetValue(0).GetType();
+                Instance = Array.CreateInstance(type, 0);
+                
+                return true;
+            }
+
+            if (Instance == null)
+                return false;
+
+            if (Instance is IList)
+                ((IList)Instance).Clear();
+            else if (Instance is IDictionary)
+                ((IList)Instance).Clear();
+            else
+                ReflectionUtils.CallMethod(Instance, "Clear");
+            
+            return false;
+        }
+
+        /// <summary>
+        /// Creates an instance of the collection's data member type without
+        /// actually adding it to the array. This is useful to
+        /// quickly create empty objects that can be populated in FoxPro
+        /// without specifying the full typename each time resulting in
+        /// cleaner code in FoxPro. 
+        /// 
+        /// **Assumes that the collection `Instance` is set or null is returned**
+        /// 
+        /// Arrays must have at least 1 item, while generic lists can
+        /// deduce from the Generic Type parameters.
+        /// </summary>
+        /// <returns>Item created or null, or if no items or unable to create (or object</returns>
+        public object CreateItem()
+        {
+            if (Instance == null)
+                return null;
+
+            var type = Instance.GetType();
+
+            Type itemType = null;
+            if (type.GenericTypeArguments.Length > 1)
+            {
+                itemType = type.GenericTypeArguments[1];
+            }
+            else if(type.GenericTypeArguments.Length == 1)
+            {
+                itemType = type.GenericTypeArguments[0];
+            }
+            else if (Instance is Array)
+            {
+                itemType = Instance.GetType().GetElementType();
+            }
+            else
+            {
+                itemType = typeof(object);
+            }
+
+            object item = ReflectionUtils.CreateInstanceFromType(itemType);
+            return item;
         }
 
         /// <summary>
         /// Creates a new array instance with size number
         /// of items pre-set. Elements are unassigned but
-        /// array is dimensioned.
+        /// array is dimensioned. Use 0 for an empty array.
         /// 
         /// Use SetItem() to assign values to each array element
         /// </summary>
@@ -124,11 +552,57 @@ namespace Westwind.WebConnection
 
             Instance = ar;
 
-            return true;            
+            return true;
         }
 
         /// <summary>
-        /// Assigns a .NET array to this COM wrapper. Has to be passed
+        /// Creates an empty List of T.
+        /// </summary>
+        /// <param name="listTypeName">.NET Type of the items in the List</param>
+        /// <returns></returns>
+        public bool CreateList(string listTypeName)
+        {
+            try
+            {
+                var type = ReflectionUtils.GetTypeFromName(listTypeName);
+                var genericType = typeof(List<>).MakeGenericType(type);
+                Instance = Activator.CreateInstance(genericType) as IList;
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Creates an empty Dictionary  with specified key value types
+        /// </summary>
+        /// <param name="keyTypeName">.NET Typename of the Key</param>
+        /// <param name="valueTypeName">.NET Typename of the collection Data items</param>
+        /// <returns></returns>
+        public bool CreateDictionary(string keyTypeName, string valueTypeName)
+        {
+            try
+            {
+                var valueType = ReflectionUtils.GetTypeFromName(valueTypeName);
+                var keyType = ReflectionUtils.GetTypeFromName(keyTypeName);
+
+                var genericType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
+                Instance = Activator.CreateInstance(genericType) as IDictionary;
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+        
+
+        /// <summary>
+        /// Assigns a .NET collect to this ComArray Instance. Has to be passed
         /// as a base instance (ie. parent instance of the array) and
         /// the name of the array because once the array hits VFP code
         /// it's already been converted into a VFP array so only internal
@@ -139,7 +613,7 @@ namespace Westwind.WebConnection
         /// <returns></returns>
         public bool AssignFrom(object baseInstance, string arrayPropertyName)
         {            
-            Instance = ReflectionUtils.GetPropertyEx(baseInstance, arrayPropertyName) as Array;                       
+            Instance = ReflectionUtils.GetPropertyEx(baseInstance, arrayPropertyName);
             return true;
         }
 
@@ -155,202 +629,26 @@ namespace Westwind.WebConnection
             return true;
         }
 
-        /// <summary>
-        /// Creates an instance of the array's member type without
-        /// actually adding it to the array. This is useful to
-        /// more easily create members without having to specify
-        /// the full type signature each time.
-        /// 
-        /// Assumes that the array exists already so that the 
-        /// item type can be inferred. The type is inferred from
-        /// the arrays instance using GetElementType().
-        /// </summary>
-        /// <returns></returns>
-        public object CreateItem()
-        {
-            if (Instance == null)
-                return null;
-
-            Type itemType = Instance.GetType().GetElementType();
-
-            object item = ReflectionUtils.CreateInstanceFromType(itemType);
-            return item;
-        }
 
         /// <summary>
-        /// Creates an instance of the array's member type without
-        /// actually adding it to the array. This is useful to
-        /// more easily create members without having to specify
-        /// the full type signature each time.
-        /// 
-        /// This version works of the actual elements in the array
-        /// instance rather than using the 'official' element type.
-        /// Looks at the first element in the array and uses its type.
-        /// 
-        /// Assumes that the array exists already so that the 
-        /// item type can be inferred.
-        /// </summary>
-        /// <param name="forceElementType">If true looks at the first element and uses that as the type to create.
-        /// Use this option if the actual element type is of type object when the array was automatically generated
-        /// such as when FromEnumerable() was called.
-        /// </param>
-        /// <returns></returns>
-        public object CreateItemExplicit()
-        {
-            if (Instance == null)
-                return null;
-
-            Type itemType = null;
-            var arInst = Instance as Array;
-            if (arInst != null && arInst.Length > 0)
-               itemType = arInst.GetValue(0).GetType();            
-            if (itemType == null)
-               itemType = Instance.GetType().GetElementType();
-
-            object item = ReflectionUtils.CreateInstanceFromType(itemType);
-            return item;
-        }
-
-        /// <summary>
-        /// Returns an item from the array.
-        /// </summary>
-        /// <param name="index">0 based array index to retrieve</param>
-        /// <returns></returns>
-        public object Item(int index)
-        {
-            if (Instance == null)
-                return null;
-
-            Array ar = Instance as Array;
-
-            try
-            {
-                object val = ar.GetValue(index);
-                if (val == null)
-                    return null;
-
-                wwDotNetBridge.FixupReturnValue(val);
-
-                return val;
-            }
-            catch { }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Assigns a value to an array element that already exists.
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public bool SetItem(int index, object value)
-        {
-            Array ar = Instance as Array;
-            ar.SetValue(value, index);
-
-            return true;
-        }
-
-        /// <summary>
-        /// Adds an item to the internal array instance.
-        /// 
-        /// Array should exist before adding items.
-        /// </summary>
-        /// <param name="item">an instance of the item to add.</param>
-        /// <returns></returns>
-        public bool AddItem(object item)
-        {
-            item = wwDotNetBridge.FixupParameter(item);
-            
-            Array ar = Instance as Array;
-
-            Type itemType = null;
-            if (item != null)
-                itemType = item.GetType();
-            else if (ar != null)
-                itemType = ar.GetType().GetElementType();
-            if (itemType == null)
-                return false;  
-
-            // *** This may be ambigous - could mean no property or array exists and is null
-            if (ar == null)
-            {
-                if (!CreateEmptyArray(itemType.FullName))
-                    return false;
-            }
-                        
-            int size = ar.GetLength(0);
-            Array copiedArray = Array.CreateInstance(ar.GetType().GetElementType(), size + 1);
-            ar.CopyTo(copiedArray, 0);
-
-            ar = copiedArray;
-            ar.SetValue(item, size);
-
-            Instance = ar;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Removes an item from the array.
-        /// </summary>
-        /// <param name="index">0 based index of item to remove</param>
-        /// <returns></returns>
-        public bool RemoveItem(int index)
-        {
-            // *** USe Reflection to get a reference to the array Property
-            Array ar = Instance as Array; 
-            
-            // *** This may be ambigous - could mean no property or array exists and is null
-            if (ar == null)
-                return false;
-
-            int arSize = ar.GetLength(0);
-
-            if (arSize < 1)
-                return false;            
-
-            Type arType = ar.GetType().GetElementType();
-
-            Array newArray = Array.CreateInstance(arType, arSize - 1);
-
-            // *** Manually copy the array
-            int newArrayCount = 0;
-            for (int i = 0; i < arSize; i++)
-            {
-                if (i != index)
-                {
-                    newArray.SetValue(ar.GetValue(i), newArrayCount);
-                    newArrayCount++;
-                }
-            }
-            Instance = newArray;
-            return true;
-        }
-
-        /// <summary>
-        /// Clears out the array contents
-        /// </summary>
-        /// <returns></returns>
-        public bool Clear()
-        {
-            Array ar = Instance as Array;
-            if (ar == null)
-                return true;  
-
-            if (ar.GetLength(0) < 1)
-                return true;
-
-            var type = ar.GetValue(0).GetType();
-            Instance = Array.CreateInstance(type, 0);
-
-
-            return true;
-        }
-
-        /// <summary>
-        /// Creates an instance from an enumerable
+        /// Creates a copied array instance from an enumerable.
+        ///
+        /// If enumerables aren't bound to a concrete list/collection
+        /// and retrieved one at a time, there's no way to return it to
+        /// FoxPro unless it's materialized into some sort of list.
+        ///
+        /// This method makes a copy of the enumerable and allows you to
+        /// iterate over it.
+        /// <remarks>
+        /// You can update existing items in the array, but you cannot
+        /// add/remove/clear items and affect the underlying enumerable.
+        /// If the type is truly Enumerated it won't support updating
+        /// either, so this is not really a restriction imposed here.
+        ///
+        /// If the underlying enumerable is a concrete list or collection 
+        /// type you should be able to use the relevant Add/Remove/Clear
+        /// methods directly without requiring this method to make a copy.
+        /// </remarks>
         /// </summary>
         /// <param name="items"></param>
         public void FromEnumerable(IEnumerable items)
@@ -374,6 +672,4 @@ namespace Westwind.WebConnection
             Instance = ar;
         }
     }
-
-
 }

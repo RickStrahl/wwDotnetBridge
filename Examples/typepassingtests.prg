@@ -5,6 +5,53 @@ loBridge = GetwwDotnetBridge()
 
 ? loBridge.GetDotnetVersion()
 
+
+loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
+? loBridge.cErRORMSG
+
+loList = loNet.GetGenericList()
+
+
+*** Work with a List<T> 
+? "*** Retrieve a List<T> and Update"
+loList = loBridge.InvokeMethod(loNet,"GetGenericList")
+? loBridge.ToString(loList)
+? loList.Count
+
+loCust =  loList.Item(0)
+? loCust.Company
+loCust.Company = loCust.Company + " " + TIME()
+
+loCust = loList.CreateItem()
+? loCust
+loCust.Company = "North Wind Traders"
+loList.AddItem(loCust)
+? lolist.Count
+
+? loBridge.InvokeMethod(loNet, "SetGenericList", loList)  && should be 3 
+
+
+*** Work with Dictionary<string, TestCustomer>
+? "*** Retrieve a dictionary and Update"
+
+loList = loBridge.InvokeMethod(loNet,"GetDictionary")
+? loBridge.ToString(loList)
+? loList.Count  &&
+
+loCust =  loList.Item("Item1")
+? loCust.Company
+loCust.Company = loCust.Company + " " + TIME()
+
+loCust = loList.CreateItem()
+? loCust
+loCust.Company = "North Wind Traders"
+loList.AddDictionaryItem("Item3", loCust)
+? lolist.Count
+
+? loBridge.InvokeMethod(loNet, "SetDictionary", loList)  && should be 3 
+
+
+
 loValue = loBridge.CreateComValue()
 
 loValue.SetValueFromSystemConvert("ToInt32",22)
@@ -16,10 +63,13 @@ loValue.SetValueFromSystemConvert("ToUInt64","23")
 ? loValue.ToString()  && 20
 ? loValue.GetTypeName()  && System.UInt64
 
-RETURN
+*** Long - Max Length
+loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
+
+? loBridge.InvokeMethod(loNet,"ReturnLong")
 
 
-LOCAL loNet as Westwind.WebConnection.TypePassingTests
+
 loNet = loBridge.Createinstance("Westwind.WebConnection.TypePassingTests")
 
 
@@ -27,7 +77,6 @@ loStrings = loBridge.CreateArray("System.String")
 loStrings.AddItem("It's")
 loStrings.AddItem("BigDay")
 
-LOCAL loValue as Westwind.WebConnection.ComValue
 loValue = loBridge.CreateComValue(loStrings)
 
 lobridge.InvokeMethod(loNet,"PassArrayByReference",loValue)
@@ -36,10 +85,6 @@ loStringsResult =  loValue.GetValue()
 *loBridge.GetProperty(loValue,"Value")
 ? loStringsResult.Count
 
-RETURN
-
-
-
 
 *** UInt64
 LOCAL loU64 as Westwind.WebConnection.ComValue
@@ -47,6 +92,9 @@ loU64 = loBridge.CreateComValue(0)
 loU64.SetUInt64(10)
 ? loBridge.SetProperty(loNet,"UInt64Value",loU64)
 ? loU64.ToString()
+
+*** Long - Max Length
+? "Long: " + TRANSFORM(loBridge.InvokeMethod(loNet,"ReturnLong"))
 
 
 LOCAL loParms as WESTWIND.WebConnection.ComArray
@@ -57,7 +105,6 @@ loU64 = loBridge.CreateComValue()
 loU64.SetValueFromInvokeStaticMethod("System.Convert","ToUInt64",loParms)
 ? loU64.ToString()
 
-RETURN
 
 
 loInt = loBridge.CreateComValue(INT(10))
@@ -164,6 +211,17 @@ loComValue.SetLong(10)
 ? loBridge.InvokeMethod(loNet,"PassLong",loComValue)
 
 
+*** GUIDS cannot be accessed IN ANY WAY in FoxPro natively
+*** wwDotnetBridge needs to wrpa them in a ComValue object
+*** To retrieve a GUID always use `InvokeMethod` or `GetProperty`
+loGuidComValue =  loBridge.InvokeMethod(loNet,"GetGuid") && returns COM Value
+lcGuid = loGuidComValue.GetGuid() 
+? lcGuid
+
+lcGuid = loGuidComValue.NewGuid()
+? "New Guid: " + lcGuid
+
+
 *** Char by string
 loComValue = loBridge.CreateComValue()
 loComValue.SetChar("R")
@@ -174,5 +232,90 @@ loComValue = loBridge.CreateComValue()
 loComValue.SetChar(51)
 ? loBridge.InvokeMethod(loNet,"PassChar",loComValue)
 
+*** Create Array On Instance
+loCust = loBridge.CreateInstance("Westwind.WebConnection.TestCustomer")
+? loCust             && Make sure you have what you think (Object)
+? loCust.ToString()  && Make sure you have what you think 
+? loBridge.ToString(loCust)  && for special types (structs, generics etc.) you have to use loBridge.ToString(loCust)
+
+*** Clear out items that exist
+loBridge.SetProperty(loCust,"Items",null)
+? loCust.Items
+
+? loBridge.Createarrayoninstance(loCust,"Items",2)
+? loBridge.cErrorMsg
+
+
+loItems = loBridge.GetProperty(loCust,"Items")
+? loItems.Count
+
+
+*** Work with a List<T> 
+? "*** Retrieve a List<T> and Update"
+loList = loBridge.InvokeMethod(loNet,"GetGenericList")
+? loBridge.ToString(loList)
+? loList.Count
+
+loCust =  loList.Item(0)
+? loCust.Company
+loCust.Company = loCust.Company + " " + TIME()
+
+loCust = loList.CreateItem()
+? loCust
+loCust.Company = "North Wind Traders"
+loList.AddItem(loCust)
+? lolist.Count
+
+? loBridge.InvokeMethod(loNet, "SetGenericList", loList)  && should be 3 
+
+
+*** Work with Dictionary<string, TestCustomer>
+? "*** Retrieve a dictionary and Update"
+
+loList = loBridge.InvokeMethod(loNet,"GetDictionary")
+? loBridge.ToString(loList)
+? loList.Count  &&
+
+loCust =  loList.Item("Item1")
+? loCust.Company
+loCust.Company = loCust.Company + " " + TIME()
+
+loCust = loList.CreateItem()
+? loCust
+loCust.Company = "North Wind Traders"
+loList.AddDictionaryItem("Item3", loCust)
+? lolist.Count
+
+? loBridge.InvokeMethod(loNet, "SetDictionary", loList)  && should be 3 
+
+
+*** Async Calls
+? "*** Task Async Calls - Complete and Error Events return results"
+loTestCallbacks = CREATEOBJECT("TestCallbacks")
+loBridge.InvokeTaskMethodAsync(loTestCallbacks, loNet,"AddAsync",2,5)
+
+WAIT WINDOW TIMEOUT 1
+
+loBridge.InvokeTaskMethodAsync(loTestCallbacks, loNet, "ThrowErrorAsync")
+
+
 
 RETURN
+
+
+*************************************************************
+DEFINE CLASS TestCallbacks AS AsyncCallbackEvents
+*************************************************************
+
+FUNCTION OnCompleted(lvResult, lcMethod)
+? "Completed: " + TRANSFORM(lvResult)
+ENDFUNC
+
+FUNCTION OnError(lcMessage, loException, lcMethod)
+? "Error: " + lcMessage
+ENDFUNC
+
+
+
+ENDDEFINE
+*EOC TestCallbacks 

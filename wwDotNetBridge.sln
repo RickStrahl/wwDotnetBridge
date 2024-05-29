@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wwDotNetBridge", "DotnetBridge\wwDotNetBridge.csproj", "{93F18F83-DB34-491B-8F41-4C12B9C05549}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClrHost", "ClrHost\ClrHost.vcxproj", "{A588D633-9E7F-490C-8F64-87DDC22B4F32}"
@@ -9,7 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Changelog.md = Changelog.md
 		README.md = README.md
+		Distribution\wwDotnetBridge.PRG = Distribution\wwDotnetBridge.PRG
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wwDotnetBridge.Tests", "Tests\wwDotnetBridge.Tests.csproj", "{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,8 +59,29 @@ Global
 		{A588D633-9E7F-490C-8F64-87DDC22B4F32}.Shareware|Mixed Platforms.Build.0 = Release|Win32
 		{A588D633-9E7F-490C-8F64-87DDC22B4F32}.Shareware|Win32.ActiveCfg = Release|Win32
 		{A588D633-9E7F-490C-8F64-87DDC22B4F32}.Shareware|Win32.Build.0 = Release|Win32
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Debug|Win32.Build.0 = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Release|Win32.ActiveCfg = Release|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Release|Win32.Build.0 = Release|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Shareware|Any CPU.ActiveCfg = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Shareware|Any CPU.Build.0 = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Shareware|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Shareware|Mixed Platforms.Build.0 = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Shareware|Win32.ActiveCfg = Debug|Any CPU
+		{87B8F003-0A0E-46CF-A527-CC3F547B8BAC}.Shareware|Win32.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8E4565D8-26F8-4DDE-834E-DE4C235ED647}
 	EndGlobalSection
 EndGlobal

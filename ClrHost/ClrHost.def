@@ -1,10 +1,9 @@
-LIBRARY   wwipstuff
-EXPORTS	  DllMain              @1
-		  ClrLoad		       @105
-		  ClrUnload			   @106
-		  ClrCreateInstance    @108
-		  ClrCreateInstanceFrom    @109	
-		  SetClrVersion        @110	 
-		  
-
-		  		  
+LIBRARY   ClrHost
+EXPORTS	  DllMain						@1
+		  ClrLoad						@105
+		  ClrUnload						@106
+		  ClrCreateInstance				@108
+		  ClrCreateInstanceFrom			@109	
+		  SetClrVersion					@110	 
+		  CoreClrCreateInstanceFrom		@115
+		  CoreClrUnload					@116

@@ -10,7 +10,8 @@ Debug
 *.vbr
 *.fxp
 *.opensdf
-*
+*.bak
+*.ilk
 
 # mstest test results
 TestResults
@@ -18,3 +19,7 @@ TestResults
 *.user
 *.suo
 ClrHost/ClrHost.aps
+
+[Dd]ebug/
+[Rr]elease/
+x64/

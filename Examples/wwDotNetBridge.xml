@@ -897,40 +897,6 @@
             <param name="text">Input string (in object format)</param>
             <returns>true or false</returns>        
         </member>
-        <member name="M:Westwind.WebConnection.TypePassingTests.ReturnLong">
-            <summary>
-            Should return as decimal
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.TypePassingTests.ReturnStruct(System.Int32,System.String)">
-            <summary>
-            This should be returned as a ComValue object
-            </summary>
-            <param name="intVal"></param>
-            <param name="stringVal"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.TypePassingTests.PassEnumArray(System.Windows.Forms.MessageBoxButtons[])">
-            <summary>
-            </summary>
-            <example>
-            LOCAL loArray as Westwind.WebConnection.ComArray
-            loArray = loBridge.Createarray("System.Windows.Forms.MessageBoxButtons")
-            loComValue = loBridge.CreateComValue()
-            loComValue.SetEnum("System.Windows.Forms.MessageBoxButtons.OK")
-            loArray.AddItem( loComValue) 
-            ? loBridge.InvokeMethod(loTest,"PassEnumArray",loArray)
-            </example>
-            <param name="buttons"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Westwind.WebConnection.TypePassingTests.Pass24Parameters(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
-            <summary>
-            Pass in 15 parameters and return the value of the last
-            </summary>
-            <returns></returns>
-        </member>
         <member name="T:Westwind.WebConnection.ComArray">
             <summary>
             COM Wrapper for Arrays, IList and IDictionary collections that are not 

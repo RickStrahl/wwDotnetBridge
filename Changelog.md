@@ -2,7 +2,62 @@
 
 <small>[Latest Online Documentation](http://west-wind.com/webconnection/docs/_24n1cfw3a.htm)</small>
 
+### Version 7.22
+
+* **[wwDotnetBridge.GetDictionaryItem()](https://webconnection.west-wind.com/docs/_6d81ciync.htm)**  
+Makes it much easier to retrieve an item from an `IDictionary` collection by key. Works with generic collections.
+
+* **wwDotnetCoreBridge .NET 6.0 Support**  
+We've updated wwDotnetCoreBridge - the version of wwDotnetBridge that works with .NET Core - so that it now works with .NET (Core) 6.0. This is in addition to support for .NET Core 5.0 and 3.1. This update fixes some issues due to framework changes in 6.0 so make sure to update `clrloader.dll` and `wwDotnetBridge.dll` for existing installs.
+
+* **wwDotnetBridge support for non-Property Indexers in GetPropertyEx()**  
+You can now access Indexed properties (`[0]` or `["name"]`) without requiring a property as part of the property name. So you can now do: `loBridge.GetValueEx(loDataRow,'["name"]')` for example.
+
+* **[wwDotnetBridge::ToString()](https://webconnection.west-wind.com/docs/_5ru0o08op.htm)**  
+Added a helper method to reliably return the result from .NET's internal `.ToString()` method. `ToString()` tends to be overloaded and so is not directly accessible on most via COM interop. This helper ensures it'll work on all .NET types.
+
+* **wwDotnetBridge Constructor Support for Structs**  
+Fix ability to instantiate .NET `struct` types which now are returned as `ComValue` instances.
+
+* **wwDotnetBridge Instances can now pass ComValue instances as Parameters**  
+You can now pass `ComValue` instances to `InvokeMethod()`, `SetProperty()` and `GetProperty()` so that you can invoke functionality on objects that are otherwise not accessible in FoxPro. When you pass `ComValue` for the `loInstance` parameter, wwDotnetBridge automatically uses the `Value` property.
+
+* **[New wwDotnetBridge.InvokeTaskMethodAsync() to call Async .NET Methods](https://webconnection.west-wind.com/docs/_5pj0xl2yp.htm)**  
+Added a new method to make it easier to call `async` .NET methods that return `Task` or `Task<T>` results. This method takes a callback handler object reference that is called on completion or failure of the method call. Similar to `InvokeMethodAsync()` which calls non-async methods asynchronously but natively intercepts the `Task` result and fires events on completion.
+
+
+### Version 7.09.
+
+
+* **Add improved Support for Task**  
+When using intrinsic methods to get/set/call values `Task<T>` is now fixed up with `ConfigureAwait()` to ensure you can access the `Result` property of the Task to wait for completion.
+
+* **ComValue.SetValueFromGenericInstance()**  
+New helper method that allows assignment of a ComValue from a Generic type value. Since Generics aren't natively supported this method is one way to pass or receive Generic values from and to .NET.
+
+* **ComGuid Deprecated**  
+Moved all code that used to convert to and from `ComGuid` to work with `ComValue` for consistency. This might be a breaking change if you were working with .NET Guids previously. Instead of retrieving `GuidString` call `GetGuid()` instead, and when passing use `CreateValue()` and `SetGuid()`, `NewGuid()` to assign guids.
+
+* **Fix `ComArray.SetItem()` for Property Fixups**  
+Fixed `SetItem()` to use the same internal `FixupParameters` logic that understands common conversions from FoxPro to .NET. Previously this wasn't hooked up. Note `AddItem()` worked correctly.
+
+* **First cut at wwDotnetCoreBridge to host and access .NET Core**  
+There's now a `wwDotnetBridgeCore` class that can be used to host .NET Core and access .NET Core components. It works with .NET Core 3.0 and requires that .NET Core 3.0 is installed.  This is still experimental but it does work. To work you'll need the **32 bit .NET Runtime** installed. There are limitations currently - you can't unload the runtime and re-run it (including clearing all) without restarting. But it works fairly.
+
+### Version 6.22
+
+* **Added Event Subscription Support**  
+You can now use `.SubscribeToEvents()` to subscribe to events of an object and pass a FoxPro object that implements the event methods using an specified (`On` by default) prefix. Thanks to Edward Brey for his work on this!
+
+* **Add CLR 4.0 Hosting and better Loader Error Handling**  
+Added new CLR hosting logic to the C++ connector which provides better support for .NET 4 hosting. Also added additional error handling for the CLR loader process so more error information may be available. Thanks to Edward Brey for his work on this!
+
+* **ComValue.SetValueFromGenericInstance()**  
+Added a helper to the ComValue object to allow creating of Generic Values. Since generic values and objects are not allowed over COM this is one option to assign and retrieve generic values.
+
+
 ### Version 6.19
+
 * **wwDotnetBridge.dll is now compiled with .NET 4.5**  
 This version of wwDotnetBridge is compiled for and requires .NET 4.5 or later. 4.5 offers a number of performance and feature enhancements that are required to load .NET 4.5 and later components. The vast majority of Windows machines come pre-installed with a version of .NET 4.5 or later so this version is the now the default.
 

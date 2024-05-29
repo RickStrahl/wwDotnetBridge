@@ -9,21 +9,21 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
 
 	*** Other dependencies
-	* .NET Runtime 2.0 or later
+	* .NET Runtime 4.0+ or .NET Core 5+
 
 	*** DLLs
-	* wwDotnetBridge.dll
 	* wwIpStuff.dll
+	* wwDotnetBridge.dll
 	* NewtonSoft.Json.dll - ToJson()/FromJson() only
 #ELSE
 	#DEFINE WWC_CLR_HOSTDLL clrhost.dll
 
 	*** Other dependencies
-	* .NET Runtime 2.0 or later
+	* .NET Runtime 4.0+ or .NET Core 5+
 
 	*** DLLs
-	* wwDotnetBridge.dll
 	* clrhost.dll
+	* wwDotnetBridge.dll
 #ENDIF
 
 
@@ -36,19 +36,14 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 ***      Pass:
 ***    Return: 
 ************************************************************************
-FUNCTION GetwwDotNetBridge(lcVersion)
+FUNCTION GetwwDotNetBridge(lcVersion, llUseCom)
 IF VARTYPE(__DOTNETBRIDGE) != "O"
-   *** Auto-detect latest version
-   *** This requires wwUtils/wwApi
    IF EMPTY(lcVersion)       
-	   lcVersion = GetHighestDotnetVersion()
-	   IF ISNULL(lcVersion)
-	       ERROR "Couldn't find a .NET version installed."
-	   ENDIF
+		lcVersion = "V4"
    ENDIF
-   
+
    PUBLIC __DOTNETBRIDGE
-   __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion)
+   __DOTNETBRIDGE = CREATEOBJECT("wwDotNetBridge",lcVersion, llUseCom)
    IF VARTYPE(__DOTNETBRIDGE) # "O"
       RETURN NULL
    ENDIF
@@ -68,8 +63,8 @@ ENDFUNC
 ***    Return: wwDotnetBridge instance 
 ***            (you don't have to do anything with it)
 ************************************************************************
-FUNCTION InitializeDotnetVersion(lcVersion)
-RETURN GetwwDotnetBridge(lcVersion)
+FUNCTION InitializeDotnetVersion(lcVersion,llUseCom)
+RETURN GetwwDotnetBridge(lcVersion,llUseCom)
 ENDFUNC
 
 
@@ -118,6 +113,16 @@ ENDFUNC
 cClrVersion = "v4.0.30319"
 lUseCom = .F.
 
+lThrowOnError = .F.
+FUNCTION lThrowOnError_Assign(llValue)
+
+THIS.lThrowOnError = llValue
+IF !ISNULL(THIS.oDotnetBridge)
+	this.oDotNetBridge.IsThrowOnErrorEnabled = llValue
+ENDIF
+
+ENDFUNC
+
 *** Don't set here: Use CREATEOBJECT("wwDotNetBridge","V4")
 *cClrVersion = "v4.0.30319"
 
@@ -152,7 +157,7 @@ this.lUseCom = llUseCom
 
 *** Fail creation if the object couldn't be created
 IF ISNULL(this.Load())
-   ERROR "Unable to load wwDotNetBridge: " + this.cErrorMsg
+   ERROR this.cErrorMsg
    RETURN .F.
 ENDIF
 
@@ -167,27 +172,40 @@ ENDFUNC
 ***  Function: Creates an instance of the .NET Bridge component
 ***            that allows loading of content.
 ***    Assume: Define as LOCAL obridge as Westwind.WebConnection.wwDotNetBridge
-***      Pass:
-***    Return:
+***    Return: nothing
 ************************************************************************
 FUNCTION Load()
+LOCAL lcError, lnSize, lnDispHandle, lcPath, lcCmd
 
 IF VARTYPE(this.oDotNetBridge) != "O"
 	this.SetClrVersion(this.cClrVersion)
-
+	
 	IF this.lUseCom
 		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
-	ELSE
+	ELSE	
+		*** Remove the Zone Identifier to 'Unblock'
+	    DECLARE INTEGER DeleteFile IN WIN32API STRING		  			  			
+   	    DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
+		
+		#IF IS_WESTWIND
+			DeleteFile(FULLPATH("Newtonsoft.Json.dll") + ":Zone.Identifier")
+			DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
+			DeleteFile(FULLPATH("Renci.SshNet.dll") + ":Zone.Identifier")
+		#ENDIF
+		
 		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
 	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
-
 		lcError = SPACE(2048)
 		lnSize = 0
 		lnDispHandle = ClrCreateInstanceFrom(FULLPATH("wwDotNetBridge.dll"),;
 				"Westwind.WebConnection.wwDotNetBridge",@lcError,@lnSize)
 
 		IF lnDispHandle < 1
-		   this.SetError( "Unable to load Clr Instance. " + LEFT(lcError,lnSize) )
+		   lcError =  LEFT(lcError,lnSize)
+		
+		   this.SetError( "Unable to load Clr Instance. "  + lcError  + CHR(13) +;
+			   "Most likely wwDotnetBridge.dll is blocked or you don't have network permissions to load the assembly." + CHR(13)+;
+			   "Search for: 'Unable to load CLR Instance' at: https://webconnection.west-wind.com/docs" )
 		   RETURN NULL 
 		ENDIF
 
@@ -198,12 +216,13 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 		SYS(3097, this.oDotNetBridge)
 
 		IF ISNULL(this.oDotNetBridge)
-			this.SetError("Can't access CLR COM reference.")
+			this.SetError("COM Load Error: Can't access CLR COM reference.")
 			RETURN null
 		ENDIF
 	ENDIF
 
-	this.oDotNetBridge.LoadAssembly("System")	
+	this.oDotNetBridge.LoadAssembly("System")		
+	this.oDotNetBridge.IsThrowOnErrorEnabled = this.lThrowOnError
 ENDIF
 
 RETURN this.oDotNetBridge
@@ -217,12 +236,12 @@ ENDFUNC
 ***            this method must be called before this.Load() is 
 ***            called and the runtime is instantiated for the very
 ***            first time.
-***      Pass: lcVersion -  Clr version in the format of "v2.0.50727"
+***      Pass: lcVersion -  Clr version in the format of "v4.0.30319"
 ***    Return: nothing
 ************************************************************************
 PROTECTED FUNCTION SetClrVersion(lcVersion)
-DECLARE Integer SetClrVersion IN WWC_CLR_HOSTDLL string
-SetClrVersion(lcVersion)
+DECLARE Integer SetClrVersion IN WWC_CLR_HOSTDLL AS SetClrVersionApi string
+SetClrVersionApi(lcVersion)
 ENDFUNC
 *   SetClrVersion
 
@@ -245,6 +264,10 @@ ENDIF
 ENDFUNC
 *   Unload
 
+FUNCTION EnableThrowOnError()
+this.oDotNetBridge.IsThrowOnErrorEnabled = .T.
+ENDFUNC
+
 ************************************************************************
 *  CreateInstance
 ****************************************
@@ -252,7 +275,7 @@ ENDFUNC
 ***            name or local file name.
 ***    Assume: Relies on wwDotNetBridgeW32.dll and wwDotNetBridge.dll
 ***      Pass: lcClass   - MyNamespace.MyClass
-***            lvParmN   - Up to 3 Constructor Parameters
+***            lvParmN   - Up to 5 Constructor Parameters
 ***    Return: Instance or NULL
 ************************************************************************
 FUNCTION CreateInstance(lcClass,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
@@ -260,13 +283,15 @@ LOCAL lnDispHandle, lnSize, loBridge, loObject, lnParmCount
 
 this.SetError()
 
-loBridge = this.Load()
+loBridge = this.oDotnetBridge
 IF ISNULL(loBridge)
    RETURN NULL
 ENDIF
 
 lnParmCount = PCOUNT()
 DO CASE 
+    CASE lnParmCount = 1 
+    	loObject = loBridge.CreateInstance(lcClass)
 	CASE lnParmCount = 2
 		loObject = loBridge.CreateInstance_OneParm(lcClass,lvParm1)
     CASE lnParmCount = 3
@@ -304,7 +329,7 @@ LOCAL lnDispHandle, lnSize, loBridge, loObject, lnParmCount
 
 this.SetError()
 
-loBridge = this.Load()
+loBridge = this.oDotnetBridge
 IF ISNULL(loBridge)
    RETURN NULL
 ENDIF
@@ -332,6 +357,46 @@ ENDIF
 
 RETURN .T.
 ENDFUNC
+
+
+************************************************************************
+*  CreateInstanceFromFile
+****************************************
+***  Function: Creates an instance of an assembly from a file on disk
+***            without having to call LoadAssembly first. 
+***    Assume: Be careful with this as it doesn't load dependencies.
+***            The safer path is to use LoadAssembly then load the type.
+***            Mainly useful for loading things like addins out of diff
+***            non-application folders.
+***      Pass: 
+***    Return: object instance on success null or exception on failure
+************************************************************************
+FUNCTION CreateInstanceFromFile(lcAssemblyFilename, lcTypename, lvParm1, lvParm2, lvParm3)
+
+this.SetError()
+
+loBridge = this.oDotnetBridge
+IF ISNULL(loBridge)
+   RETURN NULL
+ENDIF
+
+lcAssemblyFileName = FULLPATH(lcAssemblyFileName)
+
+lnParmCount = PCOUNT()
+DO CASE 
+	CASE lnParmCount = 3
+		loObject = loBridge.CreateAssemblyInstanceFromFile_OneParm(lcAssemblyFilename, lcTypename, lvParm1)	
+    CASE lnParmCount = 4
+		loObject = loBridge.CreateAssemblyInstanceFromFile_TwoParms(lcAssemblyFilename, lcTypename, lvParm1, lvParm2)	
+	CASE lnParmCount = 5
+		loObject = loBridge.CreateAssemblyInstanceFromFile_ThreeParms(lcAssemblyFilename, lcTypename, lvParm1, lvParm2, lvParm3)	
+    OTHERWISE
+        loObject = loBridge.CreateAssemblyInstanceFromFile(lcAssemblyFilename, lcTypename)
+ENDCASE
+
+RETURN loObject
+ENDFUNC
+*   CreateInstanceFromFile
 
 
 ************************************************************************
@@ -424,8 +489,7 @@ LOCAL loBridge as Westwind.wwDotNetBridge
 loBridge = this.oDotNetBridge
 
 LOCAL loArray as Westwind.WebConnection.ComArray
-loArray = this.CreateInstance("Westwind.WebConnection.ComArray")
-loArray.Create("System.Object")
+loArray = this.CreateArray("System.Object")
 
 DO CASE
 	CASE TYPE("laParms.Instance") # "U"
@@ -438,8 +502,8 @@ DO CASE
 		   	loArray.AddItem(laParms[lnX])   	
 	   ENDFOR
 	CASE TYPE("laParms.Count") = "N"
-		*** It's a .NET array/collection
-	    FOR lnX =1 TO laParms.Count
+		*** It's a collection
+	    FOR lnX=1 TO laParms.Count
 	    	loArray.AddItem(laParms[lnX])
 	    ENDFOR
 ENDCASE
@@ -500,6 +564,49 @@ ENDCASE
 
 ENDFUNC
 *   InvokeMethodAsync
+
+
+************************************************************************
+*  InvokeTaskMethodAsync
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10))
+
+lnParms = PCOUNT()
+LOCAL loBridge as wwDotNetBridge
+loBridge = this.oDotnetBridge
+
+DO CASE
+  CASE lnParms = 3
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod)
+  CASE lnParms = 4
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1)
+  CASE lnParms = 5
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1,lvParm2)     
+  CASE lnParms = 6
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3)     
+  CASE lnParms = 7
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)     
+  CASE lnParms = 8
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)          
+  CASE lnParms = 9
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)      
+  CASE lnParms = 10
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)      
+  CASE lnParms = 11
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)      
+  CASE lnParms = 12
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)      
+  CASE lnParms = 13
+     loBridge.InvokeTaskMethodAsync(loCallbackEvents,loInstance,lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)           
+ENDCASE
+
+ENDFUNC
+*   InvokeTaskMethodAsync
 
 
 ************************************************************************
@@ -575,6 +682,23 @@ FUNCTION GetIndexedProperty(loInstance, lnIndex)
 RETURN this.oDotnetBridge.GetIndexedProperty(loInstance,lnIndex)
 ENDFUNC
 *   GetIndexedProperty
+
+
+************************************************************************
+*  GetDictionaryItem
+****************************************
+***  Function: Retrieves an item from an IDictionary instance
+***    Assume:
+***      Pass: loDictionary
+***            lcKey
+***    Return: Value for the key or an exception if value doesn't exist
+************************************************************************
+FUNCTION GetDictionaryItem(loDictionary, lcKey)
+RETURN this.oDotnetBridge.GetDictionaryItem(loDictionary, lcKey)
+ENDFUNC
+*   GetDictionaryItem
+
+
 
 ************************************************************************
 *  SetProperty
@@ -765,7 +889,7 @@ DO CASE
   CASE lcType = "O"
 	  loComArray = this.oDotnetBridge.CreateArrayFromInstance(lvArrayInstanceOrElementTypeString)
   OTHERWISE
-      THROW "Invalid parameter passed to CreateArray"
+      ERROR "Invalid parameter passed to CreateArray"   
 ENDCASE
 
 IF ISNULL(loComArray)
@@ -790,7 +914,7 @@ LOCAL loVal
 loVal = this.CreateInstance("Westwind.WebConnection.ComValue")
 
 if(PCOUNT()=1)
-   this.SetProperty(loVal,"Value",lvValue)
+   loVal.SetValue(lvValue)
 ENDIF
 RETURN loVal
 ENDFUNC
@@ -906,6 +1030,21 @@ RETURN this.InvokeMethod(this.oDotnetBridge,"GetType",lvValue)
 ENDFUNC
 *   GetType
 
+
+************************************************************************
+*  GetTypeName
+****************************************
+***  Function: Returns a typename for an instance
+***    Assume: Shortcut for InvokeMethod(instance,"ToString")
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetTypeName(lvValue)
+loType = THIS.GetType(lvValue)
+RETURN this.InvokeMethod(loType,"ToString")
+ENDFUNC
+*   GetTypeName
+
 ************************************************************************
 *  GetTypeFromName
 ****************************************
@@ -918,6 +1057,27 @@ FUNCTION GetTypeFromName(lcTypeName)
 RETURN this.InvokeMethod(this.oDotNetBridge,"GetTypeFromName",lcTypeName)
 ENDFUNC
 *   GetTypeFromName
+
+
+************************************************************************
+*  SubscribeToEvents
+****************************************
+***  Function: Handles all events of a source object for subsequent retrieval by calling WaitForEvent.
+***  loSource: The object for which to subscribe to events.
+***  loHandler: An object with a method OnEvent(loEventName, loParams).
+***  lcPrefix: The initial part of the event handler function for each event. Defaults to "On".
+***    Return: A subscription object. The subscription ends when this object goes out of scope.
+************************************************************************
+FUNCTION SubscribeToEvents(loSource, loHandler, lcPrefix)
+IF EMPTY(lcPrefix)
+	lcPrefix = "On"
+ENDIF
+LOCAL loSubscription
+loSubscription = CREATEOBJECT("EventSubscription")
+loSubscription.Setup(this, loSource, loHandler, lcPrefix)
+RETURN loSubscription
+ENDFUNC
+*   SubscribeToEvents
 
 
 ************************************************************************
@@ -1009,7 +1169,12 @@ LOCAL loAdapter as XMLAdapter
 loAdapter = CREATEOBJECT("XmlAdapter")
 
 LOCAL ARRAY laCursors[1]   
-lnCount = ALINES(laCursors,lcAliasList,1 + 4,",")
+#IF VERSION(5) > 800
+	lnCount = ALINES(laCursors,lcAliasList,1 + 4,",")
+#ELSE
+	lnCount = ALINES(laCursors,lcAliasList,",")
+#ENDIF	
+
 FOR lnX = 1 TO lnCount
 	loAdapter.AddTableSchema(laCursors[lnX],.T.)
 ENDFOR
@@ -1242,6 +1407,32 @@ ENDFUNC
 
 
 ************************************************************************
+*  FixComErrorMessage
+****************************************
+***  Function: Strips off the OLE Dispatch Error prefix from COM
+***            error messages if present.
+***    Assume:
+***      Pass: Full error
+***    Return: Error without the OLE dispatch prefix
+************************************************************************
+FUNCTION FixComErrorMessage(lcMsg)
+LOCAL lnAt
+
+IF EMPTY(lcMsg)
+   RETURN lcMsg
+ENDIF
+
+IF SUBSTR(lcMsg,1,3) != "OLE"
+   RETURN lcMsg
+ENDIF
+
+lnAt = AT(": ",lcMsg)
+RETURN SUBSTR(lcMsg,lnAt + 2)   
+ENDFUNC
+*   FixComErrorMessage
+
+
+************************************************************************
 *  GetDotNetVersion
 ****************************************
 ***  Function:
@@ -1276,7 +1467,19 @@ this.cErrorMsg = lcMessage
 ENDFUNC
 *   SetError
 
-
+************************************************************************
+*  ToString
+****************************************
+***  Function: Returns the result from the ToString() method reliably.
+***            even for types that FoxPro natively would fail on via COM
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION ToString(loDotnetObject)
+RETURN THIS.InvokeMethod(loDotnetObject,"ToString")
+ENDFUNC
+*   ToString
 
 #IF IS_WESTWIND
 
@@ -1492,7 +1695,7 @@ ELSE
    lcFrameworkPath = TRIM(lcFrameworkPath)
 ENDIF
    
-*** Assume .NET 2.0
+*** Assume .NET 4.0
 lcVersion = NULL
    
    *** Try to find the largest version number
@@ -1515,3 +1718,382 @@ ENDFOR
 RETURN lcVersion
 ENDFUNC
 *  GetHighestDotnetVersion
+
+
+*************************************************************
+DEFINE CLASS EventSubscription as AsyncCallbackEvents
+*************************************************************
+*:  Author: Edward Brey  - https://github.com/breyed
+*:  Usage: Used internally by SubscribeToEvents
+************************************************************
+HIDDEN oBridge, oHandler, oSubscriber, oPrefix
+
+oBridge = null
+oHandler = null
+oPrefix = null
+oSubscriber = null
+
+************************************************************************
+*  Setup
+****************************************
+***  Function: Sets up an event subscription. 
+***    Assume:
+***      Pass: loBridge   - dnb instance
+***            loSource   - Source Object fires events
+***            loHandler  - Target Object that handles events
+***            lcPrefix   - prefix for event methods
+***                         implemented on target (defaults to "On")
+************************************************************************
+FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)
+this.oBridge = loBridge
+this.oHandler = loHandler
+this.oPrefix = lcPrefix
+this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource)
+this.HandleNextEvent()
+ENDFUNC
+
+************************************************************************
+*  UnSubscribe
+****************************************
+***  Function: Unsubscribes events that are currently subscribed to
+************************************************************************
+FUNCTION UnSubscribe()
+IF !ISNULL(THIS.oSubscriber)
+	this.oSubscriber.Dispose()
+ENDIF
+ENDFUNC
+ 
+  
+FUNCTION HandleNextEvent()
+this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")
+ENDFUNC
+
+************************************************************************
+*  OnComplete
+****************************************
+***  Function: Event Proxy that forwards the event to a function 
+***            named On{Event} with event's parameters.
+************************************************************************
+FUNCTION OnCompleted(lvResult, lcMethod)
+LOCAL loParams,lParamText,lCount
+
+IF ISNULL(lvResult) && If the call to WaitForEvent was canceled:
+	RETURN
+ENDIF
+
+
+loParams=CREATEOBJECT("EMPTY") && Workaround to index into array of parameters. 
+lParamText = ""
+IF NOT ISNULL(lvResult.Params)
+	lCount = 0
+	FOR EACH lParam IN lvResult.Params
+		lCount = lCount + 1
+		AddProperty(loParams,"P" + ALLTRIM(STR(lCount)),lParam)
+		lParamText = lParamText + ",loParams.P" + ALLTRIM(STR(lCount))
+	ENDFOR
+ENDIF
+
+IF VARTYPE(THIS.oHandler) = "O"
+	=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
+	this.HandleNextEvent()
+ENDIF
+
+ENDFUNC
+
+ENDDEFINE
+*EOC EventSubscription
+
+
+*************************************************************
+DEFINE CLASS wwDotnetCoreBridge AS wwDotnetBridge
+*************************************************************
+*: Author: Rick Strahl
+*:         (c) West Wind Technologies, 2019
+*:Contact: http://www.west-wind.com
+*:Created: 06/18/2019
+*************************************************************
+#IF .F.
+*:Help Documentation
+*:Topic:
+Class wwDotnetCoreBridge
+
+*:Description:
+
+*:Example:
+
+*:Remarks:
+
+*:SeeAlso:
+
+
+*:ENDHELP
+#ENDIF
+
+*** Custom Properties
+cRuntimeFolder = ""
+
+
+************************************************************************
+* wwDotnetBridge ::  Init
+****************************************
+***  Function: Initializes the .NET runtime inside of FoxPro
+***    Assume: Calls Load() to actual perform load operation
+***      Pass: lcRuntimeFolder -  specific .NET Version or
+***                         Full Runtime Path: <full path>
+***                         Version only: 2.2.5, 2.1.4, 3.0.1, 5.0.3
+***                         Partial Version: 2.2 2.1 3.0, 5.0
+***            llUseCom  -  if .T. loads .NET Bridge via
+***                         plain COM interop rather than 
+***                         hosting .NET runtime itself.
+***                         If you do COM 
+***    Return: nothing
+************************************************************************
+FUNCTION Init(lcRuntimeFolder)
+
+IF !EMPTY(lcRuntimeFolder)
+   THIS.cRuntimeFolder = lcRuntimeFolder
+ENDIF
+
+*** Fail creation if the object couldn't be created
+IF ISNULL(this.Load())
+   ERROR this.cErrorMsg
+   RETURN .F.
+ENDIF
+
+ENDFUNC
+*  wwDotnetBridge ::  Init
+
+
+************************************************************************
+*  Load
+****************************************
+***  Function: Creates an instance of the .NET Bridge component
+***            that allows loading of content.
+***    Assume: Define as LOCAL obridge as Westwind.WebConnection.wwDotNetBridge
+***    Return: nothing
+************************************************************************
+FUNCTION Load()
+LOCAL lcError, lnSize, lnDispHandle, lcPath, lcCmd
+
+IF VARTYPE(this.oDotNetBridge) != "O"
+
+	IF this.lUseCom
+		this.oDotNetBridge = CREATEOBJECT("Westwind.wwDotNetBridge")
+	ELSE	
+		*** Remove the Zone Identifier to 'Unblock'
+	    DECLARE INTEGER DeleteFile  IN WIN32API AS dnb_DeleteFile STRING 
+   	    dnb_DeleteFile(FULLPATH("wwDotNetBridge.dll") + ":Zone.Identifier")
+		
+		#IF IS_WESTWIND
+		    dnb_DeleteFile(FULLPATH("Newtonsoft.Json.dll") + ":Zone.Identifier")
+		    dnb_DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
+		    dnb_DeleteFile(FULLPATH("Renci.SshNet.dll") + ":Zone.Identifier")
+		#ENDIF
+		
+		LOCAL ARRAY laVersion[1]
+		LOCAL lnInfos, lcVersion, lcRuntimePath
+		lcVersion = ""  && ie. 7.7.0.0
+		lnInfos = AGETFILEVERSION(laVersion,FULLPATH("wwDotnetBridge.dll"))
+		IF (lnInfos > 3)
+		    lcVersion = laVersion[4]
+		ENDIF
+
+		lcRuntimePath = this.GetDotnetCoreRuntimeFolder(this.cRuntimeFolder)
+		
+		IF !DIRECTORY(lcRuntimePath)
+		   this.SetError("Couldn't locate .NET Runtime: " + this.cRuntimeFolder)
+		   RETURN NULL
+		ENDIF
+			
+		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
+	   	DECLARE Integer CoreClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
+		lcError = SPACE(2048)
+		lnSize = LEN(lcError)
+		lnDispHandle = CoreClrCreateInstanceFrom(lcRuntimePath,lcVersion,@lcError,@lnSize)
+
+		IF lnDispHandle < 1
+		   lcError =  LEFT(lcError,lnSize)
+		
+		   this.SetError( "Unable to load Clr Instance. "  + lcError  + CHR(13) +;
+			   "Most likely wwDotnetBridge.dll is blocked or you don't have network permissions to load the assembly." + CHR(13)+;
+			   "Search for: 'Unable to load CLR Instance' at: https://webconnection.west-wind.com/docs" )
+		   RETURN NULL 
+		ENDIF
+
+		*** Turn handle into IDispatch COM object
+		this.oDotNetBridge = SYS(3096, lnDispHandle)	
+
+		*** Explicitly AddRef here - otherwise weird shit happens when objects are released
+		SYS(3097, this.oDotNetBridge)
+
+		IF ISNULL(this.oDotNetBridge)
+			this.SetError("COM Load Error: Can't access CLR COM reference.")
+			RETURN null
+		ENDIF
+	ENDIF
+
+	*this.oDotNetBridge.LoadAssembly("System")		
+	this.oDotNetBridge.IsThrowOnErrorEnabled = this.lThrowOnError
+ENDIF
+
+
+RETURN this.oDotNetBridge
+ENDFUNC
+*   Load
+
+************************************************************************
+*  Unload
+****************************************
+***  Function: Unloads the CLR and AppDomain
+***    Assume: Don't call this unless you want to explicity force
+***            the AppDomain to be unloaded and a new one to be spun
+***            up. Generally a single domain shoudl be sufficient.
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION Unload()
+IF VARTYPE(this.oDotNetBridge) == "O"
+	this.oDotNetBridge = NULL	
+	DECLARE Integer CoreClrUnload IN WWC_CLR_HOSTDLL	
+	CoreClrUnload()
+ENDIF
+ENDFUNC
+*   Unload
+
+************************************************************************
+*  FindDotnetCoreRuntime
+****************************************
+***  Function: Finds the .NET Core Runtime Path
+***    Assume:
+***      Pass: lcVersion
+***            Modes:
+***            Full Path: C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.5
+***            Version only: 2.2.5
+***            Partial version 2.1  or 2.2 or 3.0
+***    Return: Runtime Folder path or empty string
+************************************************************************
+FUNCTION GetDotnetCoreRuntimeFolder(lcVersion)
+LOCAL lcFolder, lnFolderId, lnResult, lcOutput, lcFolderName, lnX, lnIndex
+LOCAL lcVersion, lnParts, lcBasePath
+LOCAL laParts[1], laFolders[1,4], laVersions[1,1]
+
+
+IF !EMPTY(lcVersion) AND DIRECTORY(lcVersion)
+	RETURN ADDBS(lcVersion)
+ENDIF
+
+DECLARE INTEGER SHGetFolderPath IN Shell32.dll ;
+      INTEGER Hwnd, INTEGER nFolder, INTEGER Token, INTEGER Flags, STRING @cPath
+
+lnFolderId = 0x0026  && Program Files
+lcOutput = repl(CHR(0),256)
+lnResult = SHGetFolderPath(_VFP.hWnd,lnFolderId,0,0,@lcOutput)
+IF lnResult = 0
+   lcOutput = STRTRAN(lcOutput,CHR(0),"") + "\"
+ELSE
+   lcOutput = ""
+ENDIF
+
+IF EMPTY(lcVersion)
+  lcVersion = ""
+ENDIF
+
+lcBasePath = ADDBS(lcOutput) + "dotnet\shared\Microsoft.NETCore.App\"
+
+IF !EMPTY(lcVersion)
+   *** Check for exact folder match
+   IF DIRECTORY(lcVersion)
+      RETURN ADDBS(lcFolder)
+   ENDIF
+   
+   *** Check for exact version match
+   IF DIRECTORY(lcBasePath + lcVersion)
+      RETURN lcBasePath + lcVersion + "\"
+   ENDIF        
+ENDIF
+
+
+*** Strip out v prefix
+lcVersion = STRTRAN(TRIM(lcVersion), "v","",-1,-1,1)
+
+
+*** We have to determine the highest matching version for partial version supplied
+*** We capture folder names and pad out version parts in order to sort properly
+*** then pick the highest value
+lnFolders = ADIR(laFolders,lcBasePath + lcVersion + "*.*","D")
+IF lnFolders < 1
+   RETURN ""
+ENDIF
+
+*** Reformat folders with left padding to 3 characters and find the largest version
+DIMENSION laVersions[lnFolders,2]
+
+FOR lnX = 1 TO lnFolders
+   lcVersion = laFolders[lnX,1]
+   DIMENSION laParts[1]
+   lnParts= ALINES(laParts, lcVersion, 1, '.')
+   lcAdjusted = PADL(INT(VAL(laParts[1])),3,'0')
+   IF(lnParts > 1)
+	   lcAdjusted = lcAdjusted + "." + PADL(INT(VAL(laParts[2])),3,'0') 
+   ENDIF	   
+   IF(lnParts > 2)
+	   lcAdjusted = lcAdjusted + "." + PADL(INT(VAL(laParts[3])),3,'0') 
+   ENDIF	   
+   IF(lnParts > 3)
+     lcAdjusted = lcAdjusted + "." + PADL(INT(VAL(laParts[4])),3,'0') 
+   ENDIF	   
+   laVersions[lnx, 1] = lcAdjusted
+   laVersions[lnx, 2] = lcVersion
+ENDFOR
+
+ASORT(laVersions,1,ALEN(laVersions,1),1)
+
+lcFullVersion = laVersions[1,2]
+RETURN lcBasePath + lcFullVersion + "\"
+ENDFUNC
+
+ENDDEFINE
+*EOC wwDotnetCoreBridge 
+
+
+
+
+************************************************************************
+*  GetwwDotnetCoreBridge
+****************************************
+***  Function: Factory class to feed a reusable and stored instance
+***            of the wwDotNetCoreBridge class. 
+***    Assume: Depends on wwutils.prg
+***      Pass:
+***    Return: 
+************************************************************************
+FUNCTION GetwwDotNetCoreBridge(lcVersion)
+IF VARTYPE(__DOTNETCOREBRIDGE) != "O"
+   IF EMPTY(lcVersion)       
+		lcVersion = ""
+   ENDIF
+
+   PUBLIC __DOTNETCOREBRIDGE
+   __DOTNETCOREBRIDGE = CREATEOBJECT("wwDotNetCoreBridge",lcVersion)
+   IF VARTYPE(__DOTNETCOREBRIDGE) # "O"
+      RETURN NULL
+   ENDIF
+ENDIF
+RETURN __DOTNETCOREBRIDGE
+ENDFUNC
+
+************************************************************************
+*  InitializeDotnetCoreVersion()
+****************************************
+***  Function: Explicit method that simply creates a wwDotnetCoreBridge
+***            instance. Call this method at the beginning of your
+***            app to force the .NET Runtime version that will be
+***            used throughout the entire application.
+***    Assume: Call this method in your application startup
+***      Pass: Optional: "5.0.1" or "<runtime path>"
+***    Return: wwDotnetCoreBridge instance 
+***            (you don't have to do anything with it)
+************************************************************************
+FUNCTION InitializeDotnetCoreVersion(lcVersion)
+RETURN GetwwDotnetCoreBridge(lcVersion)
+ENDFUNC
