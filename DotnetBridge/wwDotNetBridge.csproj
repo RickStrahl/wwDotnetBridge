@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
-		<Version>8.1</Version>
+		<Version>8.1.1</Version>
 		<Authors>Rick Strahl</Authors>
 		
 		<OutputPath>..\Distribution</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
-		<Title>West Wind .NET Bridge Connector (.NET) Open Source</Title>
+		<Title>West Wind .NET Bridge Connector (.NET) - Open Source Version</Title>
 		<RequireLicenseAcceptance>false</RequireLicenseAcceptance>
 		<Language>en-US</Language>
 		<AssemblyName>wwDotnetBridge</AssemblyName>

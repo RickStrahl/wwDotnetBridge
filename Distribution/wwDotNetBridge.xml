@@ -1440,7 +1440,7 @@
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.LoadAssemblyFrom(System.String)">
             <summary>
-            Loads an assembly into the AppDomain by a fully qualified assembly path
+            Loads an assembly into the AppDomain by a fully qualified binary file  path (dll/exe typically)
             </summary>
             <param name="AssemblyFileName"></param>
             <returns></returns>

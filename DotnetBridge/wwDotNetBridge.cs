@@ -83,8 +83,10 @@ namespace Westwind.WebConnection
 
         public bool IsThrowOnErrorEnabled { get; set; }
 
+
         public wwDotNetBridge()
         {
+        
             if (Environment.Version.Major >= 4)
             {
                 LoadAssembly("System.Core");
@@ -144,7 +146,7 @@ namespace Westwind.WebConnection
         }
 
         /// <summary>
-        /// Loads an assembly into the AppDomain by a fully qualified assembly path
+        /// Loads an assembly into the AppDomain by a fully qualified binary file  path (dll/exe typically)
         /// </summary>
         /// <param name="AssemblyFileName"></param>
         /// <returns></returns>
@@ -747,7 +749,7 @@ namespace Westwind.WebConnection
                         ((ComValue) args[i]).Value = ((ComValue) ar[i]).Value;
                     
                     else
-                        ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
+                        ((ComValue) args[i]).Value = FixupParameter(ar[i]);
                 }
                 else if (args[i] is ComArray)
                 {
@@ -755,7 +757,7 @@ namespace Westwind.WebConnection
                         ((ComArray)args[i]).Instance = ((ComArray)ar[i]).Instance;
 
                     else
-                        ((ComArray)args[i]).Instance = FixupReturnValue(ar[i]);
+                        ((ComArray)args[i]).Instance = FixupParameter(ar[i]);
                 }
                 
             }
@@ -996,17 +998,17 @@ namespace Westwind.WebConnection
             {
                 if (args[i] is ComValue)
                 {
-                    if(ar[i] is ComValue)
-                        ((ComValue) args[i]).Value = ((ComValue) ar[i]).Value;
+                    if (ar[i] is ComValue)
+                        ((ComValue)args[i]).Value = ((ComValue)ar[i]).Value;
                     else
-                        ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
+                        ((ComValue)args[i]).Value = FixupParameter(ar[i]);
                 }
                 if (args[i] is ComArray)
                 {
                     if (ar[i] is ComArray)
                         ((ComArray)args[i]).Instance = ((ComArray)ar[i]).Instance;
                     else
-                        ((ComArray)args[i]).Instance = FixupReturnValue(ar[i]);
+                        ((ComArray)args[i]).Instance = FixupParameter(ar[i]);
                 }
             }
 
@@ -1057,14 +1059,14 @@ namespace Westwind.WebConnection
                     if(ar[i] is ComValue)
                         ((ComValue) args[i]).Value = ((ComValue) ar[i]).Value;
                     else
-                        ((ComValue) args[i]).Value = FixupReturnValue(ar[i]);
+                        ((ComValue) args[i]).Value = FixupParameter(ar[i]);
                 }
                 if (args[i] is ComArray)
                 {
                     if (ar[i] is ComArray)
                         ((ComArray)args[i]).Instance= ((ComArray)ar[i]).Instance;
                     else
-                        ((ComArray)args[i]).Instance = FixupReturnValue(ar[i]);
+                        ((ComArray)args[i]).Instance = FixupParameter(ar[i]);
                 }
             }
 
@@ -2170,9 +2172,10 @@ namespace Westwind.WebConnection
 #endif
 
             string res = null;
-            if(!isDotnetCore) { 
-            	res = $@"wwDotnetBridge Version   : {Assembly.GetExecutingAssembly().GetName().Version}
-                Release  : {product}
+            if (!isDotnetCore)
+            {
+                res = $@"wwDotnetBridge Version   : {Assembly.GetExecutingAssembly().GetName().Version}
+Release                  : {product}
 wwDotnetBridge Location  : {GetType().Assembly.Location} 
 .NET Version (official)  : {Environment.Version}
 .NET Version (simplified): {GetDotnetVersion()}
@@ -2181,8 +2184,8 @@ Windows Version          : {GetWindowsVersion(WindowsVersionModes.Full)}";
             }
             else
             {
-                res =  $@"wwDotnetBridge Version  : {Assembly.GetExecutingAssembly().GetName().Version}
-               Release  : {{product}}
+               res = $@"wwDotnetBridge Version  : {Assembly.GetExecutingAssembly().GetName().Version}
+               Release  : {product}
 wwDotnetBridge Location : {GetType().Assembly.Location}
 .NET Core Version       : {Environment.Version}
 .NET Core Version (Full): {rt}
