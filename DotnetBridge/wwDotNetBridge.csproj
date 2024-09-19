@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
-		<Version>7.33</Version>
+		<Version>8.1</Version>
 		<Authors>Rick Strahl</Authors>
 		
 		<OutputPath>..\Distribution</OutputPath>
@@ -17,13 +17,13 @@
 		<RootNamespace>wwDotnetBridge</RootNamespace>		
 		<Description>FoxPro Interop Library that makes it easier to call .NET components that are not supported directly through COM Interop.</Description>
 		<Summary>FoxPro Interop Library that makes it easier to call .NET components that are not supported directly through COM Interop.</Summary>
-		<Copyright>Rick Strahl, West Wind Technologies, 2010-2023</Copyright>
+		<Copyright>Rick Strahl, West Wind Technologies, 2010-2024</Copyright>
 		<Company>West Wind Technologies</Company>
 		<RepositoryType>Github</RepositoryType>
 		<RepositoryUrl>https://github.com/RickStrahl/wwDotnetBridge</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<NoWarn>$(NoWarn);CS1591;CS1572;CS1573</NoWarn>
+		<NoWarn>$(NoWarn);CS1591;CS1572;CS1573</NoWarn>		
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">

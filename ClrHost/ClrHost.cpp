@@ -1,7 +1,7 @@
 #include <atlbase.h>
 #include <mscoree.h>
 #include <metahost.h> 
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <system_error>
 
@@ -15,7 +15,7 @@ using namespace mscorlib;
 
 CComPtr<ICorRuntimeHost>	spRuntimeHost = NULL;
 CComPtr<_AppDomain>			spDefAppDomain = NULL;
-CComPtr<_Object>             spDefObject = NULL;
+CComPtr<_Object>            spDefObject = NULL;
 
 // .NET Framework 4
 CComPtr<ICLRMetaHost> pMetaHost;

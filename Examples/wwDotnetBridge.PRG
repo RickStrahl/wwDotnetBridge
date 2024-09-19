@@ -2,8 +2,8 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 
 *** This flag defines West Wind's commercial version
 *** The open source version should be set to .F.
-#DEFINE IS_WESTWIND        .F.
-#DEFINE IS_LEGACY 	   .T.
+#DEFINE IS_WESTWIND			.F.
+#DEFINE IS_LEGACY 	   		.T.
 
 #IF IS_WESTWIND
 	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
@@ -398,6 +398,20 @@ RETURN loObject
 ENDFUNC
 *   CreateInstanceFromFile
 
+************************************************************************
+*  DisposeInstance
+****************************************
+***  Function: Disposes an instance of a .NET object by calling 
+***            IDisposable.Dispose()
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION DisposeInstance(loObject)
+THIS.oBridge.DisposeInstance(loObject)
+ENDFUNC
+*   DisposeInstance
+
 
 ************************************************************************
 *  InvokeMethod
@@ -668,6 +682,20 @@ FUNCTION GetProperty(loInstance,lcProperty)
 RETURN this.oDotNetBridge.GetProperty(loInstance, lcProperty) 
 ENDFUNC
 *   GetProperty
+
+************************************************************************
+*  GetPropertyRaw
+****************************************
+***  Function: Gets a property from a .NET object without FoxPro
+***            type fixups
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetPropertyRaw(loInstance,lcProperty, llNoInstanceFixup)
+RETURN this.oDotNetBridge.GetPropertyRaw(loInstance, lcProperty,llNoInstanceFixup) 
+ENDFUNC
+*   GetPropertyRaw
 
 ************************************************************************
 *  GetIndexedProperty
