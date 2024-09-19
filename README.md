@@ -7,6 +7,10 @@ wwDotnetBridge also provides a host of support features to make it possible to a
 
 wwDotnetBridge can automatically convert problem types and provides wrappers that allow access to most unsupported features. There's a powerful `ComArray` class that makes it easy to interact and manipulate .NET arrays, lists, collections and dictionaries, and a `ComValue` class that lets you assign, access and pass .NET values without ever passing the native .NET value into FoxPro, which allows you to access types that COM simply cannot directly access.
 
+## Documentation
+You can find class and support documentation for wwDotnetBridge here:
+
+* [wwDotnetBridge Documentation](https://webconnection.west-wind.com/docs/_24n1cfw3a.htm)
 
 ## Features at a glance
 
