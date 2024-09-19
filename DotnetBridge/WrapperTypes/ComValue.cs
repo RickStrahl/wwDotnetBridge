@@ -347,33 +347,60 @@ namespace Westwind.WebConnection
         /// <param name="genericTypeName">Name of the base generic type. Example: System.Collections.Generics.List</param>
         /// <param name="typeNames">A ComArray of string type names that are the generic parameters</param>
         /// <param name="constructorParms"></param>
-        public void SetValueFromCreateGenericInstance(string genericTypeName, ComArray typeNames, ComArray constructorParms)
-        {            
-            var genericTypes = wwDotNetBridge.FixupParameter(typeNames) as string[];
-            object[] parameters = wwDotNetBridge.FixupParameter(constructorParms) as object[];
+        public void SetValueFromCreateGenericInstance(string genericTypeName, ComArray typeNames, object constructorParameters)
+        {
+            var constructorParms = constructorParameters as ComArray;
 
-            object parmList = null;
-            if (parameters.Length > 0)
-                parmList = parameters;
-
+            var genericTypes = wwDotNetBridge.FixupParameter(typeNames) as string[];         
             if (genericTypes == null || genericTypes.Length == 0)
                 throw new ArgumentException("Must pass at least one generic type argument to CreateGenericType");
 
-            var typename = genericTypeName + "`" + genericTypes.Length + "[";
-            foreach (string typeName in genericTypes)
-            {
-                typename += typeName + ",";
+         
+            object[] parameters = wwDotNetBridge.FixupParameter(constructorParms) as object[];
+            object[] parmList = null;
+            if (parameters != null && parameters.Length > 0)
+                parmList = new List<object>(parameters).ToArray();            
+
+            Type type;
+            var typename = string.Empty;
+            try
+            {                
+                var genericTypeList = new List<Type>();
+
+                int typeCount = 0;
+                var bridge = new wwDotNetBridge();
+                foreach (string typeName in genericTypes)
+                {
+                    var t = bridge.GetTypeFromName(typeName);
+                    if (t == null)
+                        throw new ArgumentException("Could not resolve generic parameter type: " + typename);
+
+                    genericTypeList.Add(t);
+                    typeCount++;
+                }
+
+                // first create the generic type
+                typename = genericTypeName + "`" + typeCount;
+                var genericType = Type.GetType(typename, true);
+                if (genericType == null)
+                    throw new ArgumentException("Could not resolve generic base type: " + typename);
+                
+                // now create the specfic generic type
+                type = genericType.MakeGenericType(genericTypeList.ToArray());                                                
+                if (type == null)
+                    throw new ArgumentException("Could not resolve generic type while creating type: " + typename + ". ");
             }
-            typename = typename.TrimEnd(',') + "]";
+            catch (Exception ex)
+            {
+                throw new ArgumentException("Could not resolve type: " + typename + ". " + ex.Message);
+            }
 
-
-            var type = Type.GetType(typename);
             object instance;
-            if (parmList == null)
+            if (parmList == null)        
                 instance = Activator.CreateInstance(type);
-            else                     
-                instance = type.Assembly.CreateInstance(typename, false, BindingFlags.Default, null, parameters, null, null);
-
+            else
+                instance = Activator.CreateInstance(type, parmList);
+        
             Value = instance;
         }
 
@@ -438,7 +465,7 @@ namespace Westwind.WebConnection
             Guid guid = (Guid) Value;
             return guid.ToString();
         }
-        
+
 
         /// <summary>
         /// Returns the string value of the embedded Value object

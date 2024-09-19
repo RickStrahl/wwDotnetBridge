@@ -1,21 +1,43 @@
 # wwDotnetBridge
 ### .NET Interop made easy for Visual FoxPro 9
 
-wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them *without requiring explicit COM registration of .NET components*, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access  system and free or commercial 3rd party libraries, or build and access your own .NET components and call them from FoxPro all without requiring COM registration.
+wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them **without requiring explicit COM registration of .NET components**, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access  system and free or commercial 3rd party libraries, or build and access your own .NET components and call them from FoxPro all without requiring COM registration.
 
-wwDotnetBridge also provides a host of support features to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, value types, static or generic members and types. 
+wwDotnetBridge also provides a host of support features to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, value types, static or Generic types. 
 
-wwDotnetBridge can automatically convert some problem types and provides wrappers that allow access to most unsupported features. There's also a powerful `ComArray` class that makes it easy to interact and manipulate .NET arrays, lists and collections, and a `ComValue` class that lets you assign, access and pass .NET values without ever passing the native .NET value into FoxPro which allows you to access types that COM simply cannot directly access.
+wwDotnetBridge can automatically convert problem types and provides wrappers that allow access to most unsupported features. There's a powerful `ComArray` class that makes it easy to interact and manipulate .NET arrays, lists, collections and dictionaries, and a `ComValue` class that lets you assign, access and pass .NET values without ever passing the native .NET value into FoxPro, which allows you to access types that COM simply cannot directly access.
+
+
+## Features at a glance
+
+* Registrationless access to most .NET components
+* Explicit loading of .NET assemblies from disk or the GAC
+* Support for .NET Framework Runtime (4.72 or later)
+* Support for .NET Core Runtime (via `wwDotnetCoreBridge`)
+* Access to most .NET components from FoxPro
+* Supports problematic .NET Types and Features:
+    * Access to Value Types
+    * Access to static methods and values
+    * Access to enumerated values
+    * Access to Generic types
+    * Support for Async Task methods
+    * Support for .NET Event Interfaces
+    * Support for calling any .NET method asynchronously
+    * [ComArray](https://webconnection.west-wind.com/docs/_6gg0mvpeo.htm) wrapper for .NET Arrays, Lists and Dictionaries
+    * [ComValue](https://webconnection.west-wind.com/docs/_3481232sd.htm) for accessing COM/FoxPro incompatible types
+    * Auto-Conversion of many problem .NET types to and from FoxPro
+* DataSet conversions to and from XmlAdapter (and from XmlAdapter to cursors)
+* ToJson() and ToXml() for .NET objects  (Commercial Version only)
 
 #### wwDotnetBridge and .NET Versions
-> There are two versions of wwDotnetBridge, one for .NET Framework (1.0 - 4.8) and one for .NET Core (.NET Core 5.0+). 
+> There are two versions of wwDotnetBridge, one for .NET Framework (2.0 - 4.8) and one for .NET Core (.NET Core 6.0+). 
 > 
 > Supported Platforms are:
 >
-> * .NET 4.6.2 Runtime or later  <small>*(.NET Framework - wwDotnetBridge)*</small>
-> * .NET Core 5.0 Runtime and later <small>*(32 bit .NET Core - wwDotnetCoreBridge)*</small>
+> * .NET 4.7.2 Runtime or later  <small>*(.NET Framework - wwDotnetBridge)*</small>
+> * .NET Core 6.0 Runtime and later <small>*(32 bit .NET Core - wwDotnetCoreBridge)*</small>
 > * Windows 7 and newer
-> * Windows Server 2008 R2 and newer
+> * Windows Server 2012 and newer
 
 ## Getting Started
 Typical steps for working with wwDotnetBridge are:
@@ -23,29 +45,30 @@ Typical steps for working with wwDotnetBridge are:
 * Initialize the .NET Runtime during Startup
 * Instantiate a wwDotnetBridge instance
 * Use `.CreateInstance()` to create .NET Objects
-* Use direct property and method access to call 
-instance methods and access properties
+* Use direct property and method access if supported by COM and FoxPro
 * Use `.GetProperty()`, `.SetProperty()` and `.InvokeMethod()`    
-to indirectly access problem types in .NET
-* Use Static versions of the intrinsic functions
+to indirectly access methods and members that COM or FoxPro don't support
+* Call Static methods and properties usoing static versions of the intrinsic functions
 
-### Initialize the .NET Runtime
-Although not strictly required it's a good idea to initialize the .NET Runtime during application startup. This ensures that you're loading a specific version of .NET and another component can't load something different. Only one version of a given .NET Runtime can run be loaded and first load wins.
-
-Somewhere in the startup of your application call `InitializeDotnetVersion()`:
+### Getting Started
+The first thing that you need to do is *start up* wwDotnetBridge and you can do that by creating an instance with this code:
 
 ```foxpro
-*** Load dependencies and add to Procedure stack
-*** Make sure wwDotnetBridge.prg wwDotnetBridge.dll ClrHost.dll 
-*** are in your FoxPro path
-DO wwDotnetBridge              && Load library
-InitializeDotnetVersion()      && Initialize .NET Runtime
+DO wwDotnetBridge                && Load the Library
+loBridge = GetwwDotnetBridge()   && Get an instance of the FoxPro Proxy
+
+*** Optionally check versions of library, .NET and Windows
+? loBridge.GetDotnetVersion()
 ```
 
-> #### Unable to load CLR Instance Errors
-> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, there might be a permissions problem access the wwDotnetBridge.dll. Please see [Unable to load CLR Instance](https://client-tools.west-wind.com/docs/_3rf12jtma.htm) for more info on how to fix this issue. Recent versions will attempt to automatically unblock the dll if permissions allow.
+`GetwwDotnetBridge()` is a helper UDF function that creates *a cached instance* of the `wwDotnetBridge` object, that is reused and stored as a `PUBLIC` variable. This makes it very fast to get an instance of `wwDotnetBridge` after first load and it's the recommended way to get an instance, although `CREATEOBJECT("wwDotnetBridge")` also works. 
 
-Then when you need to access wwDotnetBridge call `GetwwDotnetBridge()` to get a cached instance and use it to access .NET components:
+> First load of `wwDotnetBridge` can take a second or two as the .NET Runtime is loaded into the host process, but subsequent loads are nearly instant.
+
+> #### @icon-warning  Unable to load CLR Instance Errors
+> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, please see <%= TopicLink([Unable to load CLR Instance],[_3RF12JTMA]) %> for more info.
+
+Here's a rudimentary example that shows how wwDotnetBridge works:
 
 ```foxpro
 *** Create or get cached instance of wwdotnetbridge
@@ -65,57 +88,64 @@ loBridge.LoadAssembly("CustomDotnet.dll")
 *** Access a .NET component from the new assembly
 loItem = loBridge.CreateInstance("Custom.Item")
 
-*** Access properties directly
+*** Access properties and methods directly
 ? loItem.Sku
 loItem.Sku = "NewSku"
 lnTotal = loItem.CalculateTotal()
 
-
 *** Access non-accessible properties and methods indirectly
-*** Non accessible might be: Value Type, Enum, Generic Type, Long, Guid etc.
 lnFlagValue = loBridge.GetProperty(loItem,"Flag")
 lnFlagValue = loBridge.SetProperty(loItem,"Flag",5) 
 loBridge.InvokeMethod(loItem,"PassFlagValue",lnFlagValue)
-
-*** Access Static Properties and methods
-lcDomain = loBridge.GetStaticProperty("System.Environment","UserDomainName")
-llOnline = loBridge.InvokeStaticMethod("System.Net.NetworkInformation.NetworkInterface",;
-                                       "GetIsNetworkAvailable")
-
-*** Array Result Fixups
-loComArray = loBridge.InvokeMethod(loItem,"GetDetailItems",lnPk)  && returns object array
-FOR lnX = 1 to loComarray.Count
-     loLineItem = loComArray.Item[lnX]
-     ? loLineItem.Sku + " " + loLineItem.Descript
-ENDFOR     
-
-*** Pass an Array
-loItems = loBridge.CreateArray("MyApp.LineItem")
-loItem = loBridige.CreateInstance("MyApp.LineItem")
-loItem.Sku = "XXXX"
-loItem.Descript = "New Item"
-loItems.AddItem(loItem)
-
-loBridge.InvokeMethod(loInvoice,"AddItems",loItems)
 ```
 
-## Features at a glance
-wwDotnetBridge provides the following enhancements over plain COM Interop:
+Note that not all properties and methods can be accessed directly as shown on the first example, but some properties and methods require implicit activation as in the 'Flag' example requiring `GetProperty()`, `SetProperty()` or `InvokeMethod()` to indirectly access object members. 
 
-* Access most .NET Components directly even those not marked [ComVisible]
-* Requires no COM Registration
-* Call any .NET method and set and get properties
-* Call any .NET method asynchronously and get called back on completion
-* Instantiate types with parameterized constructors
-* Call overloaded methods using standard method names
-* Support for many natively unsupported .NET types and values
-* Access Static members, Value/Struct types, Generics, Binary, Guids, DbNulls
-* Automatically fix up problematic .NET Types on method returns
-* Provides easy Array, List and Collection access via ComArray wrapper
-* ComValue helper can store results and parameters in .NET
-* ComValue works around .NET and COM type conversions issues
-* Multi-threading library built-in 
-* wwDotnetBridge can also work with regular COM Interop (w/o runtime hosting)
+> If direct access fails, always try the indirect methods.
+
+### Accessing Arrays, Collections and Dictionaries
+A very common use case involves accessing collection types in .NET which can't be directly translated into FoxPro due to FoxPro and COM's very limited Array support. To help with this `wwDotnetBridge` provides a helper [ComArray class](VFPS://Topic/_6GG0MVPEO) that wraps .NET collection types and exposes a proxy interface to capture and interact with these types.
+
+```foxpro
+loBridge = GetwwDotnetBridge()    && instance
+loBridge.LoadAssembly("wwDotnetBridgeDemos.dll")
+
+*** Create an class Instance
+loPerson = loBridge.CreateInstance("wwDotnetBridgeDemos.Person")
+
+*** Access simple Properties
+? "*** Simple Properties:" 
+? loPerson.Name
+? loPerson.Entered
+?
+
+*** Addresses is an Array use GetProperty() and return as a ComArray instance
+loAddresses = loBridge.GetProperty(loPerson, "Addresses")  
+
+? TRANSFORM(loAddresses.Count) + " Addresses"     && Number of items in array (2)
+
+? "*** First Address"
+loAddress = loAddresses.Item(0)
+? "Street: " + loAddress.Street
+? 
+
+? "*** All Addresses"     && .NET Collections are 0 based!
+FOR lnX = 0 TO loAddresses.Count-1
+	loAddress = loAddresses.Item(lnX)
+	? loAddress.ToString()  && writes out full address
+	?
+ENDFOR
+
+? "*** Add a new Address to the array"
+* loNewAddress = loBridge.CreateInstance("wwDotnetBridgeDemos.Address")
+loNewAddress = loAddresses.CreateItem()
+loNewAddress.Street = "122 Newfound Landing"
+loNewAddress.City = "NewFoundLanding"
+loAddresses.Add(loNewAddress)
+
+? loAddresses.Count                 && 3 addresses now
+loAddress = loAddresses.Item(2)     && retrieve the added address (0 based)
+```
 
 ## Documentation
 * [Home Page](https://west-wind.com/wwDotnetBridge.aspx)

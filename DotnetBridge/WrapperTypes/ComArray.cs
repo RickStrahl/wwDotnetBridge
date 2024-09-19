@@ -162,8 +162,7 @@ namespace Westwind.WebConnection
                     if (val == null)
                         return null;
 
-                    wwDotNetBridge.FixupReturnValue(val);
-
+                    val = wwDotNetBridge.FixupReturnValue(val);
                     return val;
                 }
                 catch
@@ -197,7 +196,95 @@ namespace Westwind.WebConnection
 
                 if (val == null) return null;
 
-                val = wwDotNetBridge.FixupReturnValue(val);
+                return wwDotNetBridge.FixupReturnValue(val);                
+            }
+
+            if (Instance is IEnumerable)
+            {
+                var list = Instance as IEnumerable;
+                if (list == null) 
+                    return null;
+
+                foreach (var item in list)
+                {
+                    if (item == indexOrKey)
+                        return wwDotNetBridge.FixupReturnValue(item);
+                }
+
+                // if an int was passed do a lookup to allow iteration
+                if (indexOrKey is int)
+                {
+                    int idx = (int)indexOrKey;
+                    int counter = 0;
+                    foreach (var item in list)
+                    {
+                        if (idx == counter)
+                            return wwDotNetBridge.FixupReturnValue(item);
+                        counter++;
+                    }
+                }
+                
+                return null;
+            }
+
+            return null;
+        }
+
+
+        /// <summary>
+        /// Returns the indexed item without any type conversion fixup
+        /// </summary>
+        /// <param name="indexOrKey"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public object ItemRaw(object indexOrKey)
+        {
+            if (Instance == null)
+                return null;
+
+            if (Instance is IList)
+            {
+                if (!(indexOrKey is int))
+                    throw new ArgumentException("List requires an integer key for lookups");
+
+                var list = (IList)Instance;
+                try
+                {
+                    object val = list[(int)indexOrKey];
+                    if (val == null)
+                        return null;
+                    return val;
+                }
+                catch
+                { }
+            }
+
+            if (Instance is IDictionary)
+            {
+                var list = (IDictionary)Instance;
+                object val = null;
+                try
+                {
+                    val = list[indexOrKey];
+                }
+                catch
+                {
+                }
+
+                // Check for int key if the generic type is NOT int and return based on index
+                if (val == null && indexOrKey is int && Instance.GetType().GenericTypeArguments[0] != typeof(int))
+                {
+                    int idx = (int)indexOrKey;
+                    int counter = 0;
+                    foreach (var item in list.Values)
+                    {
+                        if (idx == counter)
+                            return item;
+                        counter++;
+                    }
+                }
+
+                if (val == null) return null;
 
                 return val;
             }
@@ -232,6 +319,56 @@ namespace Westwind.WebConnection
 
             return null;
         }
+
+
+        /// <summary>
+        /// Returns the type name of the array instance
+        /// </summary>
+        /// <returns></returns>
+        public string GetInstanceTypeName()
+        {
+            if (Instance == null)
+                return string.Empty;
+
+            return Instance?.GetType().FullName ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the type name of each element in the array instance
+        /// </summary>
+        /// <returns></returns>
+        public string GetItemTypeName()
+        {
+            if (Instance == null)
+                return string.Empty;
+
+            if (Instance is Array)
+            {
+                Array ar = Instance as Array;
+                if (ar.Length < 1)
+                    return string.Empty;
+                return Instance.GetType().GetElementType()?.FullName ?? string.Empty;
+            }
+
+            if (Instance is IList)
+            {
+                IList i  = Instance as IList;
+                if (i.Count < 1)
+                    return string.Empty;
+                return Instance.GetType().GetGenericArguments()[0].FullName;
+            }
+
+            if (Instance is IDictionary)
+            {
+                IDictionary i = Instance as IDictionary;
+                if (i.Count < 1)
+                    return string.Empty;
+                return Instance.GetType().GetGenericArguments()[1].FullName;
+            }
+
+            return string.Empty;
+        }
+       
 
         /// <summary>
         /// Adds an item to the internal list, array or single item collection.

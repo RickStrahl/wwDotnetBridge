@@ -101,8 +101,19 @@ namespace Westwind.WebConnection
                     }
 
                     _firstLoad = false;
+
+
+                    AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+
                 }
             }
+        }
+
+        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            var ass = args.RequestingAssembly;
+
+            return ass;
         }
 
 
@@ -462,6 +473,18 @@ namespace Westwind.WebConnection
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Calls Dispose on an instance if it's disposable
+        /// </summary>
+        /// <param name="instance"></param>
+        public void DisposeInstance(object instance)
+        {            
+            if (instance is IDisposable)
+            {
+                ((IDisposable)instance).Dispose();
+            }
         }
 
         #endregion
@@ -1075,6 +1098,39 @@ namespace Westwind.WebConnection
 
 
         /// <summary>
+        /// Retrieves a property but doesn't fix up the result value
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="property"></param>
+        /// <param name="noInboundFixup">If true doesn't fix the input parameter</param>
+        /// <returns></returns>
+        public object GetPropertyRaw(object instance, string property, bool noInboundFixup)
+        {
+            LastException = null;
+            try
+            {
+                object fixedInstance = instance;
+                if (!noInboundFixup)
+                    fixedInstance = FixupParameter(instance);
+
+                object val;
+
+                if (property.Contains(".") || property.Contains("["))
+                    val = ReflectionUtils.GetPropertyEx(fixedInstance, property);
+                else
+                    val = ReflectionUtils.GetPropertyCom(fixedInstance, property);  // this is more reliable in that it handles value conversions
+
+                return val;
+            }
+            catch (Exception ex)
+            {
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
+            }
+        }
+
+
+        /// <summary>
         /// Returns a property value by allowing . syntax to drill
         /// into nested objects. Use this method to step over objects 
         /// that FoxPro can't directly access (like structs, generics etc.)
@@ -1251,6 +1307,7 @@ namespace Westwind.WebConnection
         }
 
 
+
         public void InvokeTaskMethodAsync(
             object callBack, 
             object instance, 
@@ -1262,6 +1319,7 @@ namespace Westwind.WebConnection
                 callBack = null;
             
             Task result = null;
+
             try
             {
                 if (!isStatic)
@@ -1627,7 +1685,12 @@ namespace Westwind.WebConnection
         }
 
 
-        private object _tvalue;
+        /// <summary>
+        /// A temporary object that can be used as a placeholder to return an instance value
+        /// for direct access of properties when no instance is available. Most commonly used
+        /// for things like retrieving an array.
+        /// </summary>
+        public object _tvalue { get; set; }
 
         /// <summary>
         /// Returns an indexed property Value
@@ -1639,6 +1702,11 @@ namespace Westwind.WebConnection
         {
             try
             {
+                if (baseList is ComArray)
+                    return ((ComArray)baseList).Item(index);
+
+                baseList = FixupParameter(baseList);
+
                 _tvalue = baseList;
                 return GetPropertyEx(this, "_tvalue[" + index + "]");
             }
@@ -2095,10 +2163,17 @@ namespace Westwind.WebConnection
             if (rt != null && Environment.Version.Major != 4)
                 isDotnetCore = true;
 
+#if IS_WESTWIND
+            string product = "West Wind Commercial Release";
+#else
+            string product = "Open Source Release";
+#endif
+
             string res = null;
             if(!isDotnetCore) { 
             	res = $@"wwDotnetBridge Version   : {Assembly.GetExecutingAssembly().GetName().Version}
-wwDotnetBridge Location  : {GetType().Assembly.Location}
+                Release  : {product}
+wwDotnetBridge Location  : {GetType().Assembly.Location} 
 .NET Version (official)  : {Environment.Version}
 .NET Version (simplified): {GetDotnetVersion()}
 .NET Version (Release)   : {GetDotnetVersion(true)}
@@ -2107,6 +2182,7 @@ Windows Version          : {GetWindowsVersion(WindowsVersionModes.Full)}";
             else
             {
                 res =  $@"wwDotnetBridge Version  : {Assembly.GetExecutingAssembly().GetName().Version}
+               Release  : {{product}}
 wwDotnetBridge Location : {GetType().Assembly.Location}
 .NET Core Version       : {Environment.Version}
 .NET Core Version (Full): {rt}
@@ -2149,7 +2225,9 @@ Windows Version         : {GetWindowsVersion(WindowsVersionModes.Full)}";
 
             // https://msdn.microsoft.com/en-us/library/hh925568(v=vs.110).aspx
             // RegEdit paste: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full
-            if (releaseKey >= 528040) 
+            if (releaseKey >= 533320)
+                DotnetVersion = "4.8.1";
+            else if (releaseKey >= 528040) 
                 DotnetVersion = "4.8";
             else if (releaseKey >= 461808)
                 DotnetVersion = "4.7.2";
@@ -2397,4 +2475,17 @@ Windows Version         : {GetWindowsVersion(WindowsVersionModes.Full)}";
         ReleaseOnly = 2
     }
 
+    [ComVisible(true)]
+    public class ExceptionWrapper : Exception
+    {
+        new string StackTrace { get; set; }
+
+        public ExceptionWrapper(string message, string stackTrace, string source, Exception innerException = null) :
+            base(message, innerException)
+        {
+            Source = source;
+            StackTrace = stackTrace;
+        }
+                
+    }
 }

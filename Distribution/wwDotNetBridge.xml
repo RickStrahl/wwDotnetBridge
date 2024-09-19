@@ -981,6 +981,26 @@
             <param name="instance"></param>
         </member>
         <!-- Badly formed XML comment ignored for member "M:Westwind.WebConnection.ComArray.Item(System.Object)" -->
+        <member name="M:Westwind.WebConnection.ComArray.ItemRaw(System.Object)">
+            <summary>
+            Returns the indexed item without any type conversion fixup
+            </summary>
+            <param name="indexOrKey"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.GetInstanceTypeName">
+            <summary>
+            Returns the type name of the array instance
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.ComArray.GetItemTypeName">
+            <summary>
+            Returns the type name of each element in the array instance
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.ComArray.AddItem(System.Object)">
             <summary>
             Adds an item to the internal list, array or single item collection.
@@ -1349,7 +1369,7 @@
             <param name="typeName"></param>
             <param name="parms"></param>
         </member>
-        <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateGenericInstance(System.String,Westwind.WebConnection.ComArray,Westwind.WebConnection.ComArray)">
+        <member name="M:Westwind.WebConnection.ComValue.SetValueFromCreateGenericInstance(System.String,Westwind.WebConnection.ComArray,System.Object)">
             <summary>
             Creates a generic type and stores it on the Value object.
             </summary>
@@ -1542,6 +1562,12 @@
             <param name="parm5"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.DisposeInstance(System.Object)">
+            <summary>
+            Calls Dispose on an instance if it's disposable
+            </summary>
+            <param name="instance"></param>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.CreateAssemblyInstanceFromFile(System.String,System.String)">
             <summary>
             Creates an instance from a file reference with a parameterless constructor
@@ -1662,6 +1688,15 @@
             <param name="Method"></param>
             <param name="Parm1"></param>
             <param name="Parm2"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetPropertyRaw(System.Object,System.String,System.Boolean)">
+            <summary>
+            Retrieves a property but doesn't fix up the result value
+            </summary>
+            <param name="instance"></param>
+            <param name="property"></param>
+            <param name="noInboundFixup">If true doesn't fix the input parameter</param>
             <returns></returns>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetPropertyEx(System.Object,System.String)">
@@ -1803,6 +1838,13 @@
             <param name="arrayObject">The array property name as a string</param>
             <param name="item">The item to set it to. Should not be null.</param>
             <returns></returns>
+        </member>
+        <member name="P:Westwind.WebConnection.wwDotNetBridge._tvalue">
+            <summary>
+            A temporary object that can be used as a placeholder to return an instance value
+            for direct access of properties when no instance is available. Most commonly used
+            for things like retrieving an array.
+            </summary>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetIndexedProperty(System.Object,System.Int32)">
             <summary>
