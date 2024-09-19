@@ -1,16 +1,11 @@
 # wwDotnetBridge
-### .NET Interop made easy for Visual FoxPro 9
+### .NET Interop made easy for Visual FoxPro 9.0
 
 wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them **without requiring explicit COM registration of .NET components**, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access  system and free or commercial 3rd party libraries, or build and access your own .NET components and call them from FoxPro all without requiring COM registration.
 
-wwDotnetBridge also provides a host of support features to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, value types, static or Generic types. 
+wwDotnetBridge also provides a host of support features to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, value types, .NET Generic types or static methods or properties.
 
-wwDotnetBridge can automatically convert problem types and provides wrappers that allow access to most unsupported features. There's a powerful `ComArray` class that makes it easy to interact and manipulate .NET arrays, lists, collections and dictionaries, and a `ComValue` class that lets you assign, access and pass .NET values without ever passing the native .NET value into FoxPro, which allows you to access types that COM simply cannot directly access.
-
-## Documentation
-You can find class and support documentation for wwDotnetBridge here:
-
-* [wwDotnetBridge Documentation](https://webconnection.west-wind.com/docs/_24n1cfw3a.htm)
+wwDotnetBridge can automatically convert problem types via proxy methods like `InvokeMethod()`, `GetProperty()` and `SetProperty()`, or static versions like `InvokeStaticMethod()`, `GetStaticProperty()`, `SetStaticProperty()`. To help with problematic type access there's a powerful `ComArray` class that makes it easy to interact and manipulate .NET arrays, lists, collections and dictionaries from FoxPro, and a `ComValue` class that lets you assign, access and pass .NET values without ever passing the native .NET value into FoxPro, which allows you to access types that COM or FoxPro simply cannot directly access.
 
 ## Features at a glance
 
@@ -19,7 +14,8 @@ You can find class and support documentation for wwDotnetBridge here:
 * Support for .NET Framework Runtime (4.72 or later)
 * Support for .NET Core Runtime (via `wwDotnetCoreBridge`)
 * Access to most .NET components from FoxPro
-* Supports problematic .NET Types and Features:
+* Simple direct access to members of classes for any COM/FoxPro supported types
+* Problem types and features are supported via helpers to:
     * Access to Value Types
     * Access to static methods and values
     * Access to enumerated values
@@ -33,7 +29,7 @@ You can find class and support documentation for wwDotnetBridge here:
 * DataSet conversions to and from XmlAdapter (and from XmlAdapter to cursors)
 * ToJson() and ToXml() for .NET objects  (Commercial Version only)
 
-#### wwDotnetBridge and .NET Versions
+> #### wwDotnetBridge and .NET Versions
 > There are two versions of wwDotnetBridge, one for .NET Framework (2.0 - 4.8) and one for .NET Core (.NET Core 6.0+). 
 > 
 > Supported Platforms are:
@@ -42,6 +38,12 @@ You can find class and support documentation for wwDotnetBridge here:
 > * .NET Core 6.0 Runtime and later <small>*(32 bit .NET Core - wwDotnetCoreBridge)*</small>
 > * Windows 7 and newer
 > * Windows Server 2012 and newer
+
+## Documentation
+You can find class and support documentation for wwDotnetBridge here:
+
+* [wwDotnetBridge Documentation](https://webconnection.west-wind.com/docs/_24n1cfw3a.htm)
+
 
 ## Getting Started
 Typical steps for working with wwDotnetBridge are:
@@ -65,9 +67,9 @@ loBridge = GetwwDotnetBridge()   && Get an instance of the FoxPro Proxy
 ? loBridge.GetDotnetVersion()
 ```
 
-`GetwwDotnetBridge()` is a helper UDF function that creates *a cached instance* of the `wwDotnetBridge` object, that is reused and stored as a `PUBLIC` variable. This makes it very fast to get an instance of `wwDotnetBridge` after first load and it's the recommended way to get an instance, although `CREATEOBJECT("wwDotnetBridge")` also works. 
+`GetwwDotnetBridge()` is a FoxPro helper function that creates *a cached instance* of the `wwDotnetBridge` object, that is reused and stored as a `PUBLIC` variable. This makes it very fast to get an instance of `wwDotnetBridge` after first load and it's the recommended way to get an instance, although `CREATEOBJECT("wwDotnetBridge")` also works albeit a little slower.
 
-> First load of `wwDotnetBridge` can take a second or two as the .NET Runtime is loaded into the host process, but subsequent loads are nearly instant.
+> First load of `wwDotnetBridge` can take a second or two as the .NET Runtime is loaded into the your FoxPro host process, but subsequent loads are nearly instant.
 
 > #### @icon-warning  Unable to load CLR Instance Errors
 > If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, please see <%= TopicLink([Unable to load CLR Instance],[_3RF12JTMA]) %> for more info.
