@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
-		<Version>8.1.1</Version>
+		<Version>8.1.2</Version>
 		<Authors>Rick Strahl</Authors>
 		
 		<OutputPath>..\Distribution</OutputPath>

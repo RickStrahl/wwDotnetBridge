@@ -36,6 +36,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.IO;
@@ -1908,7 +1909,7 @@ namespace Westwind.WebConnection
                 return ((ComArray)val).Instance;
             if (type == typeof(ComGuid))
                 return ((ComGuid) val).Guid;
-
+           
             return val;
         }
 
@@ -2072,7 +2073,7 @@ namespace Westwind.WebConnection
         /// <param name="value"></param>
         /// <returns></returns>
         public Type GetType(object value)
-        {
+        {            
             if (value == null)
                 return null;
 
@@ -2094,13 +2095,41 @@ namespace Westwind.WebConnection
             Type type = null;
             foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
             {
-                type = ass.GetType(typeName, false);
+                type = ass.GetType(typeName, false);                
                 if (type != null)
                     break;
             }
 
             return type;
         }
+
+        /// <summary>
+        /// Returns an array of objects with Assembly information     
+        /// </summary>
+        /// <returns></returns>
+        public AssemblyItem[] GetLoadedAssemblies()
+        {
+            var assemblyItems = new List<AssemblyItem>();
+
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var ass in assemblies)
+            {
+                var name = ass.GetName();
+
+                var item = new AssemblyItem()
+                {
+                    Name = name.Name,
+                    Location = name.CodeBase,
+                    FullyQualifiedName = name.FullName
+
+                };
+                assemblyItems.Add(item);
+            }
+
+            return assemblyItems.ToArray();
+        }
+
+   
 
         #endregion
 
@@ -2194,7 +2223,6 @@ Windows Version         : {GetWindowsVersion(WindowsVersionModes.Full)}";
 
             return res;
         }
-
 
         static string DotnetVersion = null;
 
@@ -2491,4 +2519,11 @@ Windows Version         : {GetWindowsVersion(WindowsVersionModes.Full)}";
         }
                 
     }
+}
+
+public class AssemblyItem
+{
+    public string Name { get; set; }
+    public string Location { get; set; }
+    public string FullyQualifiedName { get; set; }
 }

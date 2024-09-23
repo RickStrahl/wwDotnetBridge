@@ -950,6 +950,31 @@ ENDFUNC
 
 
 ************************************************************************
+*  ComArrayToCollection
+****************************************
+***  Function: Converts a ComArray to a FoxPro collection
+***      Pass: loComArray
+***    Return: Collection. If null returns empty collection
+************************************************************************
+FUNCTION ComArrayToCollection(loComArray)
+LOCAL loCol, lnX
+
+loCol = CREATEOBJECT("Collection")
+IF VARTYPE(loComArray) # "O"
+   RETURN loCol
+ENDIF
+
+FOR lnX = 0 TO loComArray.Count -1
+   loCol.Add(loComArray.Item(lnX))
+ENDFOR
+
+RETURN loCol
+ENDFUNC
+*   ComArrayToCollection
+
+
+
+************************************************************************
 *  CreateArrayOnInstnace
 ****************************************
 ***  Function: Creates an array of a given type and size on the specified
@@ -1086,6 +1111,22 @@ RETURN this.InvokeMethod(this.oDotNetBridge,"GetTypeFromName",lcTypeName)
 ENDFUNC
 *   GetTypeFromName
 
+************************************************************************
+*  GetLoadedAssemblies
+****************************************
+***  Function: Get loaded assemblies
+***    Assume:
+***      Pass:
+***    Return: Collection of assemblies
+***            Name, Location, FullName
+************************************************************************
+FUNCTION GetLoadedAssemblies()
+
+loAssemblies = this.InvokeMethod(this.oDotnetBridge,"GetLoadedAssemblies")
+RETURN THIS.ComArrayToCollection(loAssemblies)
+RETURN
+ENDFUNC
+*   GetLoadedAssemblies
 
 ************************************************************************
 *  SubscribeToEvents

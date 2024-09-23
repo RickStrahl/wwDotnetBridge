@@ -5,7 +5,7 @@ CLEAR
 do wwDotNetBridge
 
 LOCAL loBridge as wwDotNetBridge
-loBridge = CreateObject("wwDotNetBridge","V4")
+loBridge = GetwwDotnetBridge()
 
 llResult = loBridge.InvokeStaticMethod("System.Net.NetworkInformation.NetworkInterface",;
                               "GetIsNetworkAvailable")

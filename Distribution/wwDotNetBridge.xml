@@ -1951,6 +1951,12 @@
             <param name="typeName"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetLoadedAssemblies">
+            <summary>
+            Returns an array of objects with Assembly information     
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetDotnetVersion(System.Boolean)">
             <summary> 
             Returns the .NET framework version installed on the machine
