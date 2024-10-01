@@ -152,14 +152,18 @@ You can find class and support documentation for wwDotnetBridge here:
 ## How it works
 This library consists of 3 components (all provided in source):
 
-* ClrHost.dll - Win32 Loader for the .NET Runtime
-* wwDotnetBridge.dll  - .NET assembly Proxy and Helper
-* wwDotnetBridge.prg - FoxPro front end class to .NET Proxy
+* **ClrHost.dll** - Native Win32 Loader for the .NET Runtime 
+* **wwDotnetBridge.dll**  - .NET assembly Proxy and Helper
+* **wwDotnetBridge.prg** - FoxPro front end class to .NET Proxy
 
-> #### Make sure DLLs can be found!
-> Make sure CrlHost.dll (or wwIpstuff.dll for [commercial West Wind tools](https://west-wind.com/WestwindClientTools.aspx)) and wwDotnetBridge are accessible via the FoxPro path. Ideally you'll want to have these DLLs in your current executing path of the application - typically the root folder of the application.
+Copy `ClrHost.dll` and `wwDotnetBridge.dll` into your application's root folder. Copy `wwDotnetBridge.prg` anywhere on your FoxPro path.
 
-If you're using FoxPro you can simply use the `wwDotnetBridge.prg` class to load an assembly and fire away at it or access existing .NET components directly.
+> #### Finding DLL Dependencies
+> `ClrHost.dll` **has to live in the application root folder** - no exceptions. 
+>
+> But any .NET DLLs including `wwDotnetBridge.dll` can be loaded anywhere from the FoxPro path. However make sure that any dependencies loaded by a library can also be found in that same folder or the root application folder. Ideally use the same folder for all your .NET assemblies to avoid version conflicts from the same assemblies trying to load from different locations.
+
+If you're using FoxPro you can simply use the `wwDotnetBridge.prg` class to load an assembly and fire away at it or access existing .NET components directly. `.LoadAssembly()` looks on the FoxPro path to find the DLLs your are loading so an explicit path is not required.
 
 This example loads the OpenPop .NET library and accesses a POP3 mailbox to display messages waiting:
 
@@ -199,6 +203,7 @@ FOR lnX = lnCount TO 1 STEP -1
    ENDIF
 ENDFOR
 ```
+
 The example demonstrates a few simple features: Loading an assembly, creating a .NET type instance and then calling methods and accessing properties either directly or indirectly. You can call Static methods and access static members.
 
 For many methods and properties on .NET object references you can directly access the members, but some members are not directly callable via COM if there are overloads on a method, if there are Generics, enums or Value Types involved in the method or member access. It's best to always try direct access first and if that fails attempt to use indirect access to the wwDotnetBridge instance.
