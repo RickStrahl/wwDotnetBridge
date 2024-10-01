@@ -1,11 +1,23 @@
 # wwDotnetBridge
-### .NET Interop made easy for Visual FoxPro 9.0
+#### .NET Interop made easy for Visual FoxPro 9.0
+
+![Bridge](Bridge.jpg)
+
+
 
 wwDotnetBridge allows you to access the vast majority of .NET components directly from FoxPro. It provides registrationless activation of .NET Components, and acts as a proxy into .NET that makes it possible to access features that native COM Interop does not support directly.
 
 To work around COM limitations, wwDotnetBridge provides many improvements and work arounds, while still using the base layer of COM Interop for the inter-process communication. Everything that works with native COM Interop also works with wwDotnetBridge - it's the same technology after all -  but you get many more support features and automatic type translations to work around the limitations.
 
-The key features of wwDotnetBridge are:
+### Links
+
+* [wwDotnetBridge Documentation](https://webconnection.west-wind.com/docs/_24n1cfw3a.htm)    
+* [wwDotnetBridge White Paper](https://west-wind.com/wconnect/weblog/ShowEntry.blog?id=57032)  
+* [West Wind Message Board Support](https://support.west-wind.com)  
+* [wwDotnetBridge Files](Distribution/)
+
+
+### Key Features
 
 * **Registrationless access to most .NET Components**  
 Unlike native COM Interop, you can instantiate and access .NET Components and static classes, without requiring those classes to be registered as COM objects. Objects are instantiated from within .NET, so you can access most .NET components by directly loading them from their DLL assembly. Both .NET Framework (`wwDotnetBridge`) and .NET Core (`wwDotnetCoreBridge`) are supported.
