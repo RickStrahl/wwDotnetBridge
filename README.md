@@ -43,6 +43,7 @@ wwDotnetBridge can automatically convert problem types via proxy methods like `I
 You can find class and support documentation for wwDotnetBridge here:
 
 * [wwDotnetBridge Documentation](https://webconnection.west-wind.com/docs/_24n1cfw3a.htm)
+* [wwDotnetBridge Support on West Wind Message Board](https://support.west-wind.com/?forum=West%20Wind%20Internet%20and%20Client%20Tools)
 
 
 ## Getting Started
