@@ -3,8 +3,6 @@
 
 ![Bridge](Bridge.jpg)
 
-
-
 wwDotnetBridge allows you to access the vast majority of .NET components directly from FoxPro. It provides registrationless activation of .NET Components, and acts as a proxy into .NET that makes it possible to access features that native COM Interop does not support directly.
 
 To work around COM limitations, wwDotnetBridge provides many improvements and work arounds, while still using the base layer of COM Interop for the inter-process communication. Everything that works with native COM Interop also works with wwDotnetBridge - it's the same technology after all -  but you get many more support features and automatic type translations to work around the limitations.
@@ -44,10 +42,10 @@ InitializeDotnetVersion("V4")   && Loads .NET Runtime and caches it
 
 Note that `InitializeDotnetVersion()` is *optional*. You can use `GetwwDotnetBridge()` or `CREATEOBJECT("wwDotnetBridge")`, but using `InitializeDotnetVersion()` ensures a reliable and predictable load of .NET **on startup**.
 
-> #### @icon-warning  Unable to load CLR Instance Errors
+> #### Unable to load CLR Instance Errors
 > If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, you probably need to unblock the wwdotnetbridge.dll or need to ensure that the wwdotnetbridge.dll and wwipstuff.dll are in your FoxPro path. Please see <%= TopicLink([Unable to load CLR Instance],[_3RF12JTMA]) %> for more info.
 
-> #### @icon-info-circle Loading DLLs from Network Locations: Configuration required
+> #### Loading DLLs from Network Locations: Configuration required
 > .NET components require explicit configuration in order to support remote loading from network locations. This is done by creating a configuration file for your application `yourapp.exe.config` or the VFP IDE `vfp9.exe.config`, in their respective startup folders. We recommend at minimum you use the following `.config` file settings:
 > ```xml
 > <?xml version="1.0"?>
