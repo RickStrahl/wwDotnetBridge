@@ -1,33 +1,126 @@
 # wwDotnetBridge
 ### .NET Interop made easy for Visual FoxPro 9.0
 
-wwDotnetBridge is a small library designed to make it easy to **call .NET components from Visual FoxPro**. By providing an easy mechanism for loading .NET components and calling them **without requiring explicit COM registration of .NET components**, it's easy to add .NET functionality to your applications. Interact with core .NET framework components, access  system and free or commercial 3rd party libraries, or build and access your own .NET components and call them from FoxPro all without requiring COM registration.
+wwDotnetBridge allows you to access the vast majority of .NET components directly from FoxPro. It provides registrationless activation of .NET Components, and acts as a proxy into .NET that makes it possible to access features that native COM Interop does not support directly.
 
-wwDotnetBridge also provides a host of support features to make it possible to access .NET type features that FoxPro and COM alone do not natively support. For example, native COM interop cannot access components with multiple constructors, value types, .NET Generic types or static methods or properties.
+To work around COM limitations, wwDotnetBridge provides many improvements and work arounds, while still using the base layer of COM Interop for the inter-process communication. Everything that works with native COM Interop also works with wwDotnetBridge - it's the same technology after all -  but you get many more support features and automatic type translations to work around the limitations.
 
-wwDotnetBridge can automatically convert problem types via proxy methods like `InvokeMethod()`, `GetProperty()` and `SetProperty()`, or static versions like `InvokeStaticMethod()`, `GetStaticProperty()`, `SetStaticProperty()`. To help with problematic type access there's a powerful `ComArray` class that makes it easy to interact and manipulate .NET arrays, lists, collections and dictionaries from FoxPro, and a `ComValue` class that lets you assign, access and pass .NET values without ever passing the native .NET value into FoxPro, which allows you to access types that COM or FoxPro simply cannot directly access.
+The key features of wwDotnetBridge are:
 
-## Features at a glance
+* **Registrationless access to most .NET Components**  
+Unlike native COM Interop, you can instantiate and access .NET Components and static classes, without requiring those classes to be registered as COM objects. Objects are instantiated from within .NET, so you can access most .NET components by directly loading them from their DLL assembly. Both .NET Framework (`wwDotnetBridge`) and .NET Core (`wwDotnetCoreBridge`) are supported.
 
-* Registrationless access to most .NET components
-* Explicit loading of .NET assemblies from disk or the GAC
-* Support for .NET Framework Runtime (4.72 or later)
-* Support for .NET Core Runtime (via `wwDotnetCoreBridge`)
-* Access to most .NET components from FoxPro
-* Simple direct access to members of classes for any COM/FoxPro supported types
-* Problem types and features are supported via helpers to:
-    * Access to Value Types
-    * Access to static methods and values
-    * Access to enumerated values
-    * Access to Generic types
-    * Support for Async Task methods
-    * Support for .NET Event Interfaces
-    * Support for calling any .NET method asynchronously
-    * [ComArray](https://webconnection.west-wind.com/docs/_6gg0mvpeo.htm) wrapper for .NET Arrays, Lists and Dictionaries
-    * [ComValue](https://webconnection.west-wind.com/docs/_3481232sd.htm) for accessing COM/FoxPro incompatible types
-    * Auto-Conversion of many problem .NET types to and from FoxPro
-* DataSet conversions to and from XmlAdapter (and from XmlAdapter to cursors)
-* ToJson() and ToXml() for .NET objects  (Commercial Version only)
+* **Instantiates and Interacts with .NET Objects via COM from within .NET**  
+wwDotnetBridge is a .NET based component that **runs inside of .NET** and acts as an intermediary for activation, invocation and access operations. It creates **any** .NET instances from within .NET and returns those references using COM Interop. Once loaded you can use all features that COM supports directly: Property access and method calls etc. *as long the members accessed use types that are supported by COM*.
+
+* **Support for Advanced .NET Features that COM Interop doesn't support**  
+Unfortunately there are many .NET features that COM and FoxPro don't natively support directly: Anything related to .NET Generics, overloaded methods, value types, enums, various number types to name just a few. But because wwDotnetBridge runs inside of .NET, it provides automatic conversions and helpers to allow access to these features via intermediary Reflection operations. These helpers access the unsupported COM operations from inside of .NET and translate the results into COM and FoxPro compatible results that are returned into your FoxPro application.
+
+* **Automatic Type Conversions**  
+Because there are many incompatible types in .NET that don't have equivalents in COM or FoxPro, wwDotnetBridge performs many automatic type conversions. These make it easier to call methods or retrieve values from .NET by automatically converting compatible types. For example: decimals to double, long, byte to int, Guid to string etc. There are also wrapper classes like `ComArray` that wraps  .NET Arrays and Collections and provides a FoxPro friendly interface for navigating and updating collections, and `ComValue` which wraps incompatible .NET values and provides convenient methods to set and retrieve the value in a FoxPro friendly way and pass it to .NET methods or property assignments.
+
+* **Support for Async Code Execution**  
+A lot of modern .NET Code uses async functionality via `Task` based interfaces, and wwDotnetBridge includes a `InvokeTaskMethodAsyc()` helper that lets you call these async methods and receive results via Callbacks asynchronously. You can also run **any** .NET synchronous method and call it asynchronously using `InvokeMethodAsync()` using the same Callback mechanism.
+
+### Getting Started
+The first step in using wwDotnetBridge is to load it for the first time, which instantiates the .NET Runtime. We recommend that you do this somewhere in your application startup sequence so as to avoid any potential version ambiguities. Somewhere in the startup of your application call `InitializeDotnetVersion()`:
+
+```foxpro
+DO wwDotnetBridge               && Loads dependencies
+InitializeDotnetVersion("V4")   && Loads .NET Runtime and caches it
+```
+
+Note that `InitializeDotnetVersion()` is *optional*. You can use `GetwwDotnetBridge()` or `CREATEOBJECT("wwDotnetBridge")`, but using `InitializeDotnetVersion()` ensures a reliable and predictable load of .NET **on startup**.
+
+> #### @icon-warning  Unable to load CLR Instance Errors
+> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, you probably need to unblock the wwdotnetbridge.dll or need to ensure that the wwdotnetbridge.dll and wwipstuff.dll are in your FoxPro path. Please see <%= TopicLink([Unable to load CLR Instance],[_3RF12JTMA]) %> for more info.
+
+> #### @icon-info-circle Loading DLLs from Network Locations: Configuration required
+> .NET components require explicit configuration in order to support remote loading from network locations. This is done by creating a configuration file for your application `yourapp.exe.config` or the VFP IDE `vfp9.exe.config`, in their respective startup folders. We recommend at minimum you use the following `.config` file settings:
+> ```xml
+> <?xml version="1.0"?>
+> <configuration>
+>   <runtime>
+>       <loadFromRemoteSources enabled="true"/>
+>   </runtime>
+> </configuration>
+> ```
+
+### wwDotnetBridge Example
+With the library loaded, you can retrieve an instance by calling the `GetwwDotnetBridge()` factory function which caches a loaded wwDotnetBridge instance and therefore is very fast to access.
+
+Here's an example what of some of what you can then do:
+
+```foxpro
+*** Create or get cached instance of wwdotnetbridge
+LOCAL loBridge as wwDotnetBridge
+loBridge = GetwwDotnetBridge()
+
+*** The first two are built-in .NET Framework functions so no assembly has to be loaded
+
+*** Create a built-in .NET class and execute a method - this one downloads a file to disk
+loHttp = loBridge.CreateInstance("System.Net.WebClient")
+loHttp.DownloadFile("http://west-wind.com/files/MarkdownMonsterSetup.exe",
+                    "MarkdownMonsterSetup.exe")
+
+*** Format a string: Static method: Typename as string, method, parameters
+? loBridge.InvokeStaticMethod("System.String","Format","Hello {0}. Time is: {1:t}",;
+                              "Rick", DATETIME())
+* Hello Rick. Time is: 2:45 PM                              
+
+*** Now load a third party Assembly - assemblies load their own dependencies!
+? loBridge.LoadAssembly("wwDotnetBridgeDemos.dll")
+
+*** Create a class Instance - naming is: namespace.class
+loPerson = loBridge.CreateInstance("wwDotnetBridgeDemos.Person")
+
+*** Access simple Properties - plain COM
+? loPerson.Name
+? loPerson.Company
+? loPerson.Entered
+
+*** Call simple method - plain COM
+? loPerson.ToString()
+? loPerson.AddAddress("1 Main","Fairville","CA","12345")  && 2 Addresses now
+
+*** Access an Array/Collection of Objects and iterate over the list
+*** Arrays/Collections/Dictionaries are not easily accessible via COM
+*** wwDotnetBridge returns a `ComArray` instance
+loAddresses = loBridge.GetProperty(loPerson,"Addresses");
+
+*** Access ComArray.Count list count
+lnCount = loAddresses.Count   && 2 addresses
+
+*** Access the first item - 0 based list
+loAddress = loAddress.Item(0);
+? loAddress.Street
+? loAddress.ToString()
+
+*** Add another item to the array
+* loNewAddress = loBridge.CreateInstance("wwDotnetBridgeDemos.Address")
+loNewAddress = loAddresses.CreateItem()
+loNewAddress.Street = "122 Newfound Landing"
+loNewAddress.City = "NewFoundLanding"
+loAddresses.Add(loNewAddress)
+
+? TRANSFORM(loAddresses.Count) + " Addresses"  && 3
+
+*** Iterate through the entire list (3 items now): Remember 0 based!
+FOR lnX = 0 to loAddresses.Count -1 
+    loAddress = loAddresses.Item(lnX)
+    ? loAddress.ToString()
+    ? 
+ENDFOR
+```
+
+All interactions occur over COM so any object instances are COM objects with typical .NET COM behavior (no Intellisense, COM style errors). Any properties and methods that use standard types can be **directly accessed** via their normal COM property and method names. Any members or methods that use types that are incompatible with COM (Value types, Generics, Long, Decimal, Guid etc.) have to use the indirect access methods  `GetProperty()`, `SetProperty()` or `InvokeMethod()` for access.
+
+> If direct access fails for whatever reason, always try the indirect methods.
+
+For much more detailed wwDotnetBridge and .NET Interop information you can also check out the white paper:
+
+* <a href="https://west-wind.com/wconnect/weblog/ShowEntry.blog?id=57032" target="top">wwDotnetBridge White Paper</a>.
+
 
 > #### wwDotnetBridge and .NET Versions
 > There are two versions of wwDotnetBridge, one for .NET Framework (2.0 - 4.8) and one for .NET Core (.NET Core 6.0+). 
@@ -43,129 +136,15 @@ wwDotnetBridge can automatically convert problem types via proxy methods like `I
 You can find class and support documentation for wwDotnetBridge here:
 
 * [wwDotnetBridge Documentation](https://webconnection.west-wind.com/docs/_24n1cfw3a.htm)
-* [wwDotnetBridge Support on West Wind Message Board](https://support.west-wind.com/?forum=West%20Wind%20Internet%20and%20Client%20Tools)
+* [wwDotnetBridge Forum on West Wind Message Board](https://support.west-wind.com)
 
-
-## Getting Started
-Typical steps for working with wwDotnetBridge are:
-
-* Initialize the .NET Runtime during Startup
-* Instantiate a wwDotnetBridge instance
-* Use `.CreateInstance()` to create .NET Objects
-* Use direct property and method access if supported by COM and FoxPro
-* Use `.GetProperty()`, `.SetProperty()` and `.InvokeMethod()`    
-to indirectly access methods and members that COM or FoxPro don't support
-* Call Static methods and properties usoing static versions of the intrinsic functions
-
-### Getting Started
-The first thing that you need to do is *start up* wwDotnetBridge and you can do that by creating an instance with this code:
-
-```foxpro
-DO wwDotnetBridge                && Load the Library
-loBridge = GetwwDotnetBridge()   && Get an instance of the FoxPro Proxy
-
-*** Optionally check versions of library, .NET and Windows
-? loBridge.GetDotnetVersion()
-```
-
-`GetwwDotnetBridge()` is a FoxPro helper function that creates *a cached instance* of the `wwDotnetBridge` object, that is reused and stored as a `PUBLIC` variable. This makes it very fast to get an instance of `wwDotnetBridge` after first load and it's the recommended way to get an instance, although `CREATEOBJECT("wwDotnetBridge")` also works albeit a little slower.
-
-> First load of `wwDotnetBridge` can take a second or two as the .NET Runtime is loaded into the your FoxPro host process, but subsequent loads are nearly instant.
-
-> #### @icon-warning  Unable to load CLR Instance Errors
-> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, please see <%= TopicLink([Unable to load CLR Instance],[_3RF12JTMA]) %> for more info.
-
-Here's a rudimentary example that shows how wwDotnetBridge works:
-
-```foxpro
-*** Create or get cached instance of wwdotnetbridge
-LOCAL loBridge as wwDotnetBridge, loHttp
-loBridge = GetwwDotnetBridge()
-
-*** Create a built-in .NET class and run a method
-loHttp = loBridge.CreateInstance("System.Net.WebClient")
-loHttp.DownloadFile("http://west-wind.com/files/MarkdownMonsterSetup.exe",
-                    "MarkdownMonsterSetup.exe")
-DO wwUtils
-GoUrl(FULLPATH("MarkdownMonsterSetup.exe"))  && run it
-
-*** Load a custom .NET assembly
-loBridge.LoadAssembly("CustomDotnet.dll")
-
-*** Access a .NET component from the new assembly
-loItem = loBridge.CreateInstance("Custom.Item")
-
-*** Access properties and methods directly
-? loItem.Sku
-loItem.Sku = "NewSku"
-lnTotal = loItem.CalculateTotal()
-
-*** Access non-accessible properties and methods indirectly
-lnFlagValue = loBridge.GetProperty(loItem,"Flag")
-lnFlagValue = loBridge.SetProperty(loItem,"Flag",5) 
-loBridge.InvokeMethod(loItem,"PassFlagValue",lnFlagValue)
-```
-
-Note that not all properties and methods can be accessed directly as shown on the first example, but some properties and methods require implicit activation as in the 'Flag' example requiring `GetProperty()`, `SetProperty()` or `InvokeMethod()` to indirectly access object members. 
-
-> If direct access fails, always try the indirect methods.
-
-### Accessing Arrays, Collections and Dictionaries
-A very common use case involves accessing collection types in .NET which can't be directly translated into FoxPro due to FoxPro and COM's very limited Array support. To help with this `wwDotnetBridge` provides a helper [ComArray class](VFPS://Topic/_6GG0MVPEO) that wraps .NET collection types and exposes a proxy interface to capture and interact with these types.
-
-```foxpro
-loBridge = GetwwDotnetBridge()    && instance
-loBridge.LoadAssembly("wwDotnetBridgeDemos.dll")
-
-*** Create an class Instance
-loPerson = loBridge.CreateInstance("wwDotnetBridgeDemos.Person")
-
-*** Access simple Properties
-? "*** Simple Properties:" 
-? loPerson.Name
-? loPerson.Entered
-?
-
-*** Addresses is an Array use GetProperty() and return as a ComArray instance
-loAddresses = loBridge.GetProperty(loPerson, "Addresses")  
-
-? TRANSFORM(loAddresses.Count) + " Addresses"     && Number of items in array (2)
-
-? "*** First Address"
-loAddress = loAddresses.Item(0)
-? "Street: " + loAddress.Street
-? 
-
-? "*** All Addresses"     && .NET Collections are 0 based!
-FOR lnX = 0 TO loAddresses.Count-1
-	loAddress = loAddresses.Item(lnX)
-	? loAddress.ToString()  && writes out full address
-	?
-ENDFOR
-
-? "*** Add a new Address to the array"
-* loNewAddress = loBridge.CreateInstance("wwDotnetBridgeDemos.Address")
-loNewAddress = loAddresses.CreateItem()
-loNewAddress.Street = "122 Newfound Landing"
-loNewAddress.City = "NewFoundLanding"
-loAddresses.Add(loNewAddress)
-
-? loAddresses.Count                 && 3 addresses now
-loAddress = loAddresses.Item(2)     && retrieve the added address (0 based)
-```
-
-## Documentation
-* [Home Page](https://west-wind.com/wwDotnetBridge.aspx)
-* [API Documentation](https://client-tools.west-wind.com/docs/_24n1cfw3a.htm)
-* [White Paper](http://west-wind.com/presentations/wwdotnetbridge/wwDotnetBridge.pdf)
-* [Change Log](https://github.com/RickStrahl/wwDotnetBridge/blob/master/Changelog.md)
 
 ## How it works
 This library consists of 3 components (all provided in source):
 
 * ClrHost.dll - Win32 Loader for the .NET Runtime
 * wwDotnetBridge.dll  - .NET assembly Proxy and Helper
-* wwDotnetBridge.prg - FoxPro front end to .NET Proxy
+* wwDotnetBridge.prg - FoxPro front end class to .NET Proxy
 
 > #### Make sure DLLs can be found!
 > Make sure CrlHost.dll (or wwIpstuff.dll for [commercial West Wind tools](https://west-wind.com/WestwindClientTools.aspx)) and wwDotnetBridge are accessible via the FoxPro path. Ideally you'll want to have these DLLs in your current executing path of the application - typically the root folder of the application.
@@ -270,7 +249,85 @@ FOR lnX = 0 TO lnCount -1
 ENDFOR
 ```
 
-You can also call any .NET method asynchronously and get called back when the method has completed executing:
+
+### Async Task Methods
+`async` `await` using `Task` based operations are quite common in .NET. Task is similar to a JavaScript promise and basically encapsulates an operation that may or may not be complete yet. While Task based interfaces can use the `.Result` property to wait and retrieve results, this is potentially dangerous as UI events can cause the UI event loop to hang. Rather async Task methods should always be handled asynchronously.
+
+You can also invoke `async/away` or `Task` based async methods in .NET via the `InvokeTaskMethodAsync()` method. Similar to the async approach above you need to provide a callback object. This works in a similar way that the arbitrary async operation works with `OnCompleted()` and `OnError()` handlers in a Callback object that are called when the async operation completes.
+
+The following example uses `WebClient.DownloadDataTaskAsync()` which is a task based interface to download an image and displays it locally using asynchronous execution.
+
+The C# signature that we are interested in for this method  is:
+
+```cs
+public async Task<byte[]> DownloadDataTaskAsync(string url)
+```
+
+The method asynchronously calls the URL in question and then returns a byte array (Blob response in FoxPro) when the async call completes.
+
+In FoxPro with wwDotnetBridge we can run this code as follows:
+
+```foxpro
+do wwDotNetBridge
+LOCAL loBridge as wwDotNetBridge
+loBridge = GetwwDotnetBridge()
+
+*** Create an instance of the callback object that gets called when done
+loHttpCallback = CREATEOBJECT("HttpCallback")
+
+lcImageUrl = "https://markdownmonster.west-wind.com/Images/MarkdownMonsterLogo.jpg"
+loWebClient = loBridge.CreateInstance("System.Net.WebClient")
+
+*** Pass the callback object, the object instance, method name, and any parameters
+loBridge.InvokeTaskMethodAsync(loHttpCallback, loWebClient, "DownloadDataTaskAsync" ,lcImageUrl)
+
+? "Making HTTP Call..."
+
+
+* Callback Class - either OnCompleted or OnError is called
+DEFINE CLASS HttpCallback as AsyncCallbackEvents
+
+* Returns binary data
+FUNCTION OnCompleted(lvImageBytes,lcMethod)
+
+? "Got bytes..." + TRANSFORM(LEN(lvImageBytes))
+
+lcOutputFIle = "c:\temp\test.jpg"
+STRTOFILE(lvImageBytes, lcOutputFile)
+
+DO wwutils && only to display the file
+ShellExecute(lcOutputFile)
+
+? "*** Done!"
+
+ENDFUNC
+*   OnCompleted
+
+FUNCTION OnError(lcMessage, loException,lcMethod)
+? lcMessage
+ENDFUNC
+*   OnError 
+
+ENDDEFINE
+```
+
+The code works by way of a Callback object that is invoked when the async call completes. The operation is out of band similar to an event, and called **when the result is available**. The callback object is a separate object that is passed when calling the method, and the method then calls the `OnCompleted()` or `OnError()` handler on this callback object.
+
+Async code is always a little more complex to write than sync code as the call and the result are not handled in a linear fashion. Instead we have the `OnCompleted()` and `OnError()` methods called separately from the mainline code. This may require some extra work to sync up the result handling with the application logic.
+
+> #### Async Recommendations
+> * Pass any state that you need into the Callback - as properties or on global objects/vars
+> * Keep async callback code short
+> * Minimize state changes in the callbacks
+
+### Make any .NET Method call Async
+Similar to Task methods you can also turn **any .NET Method call into an async call** using the same callback mechanism described above. The following calls the non-async version of  `WebClient.DownloadData()`:
+
+```cs
+public byte[] DownloadData(string url)
+```
+
+Although the call to this method is not async in .NET, we can **call it asynchronously anyway** using the `InvokeMethodAsync()` method. The following should look familiar from the last example:
 
 ```foxpro
 DO wwDotnetBridge
@@ -299,7 +356,7 @@ RETURN
 
 
 *** Callback class 
-DEFINE CLASS HttpCallback as Custom
+DEFINE CLASS HttpCallback as AsyncCallbackEvents
 
 
 FUNCTION OnCompleted(lvResult, lcMethod)
@@ -329,10 +386,7 @@ ENDFUNC
 ENDDEFINE
 ```
 
-## Events
-
-.NET delegates and events are not directly supported. If the .NET object is available as a registered COM object, the COM events which translate to native FoxPro events; COM event binding is separate from wwDotNetBridge.
-
+### Events
 wwDotNetBridge supports an alternative approach to obtain events without COM registration. You can subscribe to all events of a .NET object by calling `wwDotNetBridge.SubscribeToEvents`. You pass the source object for the events and your handler object. The class for your handler object should have an `On...` function for each event.
 
 This example creates a `System.Net.Mail.SmtpClient` object and handles its one event, `SendCompleted`:
