@@ -16,6 +16,12 @@ namespace Westwind.WebConnection
             return new wwDotNetBridge();
         }
 
+        [return: MarshalAs(UnmanagedType.IUnknown)]
+        public static wwDotNetBridge CreatewwDotnetBridge(string parm)
+        {
+            return new wwDotNetBridge();
+        }
+
         public static int CreatewwDotnetBridgeByRef([MarshalAs(UnmanagedType.IDispatch)] ref object instance)
         {
             try

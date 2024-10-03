@@ -191,6 +191,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 			DeleteFile(FULLPATH("Newtonsoft.Json.dll") + ":Zone.Identifier")
 			DeleteFile(FULLPATH("Markdig.dll") + ":Zone.Identifier")
 			DeleteFile(FULLPATH("Renci.SshNet.dll") + ":Zone.Identifier")
+			DeleteFile(FULLPATH("FluentFTP.dll") + ":Zone.Identifier")
 		#ENDIF
 		
 		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path

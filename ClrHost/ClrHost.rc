@@ -52,7 +52,7 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 8,1,0,0
+ FILEVERSION 8,1,2,0
  PRODUCTVERSION 8,0,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
@@ -70,7 +70,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "West Wind Technologies"
             VALUE "FileDescription", "West Wind .NET Connector (Win32)"
-            VALUE "FileVersion", "8.1.0.0"
+            VALUE "FileVersion", "8.1.2.0"
             VALUE "InternalName", "wwDotNetBridge"
             VALUE "LegalCopyright", "© West Wind Technologies, 2010-2024"
             VALUE "OriginalFilename", "ClrHost.dll"

@@ -116,10 +116,23 @@ void BuildTpaList(const char* directory, const char* extension, std::string& tpa
 }
 
 
+void module_handle_function() noexcept
+{
+}
 
 
 BOOL CoreClrLoad(char* runtimePath, char* errorMessage, DWORD* size)
  {
+
+	// The GET_MODULE_HANDLE_EX_FLAG_PIN flag seems to prevent VFP from unloading and clearing memory.	
+	HMODULE hm = NULL;
+	void* address = module_handle_function;
+	GetModuleHandleEx(
+		GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
+		(LPCSTR)address,
+		&hm
+	);
+
 	if (!runtimePath)
 	{
 		strcpy(errorMessage, "Please pass in a path to a .NET Runtime version.");
