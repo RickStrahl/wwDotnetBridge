@@ -43,7 +43,7 @@ InitializeDotnetVersion("V4")   && Loads .NET Runtime and caches it
 Note that `InitializeDotnetVersion()` is *optional*. You can use `GetwwDotnetBridge()` or `CREATEOBJECT("wwDotnetBridge")`, but using `InitializeDotnetVersion()` ensures a reliable and predictable load of .NET **on startup**.
 
 > #### Unable to load CLR Instance Errors
-> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, you probably need to unblock the wwdotnetbridge.dll or need to ensure that the wwdotnetbridge.dll and wwipstuff.dll are in your FoxPro path. Please see <%= TopicLink([Unable to load CLR Instance],[_3RF12JTMA]) %> for more info.
+> If you get an  <b>Unable to CLR Instance</b> error when creating an instance of wwDotnetBridge, you probably need to unblock the wwdotnetbridge.dll or need to ensure that the wwdotnetbridge.dll and wwipstuff.dll are in your FoxPro path. Please see [Unable to load CLR Instance](https://webconnection.west-wind.com/docs/_3rf12jtma.htm) for more info.
 
 > #### Loading DLLs from Network Locations: Configuration required
 > .NET components require explicit configuration in order to support remote loading from network locations. This is done by creating a configuration file for your application `yourapp.exe.config` or the VFP IDE `vfp9.exe.config`, in their respective startup folders. We recommend at minimum you use the following `.config` file settings:
