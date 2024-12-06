@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Westwind.WebConnection
@@ -20,7 +19,7 @@ namespace Westwind.WebConnection
         private readonly ConcurrentQueue<RaisedEvent> _raisedEvents = new ConcurrentQueue<RaisedEvent>();
         private TaskCompletionSource<RaisedEvent> _completion = new TaskCompletionSource<RaisedEvent>();
 
-        public EventSubscriber(object source, String prefix = "", dynamic vfp = null)
+        public EventSubscriber(object source, string prefix = "", dynamic vfp = null)
         {
             // Indicates that initially the client is not waiting.
             _completion.SetResult(null);
@@ -28,13 +27,16 @@ namespace Westwind.WebConnection
             // For each event, adds a handler that calls QueueInteropEvent.
             _source = source;
             foreach (var ev in source.GetType().GetEvents())
-            {
+            {                
                 // handler is a PRIVATE variable defined in EventSubscription.Setup().
-                Boolean hasMethod = vfp?.Eval($"PEMSTATUS(m.handler, '{prefix}{ev.Name}', 5)") ?? true;
+                bool hasMethod = vfp?.Eval($"PEMSTATUS(m.handler, '{prefix}{ev.Name}', 5)") ?? true;
                 if (!hasMethod)
                     continue;
 
-                var eventParams = ev.EventHandlerType.GetMethod("Invoke").GetParameters().Select(p => Expression.Parameter(p.ParameterType)).ToArray();
+                var eventParams = ev.EventHandlerType.GetMethod("Invoke")
+                    .GetParameters()
+                    .Select(p => Expression.Parameter(p.ParameterType))
+                    .ToArray();
                 var eventHandlerLambda = Expression.Lambda(ev.EventHandlerType,
                     Expression.Call(
                         instance: Expression.Constant(this),
