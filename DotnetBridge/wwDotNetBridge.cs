@@ -279,7 +279,7 @@ namespace Westwind.WebConnection
 
                 if (type == null)
                 {
-                    SetError("Type not loaded. Please load call LoadAssembly first.");
+                    SetError("Type not loaded. Please call LoadAssembly first.");
                     return null;
                 }
 
