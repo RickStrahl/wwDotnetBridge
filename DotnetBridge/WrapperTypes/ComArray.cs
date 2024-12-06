@@ -99,46 +99,6 @@ namespace Westwind.WebConnection
         /// <seealso>Class ComArray</seealso>
         /// </summary>
         /// <returns>matching item or null</returns>
-        /// <example>
-        /// ```foxpro
-        /// *** Access generic list through indirect access through Proxy and get 
-        /// ComArray
-        /// loList = loBridge.InvokeMethod(loNet,&quot;GetGenericList&quot;)
-        /// ? loBridge.ToString(loList)   &&amp; System.Collections.Generic.List...
-        /// ? loList.Count &&amp; 2
-        /// 
-        /// *** Grab an item by index
-        /// loCust =  loList.Item(0)
-        /// ? loCust.Company
-        /// 
-        /// *** Iterate the list
-        /// FOR lnX = 0 TO loList.Count -1
-        ///    loItem = lolist.Item(lnX)
-        ///    ? loItem.Company
-        /// ENDFOR
-        /// ```
-        /// 
-        /// ```foxpro
-        /// *** Retrieve a generic dictionary
-        /// loList = loBridge.InvokeMethod(loNet,&quot;GetDictionary&quot;)
-        /// ? loList.Count  &&amp;  2
-        /// 
-        /// *** Return Item by Key
-        /// loCust =  loList.Item(&quot;Item1&quot;)   &&amp; Retrieve item by Key
-        /// ? loCust.Company
-        /// 
-        /// *** This works as long as the key type is not int
-        /// loCust =  loList.Item(0)   &&amp; Retrieve item by Index
-        /// ? loCust.Company
-        /// 
-        /// *** This allows iterating a dictionary
-        /// FOR lnX = 0 TO loList.Count -1
-        ///    loItem = lolist.Item(lnX)
-        ///    ? loItem.Company
-        /// ENDFOR
-        /// ```
-        /// 
-        /// </example>
         /// <remarks>
         /// Dictionaries can use 	an `int` value to return a value out of the 
         /// collection by its index **if the key type is not of `System.Int`. This is a

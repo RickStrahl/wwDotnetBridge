@@ -16,6 +16,8 @@ namespace Westwind.WebConnection
     [ClassInterface(ClassInterfaceType.AutoDual)]
     public class TypePassingTests
     {
+        public int FieldInteger = 1;
+
         public decimal? DecimalValue { get; set; }
 
         public UInt64   Uint64Value { get; set; }

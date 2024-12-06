@@ -28,7 +28,7 @@ namespace Westwind.WebConnection
             {
                 instance = new wwDotNetBridge();
             }
-            catch (Exception ex)
+            catch
             {
                 instance = null;
                 return -1;

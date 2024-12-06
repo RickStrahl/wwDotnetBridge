@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "wwDotnetBridge": {
+      "commandName": "Executable",
+      "executablePath": "d:\\programs\\vfp9\\vfp9.exe",
+      "workingDirectory": "d:\\webconnection\\fox"
+    }
+  }
+}

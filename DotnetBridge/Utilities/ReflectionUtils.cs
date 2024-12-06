@@ -1056,7 +1056,7 @@ namespace Westwind.WebConnection
             if (lnAt < 0)
             {
                 // Set the member
-                parent.GetType().InvokeMember(property, ReflectionUtils.MemberAccessCom | BindingFlags.SetProperty , null,
+                parent.GetType().InvokeMember(property, ReflectionUtils.MemberAccessCom | BindingFlags.SetProperty | BindingFlags.SetField , null,
                     parent, new object[1] { value });
 
                 return null;
@@ -1067,7 +1067,7 @@ namespace Westwind.WebConnection
             string Subs = property.Substring(lnAt + 1);
 
 
-            object Sub = parent.GetType().InvokeMember(Main, ReflectionUtils.MemberAccessCom | BindingFlags.GetProperty , null,
+            object Sub = parent.GetType().InvokeMember(Main, ReflectionUtils.MemberAccessCom | BindingFlags.GetProperty | BindingFlags.SetField , null,
                 parent, null);
 
             return SetPropertyExCom(Sub, Subs, value);
@@ -1109,7 +1109,7 @@ namespace Westwind.WebConnection
             string Main = method.Substring(0, at);
             string Subs = method.Substring(at + 1);
 
-            object Sub = parent.GetType().InvokeMember(Main, ReflectionUtils.MemberAccessCom | BindingFlags.GetProperty, null,
+            object Sub = parent.GetType().InvokeMember(Main, ReflectionUtils.MemberAccessCom | BindingFlags.GetProperty | BindingFlags.GetField, null,
                 parent, null);
 
             // Recurse until we get the lowest ref

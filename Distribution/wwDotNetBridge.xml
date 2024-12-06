@@ -980,7 +980,29 @@
             </summary>
             <param name="instance"></param>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:Westwind.WebConnection.ComArray.Item(System.Object)" -->
+        <member name="M:Westwind.WebConnection.ComArray.Item(System.Object)">
+            <summary>
+            Returns an item by indexOrKey from an IList collection. This works on:
+            
+            * Array   (int)
+            * Array List  (int)
+            * IList       (int)
+            * ICollection  (any type)
+            * HashSet      (any type)
+            * IDictionary  (key type) (or int for index)
+            
+            You can specify either an integer for list types or any type for 
+            collections. int keys are 0 based.
+            <seealso>Class ComArray</seealso>
+            </summary>
+            <returns>matching item or null</returns>
+            <remarks>
+            Dictionaries can use 	an `int` value to return a value out of the 
+            collection by its index **if the key type is not of `System.Int`. This is a
+             special case and allows you to iterate a dictionary which otherwise would 
+            not be possible.
+            </remarks>
+        </member>
         <member name="M:Westwind.WebConnection.ComArray.ItemRaw(System.Object)">
             <summary>
             Returns the indexed item without any type conversion fixup

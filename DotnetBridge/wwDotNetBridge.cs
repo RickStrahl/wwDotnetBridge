@@ -1099,6 +1099,34 @@ namespace Westwind.WebConnection
             }
         }
 
+        /// <summary>
+        /// Retrieves a field of an instance. Direct field access 
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public object GetField(object instance, string property)
+        {
+            LastException = null;
+            try
+            {
+                if (instance == null || instance == DBNull.Value)
+                    return instance;
+
+                object fixedInstance = FixupParameter(instance);
+                
+                object val = fixedInstance.GetType().GetField(property, ReflectionUtils.MemberAccess | BindingFlags.GetField).GetValue(fixedInstance);
+            
+                val = FixupReturnValue(val);
+                return val;
+            }
+            catch (Exception ex)
+            {
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
+            }
+        }
+
 
         /// <summary>
         /// Retrieves a property but doesn't fix up the result value
