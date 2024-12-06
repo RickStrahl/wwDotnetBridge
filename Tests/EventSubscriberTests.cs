@@ -48,8 +48,8 @@ namespace wwDotnetBridge.Tests
 
         public void Raise()
         {
-            NoParams();
-            TwoParams("A", 1);
+            NoParams?.Invoke();            
+            TwoParams?.Invoke("A", 1);
         }
     }
 }

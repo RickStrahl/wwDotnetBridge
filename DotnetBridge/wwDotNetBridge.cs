@@ -36,7 +36,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.IO;
@@ -46,6 +45,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+
 
 
 #if WestwindProduct
@@ -1227,9 +1228,9 @@ namespace Westwind.WebConnection
         /// This method also supports accessing of Array/Collection indexers (Item[1])
         /// </summary>
         /// <param name="Instance"></param>
-        /// <param name="Property"></param>
-        /// <param name="Value"></param>
-        public void SetPropertyEx(object instance, string Property, object Value)
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        public void SetPropertyEx(object instance, string property, object value)
         {
 
             var fixedInstance = FixupParameter(instance);
@@ -1237,15 +1238,39 @@ namespace Westwind.WebConnection
             LastException = null;
             try
             {
-                if (Value is DBNull)
-                    Value = null;
+                if (value is DBNull)
+                    value = null;
 
-                Value = FixupParameter(Value);
-                ReflectionUtils.SetPropertyEx(fixedInstance, Property, Value);
+                value = FixupParameter(value);
+                ReflectionUtils.SetPropertyEx(fixedInstance, property, value);
             }
             catch (Exception ex)
             {
                 LastException = ex;
+                SetError(ex.GetBaseException(), true);
+                throw ex.GetBaseException();
+            }
+        }
+
+        /// <summary>
+        /// Sets a value of a field. No nesting support only direct instance access.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="value"></param>
+        public void SetField(object instance, string fieldName, object value)
+        {
+            LastException = null;
+            try
+            {
+                if (value is DBNull)
+                    value = null;
+
+                value = FixupParameter(value);
+                ReflectionUtils.SetField(instance, fieldName, value);
+            }
+            catch (Exception ex)
+            {
                 SetError(ex.GetBaseException(), true);
                 throw ex.GetBaseException();
             }

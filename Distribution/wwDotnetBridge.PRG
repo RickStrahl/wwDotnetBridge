@@ -683,6 +683,19 @@ ENDFUNC
 *   GetProperty
 
 ************************************************************************
+*  GetField
+****************************************
+***  Function: Gets a value from a .NET field.
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION GetField(loInstance, lcField)
+RETURN this.oDotNetBridge.GetField(loInstance, lcField) 
+ENDFUNC
+*   GetField
+
+************************************************************************
 *  GetPropertyRaw
 ****************************************
 ***  Function: Gets a property from a .NET object without FoxPro
@@ -740,6 +753,18 @@ this.oDotNetBridge.SetProperty(loInstance, lcProperty, lvValue)
 ENDFUNC
 *   SetProperty
 
+************************************************************************
+*  SetField
+****************************************
+***  Function:
+***    Assume:
+***      Pass:
+***    Return:
+************************************************************************
+FUNCTION SetField(loInstance, lcField, lvValue)
+this.oDotNetBridge.SetField(loInstance, lcField, lvValue)
+ENDFUNC
+*   SetField
 
 ************************************************************************
 *  InvokeStaticMethod
@@ -1136,7 +1161,7 @@ ENDFUNC
 ***    Return: A subscription object. The subscription ends when this object goes out of scope.
 ************************************************************************
 FUNCTION SubscribeToEvents(loSource, loHandler, lcPrefix)
-IF EMPTY(lcPrefix)
+IF VARTYPE(lcPrefix) # "C"
 	lcPrefix = "On"
 ENDIF
 LOCAL loSubscription
@@ -1649,7 +1674,7 @@ ENDFUNC
 ****************************************
 ***  Function: Gets a property from a .NET object using .syntax for 
 ***            for the property as well as supporting arrays
-***    Assume: OBSOLETE - just use 
+***    Assume: OBSOLETE - just use GetProperty()
 ***      Pass: 
 ***    Return:
 ************************************************************************

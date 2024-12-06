@@ -1712,6 +1712,14 @@
             <param name="Parm2"></param>
             <returns></returns>
         </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.GetField(System.Object,System.String)">
+            <summary>
+            Retrieves a field of an instance. Direct field access 
+            </summary>
+            <param name="instance"></param>
+            <param name="property"></param>
+            <returns></returns>
+        </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetPropertyRaw(System.Object,System.String,System.Boolean)">
             <summary>
             Retrieves a property but doesn't fix up the result value
@@ -1749,8 +1757,16 @@
             This method also supports accessing of Array/Collection indexers (Item[1])
             </summary>
             <param name="Instance"></param>
-            <param name="Property"></param>
-            <param name="Value"></param>
+            <param name="property"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:Westwind.WebConnection.wwDotNetBridge.SetField(System.Object,System.String,System.Object)">
+            <summary>
+            Sets a value of a field. No nesting support only direct instance access.
+            </summary>
+            <param name="instance"></param>
+            <param name="fieldName"></param>
+            <param name="value"></param>
         </member>
         <member name="M:Westwind.WebConnection.wwDotNetBridge.GetEnumString(System.String,System.Object)">
             <summary>
@@ -2008,6 +2024,11 @@
             Test method that returns an integer value of 10 for testing
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:Westwind.WebConnection.Test">
+            <summary>
+             Test interface for testing COM Interop
+            </summary>
         </member>
     </members>
 </doc>
