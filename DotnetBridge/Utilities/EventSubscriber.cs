@@ -16,18 +16,24 @@ namespace Westwind.WebConnection
     public sealed class EventSubscriber : IDisposable
     {
         private readonly object _source;
-        private readonly List<Delegate> _eventHandlers = new List<Delegate>();
+        private readonly List<DelegateInfo> _eventHandlers = new List<DelegateInfo>();
         private readonly ConcurrentQueue<RaisedEvent> _raisedEvents = new ConcurrentQueue<RaisedEvent>();
         private TaskCompletionSource<RaisedEvent> _completion = new TaskCompletionSource<RaisedEvent>();
 
-        public EventSubscriber(object source)
+        public EventSubscriber(object source, String prefix = "", dynamic vfp = null)
         {
             // Indicates that initially the client is not waiting.
             _completion.SetResult(null);
 
             // For each event, adds a handler that calls QueueInteropEvent.
             _source = source;
-            foreach (var ev in source.GetType().GetEvents()) {
+            foreach (var ev in source.GetType().GetEvents())
+            {
+                // handler is a PRIVATE variable defined in EventSubscription.Setup().
+                Boolean hasMethod = vfp?.Eval($"PEMSTATUS(m.handler, '{prefix}{ev.Name}', 5)") ?? true;
+                if (!hasMethod)
+                    continue;
+
                 var eventParams = ev.EventHandlerType.GetMethod("Invoke").GetParameters().Select(p => Expression.Parameter(p.ParameterType)).ToArray();
                 var eventHandlerLambda = Expression.Lambda(ev.EventHandlerType,
                     Expression.Call(
@@ -38,15 +44,26 @@ namespace Westwind.WebConnection
                     eventParams);
                 var eventHandler = eventHandlerLambda.Compile();
                 ev.AddEventHandler(source, eventHandler);
-                _eventHandlers.Add(eventHandler);
+                _eventHandlers.Add(new DelegateInfo(eventHandler, ev));
             }
+        }
+
+        class DelegateInfo
+        {
+            public DelegateInfo(Delegate handler, EventInfo eventInfo)
+            {
+                Delegate = handler;
+                EventInfo = eventInfo;
+            }
+
+            public Delegate Delegate { get; }
+            public EventInfo EventInfo { get; }
         }
 
         public void Dispose()
         {
-            var events = _source.GetType().GetEvents();
-            for (int e = 0; e < events.Length; ++e)
-                events[e].RemoveEventHandler(_source, _eventHandlers[e]);
+            foreach (var item in _eventHandlers)
+                item.EventInfo.RemoveEventHandler(_source, item.Delegate);
             _completion.TrySetCanceled();
         }
 
