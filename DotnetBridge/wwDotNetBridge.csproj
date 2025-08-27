@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
+		<!-- Compatible with .NET 4.72 through .NET 9 (and possibly later). Targets just net472 so that a single DLL can be used with all frameworks. -->
 		<TargetFramework>net472</TargetFramework>
 		<Version>8.1.4</Version>
 		<Authors>Rick Strahl</Authors>
@@ -29,17 +30,10 @@
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
 		<DebugType>embedded</DebugType>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)' != 'net472'">
-		<DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net472'">
-		<DefineConstants>NETFULL</DefineConstants>
+
 	</PropertyGroup>
 
-
-	<ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+	<ItemGroup>
 		<Reference Include="mscorlib" />
 		<Reference Include="System" />
 		<Reference Include="System.Core" />
