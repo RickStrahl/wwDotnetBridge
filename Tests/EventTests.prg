@@ -26,7 +26,7 @@ loFw.EnableRaisingEvents = .T.
 lcFile = lcDir + "\wwDotNetBridge.EventTest.txt"
 STRTOFILE("DDD",lcFile)
 STRTOFILE("FFF",lcFile)
-loLoopbackEventSubscription.Unsubscribe()
+loFwSubscription.Unsubscribe()
 RETURN
 
 
