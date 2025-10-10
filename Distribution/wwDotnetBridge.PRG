@@ -1250,7 +1250,7 @@ ENDFUNC
 ***                          the data
 ***    Return: DataSet or NULL
 ************************************************************************
-FUNCTION CursorToDataSet(lcAliasList)
+FUNCTION CursorToDataSet(lcAliasList,fixemptydates)
 LOCAL lnX, lcXml
 
 IF EMPTY(lcAliasList)
@@ -1276,6 +1276,20 @@ loAdapter.ToXML("lcXml")
 
 IF EMPTY(lcXml)
    RETURN null
+ENDIF
+
+IF fixemptydates
+* add nillable=true to xds part of xml for date and Datetime fileds
+lcXml= STRTRAN(lcXml,'type="xsd:date"' ,'type="xsd:date" nillable="true"') && dates
+lcXml= STRTRAN(lcXml,'type="xsd:dateTime"' ,'type="xsd:dateTime" nillable="true"') &&dateTime
+*delete all self closeing <fName/> tags for date fileds from the xml
+FOR lnX = 1 TO lnCount && loop lcAliasList
+FOR Lnxfldloop = 1 TO AFIELDS(afldsarr,laCursors[lnX]) && loop Fields
+IF INLIST(afldsarr(Lnxfldloop ,2),"D","T")
+lcXml= STRTRAN(lcXml,   '<'+LOWER(afldsarr(Lnxfldloop ,1) )+'/>'  ,'')
+endif
+endfor
+ENDFOR
 ENDIF
 
 RETURN THIS.XmlStringToDataSet(lcXml)   
