@@ -5,8 +5,9 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 #DEFINE IS_WESTWIND			.F.
 #DEFINE IS_LEGACY 	   		.T.
 
+PUBLIC WWC_CLR_HOSTDLL
 #IF IS_WESTWIND
-	#DEFINE WWC_CLR_HOSTDLL wwipstuff.dll 
+	WWC_CLR_HOSTDLL="wwipstuff.dll"
 
 	*** Other dependencies
 	* .NET Runtime 4.0+ or .NET Core 5+
@@ -16,7 +17,7 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 	* wwDotnetBridge.dll
 	* NewtonSoft.Json.dll - ToJson()/FromJson() only
 #ELSE
-	#DEFINE WWC_CLR_HOSTDLL clrhost.dll
+	WWC_CLR_HOSTDLL="clrhost.dll"
 
 	*** Other dependencies
 	* .NET Runtime 4.0+ or .NET Core 5+
@@ -195,7 +196,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 		#ENDIF
 		
 		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
-	   	DECLARE Integer ClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
+	   	DECLARE Integer ClrCreateInstanceFrom IN (m.WWC_CLR_HOSTDLL) string, string, string@, integer@
 		lcError = SPACE(2048)
 		lnSize = 0
 		lnDispHandle = ClrCreateInstanceFrom(FULLPATH("wwDotNetBridge.dll"),;
@@ -241,7 +242,7 @@ ENDFUNC
 ***    Return: nothing
 ************************************************************************
 PROTECTED FUNCTION SetClrVersion(lcVersion)
-DECLARE Integer SetClrVersion IN WWC_CLR_HOSTDLL AS SetClrVersionApi string
+DECLARE Integer SetClrVersion IN (m.WWC_CLR_HOSTDLL) AS SetClrVersionApi string
 SetClrVersionApi(lcVersion)
 ENDFUNC
 *   SetClrVersion
@@ -259,7 +260,7 @@ ENDFUNC
 FUNCTION Unload()
 IF VARTYPE(this.oDotNetBridge) == "O"
 	this.oDotNetBridge = NULL	
-	DECLARE Integer ClrUnload IN WWC_CLR_HOSTDLL	
+	DECLARE Integer ClrUnload IN (m.WWC_CLR_HOSTDLL)
 	ClrUnload()
 ENDIF
 ENDFUNC
@@ -1433,7 +1434,7 @@ ENDFUNC
 *!*	FUNCTION CreateClrInstance(lcLibrary,lcClass,lcError)
 *!*	LOCAL lnDispHandle, lnSize
 
-*!*	DECLARE Integer ClrCreateInstance IN WWC_CLR_HOSTDLL string, string, string@, integer@
+*!*	DECLARE Integer ClrCreateInstance IN (m.WWC_CLR_HOSTDLL) string, string, string@, integer@
 
 *!*	lcError = SPACE(2048)
 *!*	lnSize = 0
@@ -2006,7 +2007,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 		ENDIF
 			
 		*** Load by filename - assumes the wwDotNetBridge.dll is in the Fox path
-	   	DECLARE Integer CoreClrCreateInstanceFrom IN WWC_CLR_HOSTDLL string, string, string@, integer@
+	   	DECLARE Integer CoreClrCreateInstanceFrom IN (m.WWC_CLR_HOSTDLL) string, string, string@, integer@
 		lcError = SPACE(2048)
 		lnSize = LEN(lcError)
 		lnDispHandle = CoreClrCreateInstanceFrom(lcRuntimePath,lcVersion,@lcError,@lnSize)
@@ -2054,7 +2055,7 @@ ENDFUNC
 FUNCTION Unload()
 IF VARTYPE(this.oDotNetBridge) == "O"
 	this.oDotNetBridge = NULL	
-	DECLARE Integer CoreClrUnload IN WWC_CLR_HOSTDLL	
+	DECLARE Integer CoreClrUnload IN (m.WWC_CLR_HOSTDLL)
 	CoreClrUnload()
 ENDIF
 ENDFUNC
