@@ -34,18 +34,19 @@
 // comment for OpenSource version
 // #define WestwindProduct
 
+using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Reflection;
-using System.IO;
 using System.Data;
+using System.IO;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Win32;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 #if WestwindProduct
@@ -71,7 +72,14 @@ namespace Westwind.WebConnection
     public class wwDotNetBridge
     {
 
-        private static bool _firstLoad = true;
+        internal static Thread _mainThread;
+
+        internal static FoxProSynchronizationContext _synchronizationContext;
+
+        /// <summary>
+        /// Gets or sets whether invoked methods should be posted to the message queue instead of called immediately.
+        /// </summary>
+        public bool PostInvokedMethods { get; set; }
 
         /// <summary>
         /// Returns error information if the call fails
@@ -87,12 +95,14 @@ namespace Westwind.WebConnection
 
         public wwDotNetBridge()
         {
-        
+            bool firstLoad = _mainThread == null;
+            _mainThread ??= Thread.CurrentThread;
+
             if (Environment.Version.Major >= 4)
             {
                 LoadAssembly("System.Core");
 
-                if (_firstLoad)
+                if (firstLoad)
                 {
                     if (!ServicePointManager.SecurityProtocol.HasFlag(SecurityProtocolType.Tls12))
                     {
@@ -102,9 +112,6 @@ namespace Westwind.WebConnection
                             SecurityProtocolType.Tls12 |
                             SecurityProtocolType.Tls;
                     }
-
-                    _firstLoad = false;
-
 
                     AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
@@ -119,6 +126,14 @@ namespace Westwind.WebConnection
             return ass;
         }
 
+        /// <summary>
+        /// Sets the current synchronization context to use the FoxPro main thread.
+        /// </summary>
+        public void SetSynchronizationContext(int hwnd)
+        {
+            _synchronizationContext = new FoxProSynchronizationContext(hwnd);
+            SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
+        }
 
         #region LoadAssembly Routines
 
@@ -696,14 +711,17 @@ namespace Westwind.WebConnection
                 Parm9, Parm10);
         }
 
-        /// <summary>
-        /// Invokes a static method
-        /// </summary>
-        /// <param name="TypeName"></param>
-        /// <param name="Method"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        internal object InvokeStaticMethod_Internal(string TypeName, string Method, params object[] args)
+        internal object InvokeStaticMethod_Internal(string TypeName, string method, params object[] args)
+        {
+            if (PostInvokedMethods)
+            {
+                _synchronizationContext.Post(_ => InvokeStaticMethod_Now(TypeName, method, args), null);
+                return null;
+            }
+            return InvokeStaticMethod_Now(TypeName, method, args);
+        }
+
+        internal object InvokeStaticMethod_Now(string TypeName, string Method, params object[] args)
         {
             SetError();
 
@@ -963,6 +981,21 @@ namespace Westwind.WebConnection
         }
 
         internal object InvokeMethod_Internal(object instance, string method, params object[] args)
+        {
+            if (PostInvokedMethods)
+            {
+                PostMethod_Internal(instance, method, args);
+                return null;
+            }
+            return InvokeMethod_Now(instance, method, args);
+        }
+
+        internal void PostMethod_Internal(object instance, string method, params object[] args)
+        {
+            _synchronizationContext.Post(_ => InvokeMethod_Now(instance, method, args), null);
+        }
+
+        internal object InvokeMethod_Now(object instance, string method, params object[] args)
         {
             var fixedInstance = FixupParameter(instance);
             
@@ -1465,7 +1498,7 @@ namespace Westwind.WebConnection
                             ex = WrapException(LastException);
                             InvokeMethod_Internal(callBack, "onError", ex.Message, ex, method);
                         }
-                    });
+                    }, TaskScheduler.FromCurrentSynchronizationContext());
                 }
                 catch (Exception ex)
                 {
@@ -1543,7 +1576,7 @@ namespace Westwind.WebConnection
                 {
                     try
                     {
-                        InvokeMethod_Internal(callBack, "onError", ex.Message, ex.GetBaseException(), method);
+                        PostMethod_Internal(callBack, "onError", ex.Message, ex.GetBaseException(), method);
                     }
                     catch
                     {
@@ -1560,7 +1593,7 @@ namespace Westwind.WebConnection
             {
                 try
                 {
-                    InvokeMethod_Internal(callBack, "onCompleted", result, method);
+                    PostMethod_Internal(callBack, "onCompleted", result, method);
                 }
                 catch (Exception ex)
                 {

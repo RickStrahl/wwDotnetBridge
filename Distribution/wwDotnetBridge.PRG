@@ -26,6 +26,9 @@ SET PROCEDURE TO wwDotnetBridge ADDITIVE
 	* wwDotnetBridge.dll
 #ENDIF
 
+* Used by EventSubscription to determine which events to subscribe to.
+PUBLIC wwDotnetBridgeEventHandler
+
 
 ************************************************************************
 *  GetwwDotNetBridge
@@ -66,7 +69,6 @@ ENDFUNC
 FUNCTION InitializeDotnetVersion(lcVersion,llUseCom)
 RETURN GetwwDotnetBridge(lcVersion,llUseCom)
 ENDFUNC
-
 
 *************************************************************
 DEFINE CLASS wwDotNetBridge AS Custom
@@ -224,11 +226,13 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 
 	this.oDotNetBridge.LoadAssembly("System")		
 	this.oDotNetBridge.IsThrowOnErrorEnabled = this.lThrowOnError
+	this.oDotNetBridge.SetSynchronizationContext(_VFP.hWnd)
 ENDIF
 
 RETURN this.oDotNetBridge
 ENDFUNC
 *   CreateDotNetBridge
+
 
 ************************************************************************
 *  SetClrVersion
@@ -479,6 +483,66 @@ ENDIF
 RETURN loResult
 ENDFUNC
 *   InvokeMethod
+
+
+************************************************************************
+*  PostMethod
+****************************************
+***  Function: Posts a .NET instance method to the FoxPro message queue. Useful to avoid reentrancy in event handlers.
+***    Return: nothing
+************************************************************************
+FUNCTION PostMethod(loObject, lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,;
+                                                  lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)
+TRY
+	this.oDotNetBridge.PostInvokedMethods = .T.
+	this.SetError()
+
+	LOCAL loBridge, lnParms
+	loBridge = this.oDotNetBridge
+	lnParms = PCOUNT()
+	DO CASE
+		CASE lnParms = 2
+		  loBridge.InvokeMethod(loObject, lcMethod)
+		CASE lnParms = 3
+		  loBridge.InvokeMethod_OneParm(loObject, lcMethod, lvParm1)
+		CASE lnParms = 4
+		  loBridge.InvokeMethod_TwoParms(loObject, lcMethod,lvParm1, lvParm2)
+		CASE lnParms = 5
+		  loBridge.InvokeMethod_ThreeParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3)
+		CASE lnParms = 6
+		  loBridge.InvokeMethod_FourParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)
+		CASE lnParms = 7
+		  loBridge.InvokeMethod_FiveParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+		CASE lnParms = 8
+		  loBridge.InvokeMethod_SixParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6)
+		CASE lnParms = 9
+		  loBridge.InvokeMethod_SevenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7)
+		CASE lnParms = 10
+		  loBridge.InvokeMethod_EightParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8)
+		CASE lnParms = 11
+		  loBridge.InvokeMethod_NineParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9)
+		CASE lnParms = 12
+		  loBridge.InvokeMethod_TenParms(loObject, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5, lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	  
+
+		OTHERWISE
+      		LOCAL loArray as Westwind.WebConnection.ComArray
+			loArray = this.CreateArray("System.Object")
+
+			LOCAL lvParm
+			FOR lnX = 1 TO lnParms-2
+		   		lvParm = EVALUATE("lvParm" + TRANSFORM(lnX))
+		   		loArray.AddItem(lvParm)   	
+			ENDFOR
+	ENDCASE
+
+	IF loBridge.Error
+	   this.SetError(loBridge.ErrorMessage)
+	ENDIF   
+FINALLY
+	this.oDotNetBridge.PostInvokedMethods = .F.
+ENDTRY
+ENDFUNC
+*   PostMethod
 
 
 ************************************************************************
@@ -769,7 +833,7 @@ ENDFUNC
 ************************************************************************
 *  InvokeStaticMethod
 ****************************************
-***  Function: Calls a static .NET method with up to 5 parameters
+***  Function: Calls a static .NET method with up to 10 parameters
 ***    Assume:
 ***      Pass:
 ***    Return:
@@ -818,6 +882,57 @@ ENDIF
 RETURN loResult
 ENDFUNC
 *   InvokeStaticMethod
+
+
+************************************************************************
+*  PostStaticMethod
+****************************************
+***  Function: Posts a static .NET method with up to 10 parameters to the FoxPro message queue. Useful to avoid reentrancy in event handlers.
+***    Return: nothing
+************************************************************************
+FUNCTION PostStaticMethod(lcTypeName, lcMethod, lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,;
+                                                  lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)
+TRY
+	this.oDotNetBridge.PostInvokedMethods = .T.
+	this.SetError()
+
+	LOCAL loBridge, lnParms
+	loBridge = this.oDotNetBridge
+	lnParms = PCOUNT()
+	DO CASE
+		CASE lnParms = 3
+		  loBridge.InvokeStaticMethod_OneParm(lcTypeName, lcMethod, lvParm1)
+		CASE lnParms = 4
+		  loBridge.InvokeStaticMethod_TwoParms(lcTypeName, lcMethod,lvParm1, lvParm2)
+		CASE lnParms = 5
+		  loBridge.InvokeStaticMethod_ThreeParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3)
+		CASE lnParms = 6
+		  loBridge.InvokeStaticMethod_FourParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4)
+		CASE lnParms = 7
+		  loBridge.InvokeStaticMethod_FiveParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5)
+		CASE lnParms = 8
+		  loBridge.InvokeStaticMethod_SixParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6)
+		CASE lnParms = 9
+		  loBridge.InvokeStaticMethod_SevenParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7)	
+		CASE lnParms = 10
+		  loBridge.InvokeStaticMethod_EightParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8)	
+		CASE lnParms = 11
+		  loBridge.InvokeStaticMethod_NineParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8, lvParm9)	
+		CASE lnParms = 12
+		  loBridge.InvokeStaticMethod_TenParms(lcTypeName, lcMethod,lvParm1, lvParm2, lvParm3, lvParm4, lvParm5,lvParm6, lvParm7, lvParm8, lvParm9, lvParm10)	
+		OTHERWISE
+		  loBridge.InvokeStaticMethod(lcTypeName, lcMethod)
+	ENDCASE
+
+	IF loBridge.Error
+	   this.SetError(loBridge.ErrorMessage)
+	ENDIF   
+FINALLY
+	this.oDotNetBridge.PostInvokedMethods = .F.
+ENDTRY
+ENDFUNC
+*   PostStaticMethod
+
 
 ************************************************************************
 *  GetStaticProperty
@@ -1154,20 +1269,23 @@ ENDFUNC
 ************************************************************************
 *  SubscribeToEvents
 ****************************************
-***  Function: Handles all events of a source object for subsequent retrieval by calling WaitForEvent.
+***  Function: Handles all events of a source object.
 ***  loSource: The object for which to subscribe to events.
-***  loHandler: An object with a method OnEvent(loEventName, loParams).
+***  loHandler: An object with handler methods corresponding to each event to subscribe to.
 ***  lcPrefix: The initial part of the event handler function for each event. Defaults to "On".
-***    Return: A subscription object. The subscription ends when this object goes out of scope.
+***  llPost: Events are posted to the synchronization context if on a background thread or if llPost is true. It is useful to set llPost to true if your event handlers call back into an event source that does not support reentrancy.
+***    Return: A subscription object. The subscription ends when it is no longer reference or when Unsubscribe() is called.
 ************************************************************************
-FUNCTION SubscribeToEvents(loSource, loHandler, lcPrefix)
+FUNCTION SubscribeToEvents(loSource, loHandler, lcPrefix, llPost)
 IF VARTYPE(lcPrefix) # "C"
 	lcPrefix = "On"
 ENDIF
-LOCAL loSubscription
-loSubscription = CREATEOBJECT("EventSubscription")
-loSubscription.Setup(this, loSource, loHandler, lcPrefix)
-RETURN loSubscription
+
+m.wwDotnetBridgeEventHandler = loHandler
+LOCAL subscription
+subscription = CREATEOBJECT("EventSubscription", this, loSource, loHandler, lcPrefix, llPost)
+m.wwDotnetBridgeEventHandler = null
+RETURN subscription
 ENDFUNC
 *   SubscribeToEvents
 
@@ -1824,17 +1942,12 @@ DEFINE CLASS EventSubscription as AsyncCallbackEvents
 *:  Author: Edward Brey  - https://github.com/breyed
 *:  Usage: Used internally by SubscribeToEvents
 ************************************************************
-HIDDEN oBridge, oHandler, oSubscriber, oPrefix
-
-oBridge = null
-oHandler = null
-oPrefix = null
-oSubscriber = null
+HIDDEN oSubscriber
 
 ************************************************************************
-*  Setup
+*  Init
 ****************************************
-***  Function: Sets up an event subscription. 
+***  Function: Initializes an event subscription. 
 ***    Assume:
 ***      Pass: loBridge   - dnb instance
 ***            loSource   - Source Object fires events
@@ -1842,62 +1955,24 @@ oSubscriber = null
 ***            lcPrefix   - prefix for event methods
 ***                         implemented on target (defaults to "On")
 ************************************************************************
-FUNCTION Setup(loBridge, loSource, loHandler, lcPrefix)
-this.oBridge = loBridge
-this.oHandler = loHandler
-this.oPrefix = lcPrefix
-Private handler
-handler = m.loHandler
-this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource, m.lcPrefix, _Vfp)
-this.HandleNextEvent()
+FUNCTION Init(loBridge, loSource, loHandler, lcPrefix, llPost)
+this.oSubscriber = loBridge.CreateInstance("Westwind.WebConnection.EventSubscriber", loSource, loHandler, lcPrefix, llPost, _VFP)
+ENDFUNC
+
+FUNCTION Destroy()
+this.Unsubscribe()
 ENDFUNC
 
 ************************************************************************
-*  UnSubscribe
+*  Unsubscribe
 ****************************************
 ***  Function: Unsubscribes events that are currently subscribed to
 ************************************************************************
-FUNCTION UnSubscribe()
-IF !ISNULL(THIS.oSubscriber)
+FUNCTION Unsubscribe()
+IF !ISNULL(this.oSubscriber)
 	this.oSubscriber.Dispose()
+	this.oSubscriber = null
 ENDIF
-ENDFUNC
- 
-  
-FUNCTION HandleNextEvent()
-this.oBridge.InvokeMethodAsync(this,this.oSubscriber,"WaitForEvent")
-ENDFUNC
-
-************************************************************************
-*  OnComplete
-****************************************
-***  Function: Event Proxy that forwards the event to a function 
-***            named On{Event} with event's parameters.
-************************************************************************
-FUNCTION OnCompleted(lvResult, lcMethod)
-LOCAL loParams,lParamText,lCount
-
-IF ISNULL(lvResult) && If the call to WaitForEvent was canceled:
-	RETURN
-ENDIF
-
-
-loParams=CREATEOBJECT("EMPTY") && Workaround to index into array of parameters. 
-lParamText = ""
-IF NOT ISNULL(lvResult.Params)
-	lCount = 0
-	FOR EACH lParam IN lvResult.Params
-		lCount = lCount + 1
-		AddProperty(loParams,"P" + ALLTRIM(STR(lCount)),lParam)
-		lParamText = lParamText + ",loParams.P" + ALLTRIM(STR(lCount))
-	ENDFOR
-ENDIF
-
-IF VARTYPE(THIS.oHandler) = "O"
-	=EVALUATE("this.oHandler." + this.oPrefix + lvResult.Name + "("+SUBSTR(lParamText,2)+")")
-	this.HandleNextEvent()
-ENDIF
-
 ENDFUNC
 
 ENDDEFINE
@@ -2034,6 +2109,7 @@ IF VARTYPE(this.oDotNetBridge) != "O"
 
 	*this.oDotNetBridge.LoadAssembly("System")		
 	this.oDotNetBridge.IsThrowOnErrorEnabled = this.lThrowOnError
+	this.oDotNetBridge.SetSynchronizationContext(_VFP.hWnd)
 ENDIF
 
 

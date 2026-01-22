@@ -14,31 +14,46 @@ namespace wwDotnetBridge.Tests
     [TestClass]
     public class EventSubscriberTests
     {
+        private readonly wwDotNetBridge _bridge = new();
+        private readonly TaskCompletionSource<object> _raisedCompletion = new();
+        private bool _onNoParamsRaised;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _bridge.SetSynchronizationContext(0);
+        }
+
         [TestMethod]
-        public void EventSubscriber_WaitForPastEvents()
+        public Task EventSubscriber_RaiseImmediateEvent() => RaiseEvent(false);
+
+        [TestMethod]
+        public Task EventSubscriber_RaisePostedEvent() => RaiseEvent(true);
+
+        private async Task RaiseEvent(bool post)
         {
             var loopback = new Loopback();
-            var subscriber = new EventSubscriber(loopback);
+            var subscriber = new EventSubscriber(loopback, this, "On", post, this);
             loopback.Raise();
-            VerifyResults(subscriber);
+            if (post) // Conditional to verify that dispatching is not required for immediate events (even though it is harmless).
+                _bridge.Dispatch();
+            await _raisedCompletion.Task;
+            Assert.ThrowsException<ArgumentException>(subscriber.Dispose); // Expect Marshal.FinalReleaseComObject to throw because our test handler is not a COM object.
         }
 
-        [TestMethod]
-        public void EventSubscriber_WaitForFutureEvents()
+        public void OnNoParams()
         {
-            var loopback = new Loopback();
-            var subscriber = new EventSubscriber(loopback);
-            Task.Delay(1).ContinueWith(t => loopback.Raise());
-            VerifyResults(subscriber);
+            _onNoParamsRaised = true;
         }
 
-        static void VerifyResults(EventSubscriber subscriber)
+        public void OnTwoParams(string s, int i)
         {
-            var result = subscriber.WaitForEvent();
-            Assert.IsTrue(result.Name == nameof(Loopback.NoParams) && result.Params.Length == 0);
-            result = subscriber.WaitForEvent();
-            Assert.IsTrue(result.Name == nameof(Loopback.TwoParams) && result.Params.Length == 2 && (string)result.Params[0] == "A" && (int)result.Params[1] == 1);
+            Assert.IsTrue(_onNoParamsRaised);
+            Assert.IsTrue(s == "A" && i == 1);
+            _raisedCompletion.SetResult(null);
         }
+
+        public bool Eval(string _) => true;
     }
 
     public class Loopback

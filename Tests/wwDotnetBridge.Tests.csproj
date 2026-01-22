@@ -5,6 +5,7 @@
     <RootNamespace>Westwind.WebConnection.Tests</RootNamespace>
     <TargetFramework>net472</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	  <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

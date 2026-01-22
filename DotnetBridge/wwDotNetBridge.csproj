@@ -32,6 +32,7 @@
 		<RepositoryUrl>https://github.com/RickStrahl/wwDotnetBridge</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latest</LangVersion>
 		<NoWarn>$(NoWarn);CS1591;CS1572;CS1573</NoWarn>		
 	</PropertyGroup>
 
